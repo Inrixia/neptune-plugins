@@ -1,0 +1,6 @@
+{
+	"displayName": "Discord RPC",
+	"description": "Shows what song you're currently listening to on Discord.",
+	"author": "Inrixia",
+	"main": "../_lib/dead.ts"
+}

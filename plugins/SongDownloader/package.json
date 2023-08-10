@@ -1,0 +1,6 @@
+{
+	"displayName": "Song Downloader",
+	"description": "Download tidal songs as FLAC files.",
+	"author": "Inrixia",
+	"main": "../_lib/dead.ts"
+}

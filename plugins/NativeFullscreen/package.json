@@ -1,0 +1,6 @@
+{
+	"displayName": "Native Fullscreen",
+	"description": "Allows entering fullscreen normally using F11",
+	"author": "Inrixia",
+	"main": "../_lib/dead.ts"
+}

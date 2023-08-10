@@ -1,0 +1,6 @@
+{
+	"displayName": "LastFM",
+	"description": "Custom LastFM scrobbler",
+	"author": "Inrixia",
+	"main": "../_lib/dead.ts"
+}

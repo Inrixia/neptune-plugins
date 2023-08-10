@@ -1,0 +1,6 @@
+{
+	"displayName": "Themer",
+	"description": "Create your own theme with a built-in CSS editor",
+	"author": "Inrixia",
+	"main": "../_lib/dead.ts"
+}

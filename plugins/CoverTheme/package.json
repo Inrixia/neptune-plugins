@@ -1,0 +1,6 @@
+{
+	"displayName": "Cover Theme",
+	"description": "Adds a color background based on the current track's cover art.",
+	"author": "Nick Oates",
+	"main": "../_lib/dead.ts"
+}

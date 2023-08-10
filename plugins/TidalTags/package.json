@@ -1,0 +1,6 @@
+{
+	"displayName": "Tidal Tags",
+	"description": "Adds tags showing track qualities and current song quality.",
+	"author": "Inrixia",
+	"main": "../_lib/dead.ts"
+}

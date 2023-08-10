@@ -1,0 +1,6 @@
+{
+	"displayName": "Testing",
+	"description": "~0_0~",
+	"author": "Inrixia",
+	"main": "../_lib/dead.ts"
+}
