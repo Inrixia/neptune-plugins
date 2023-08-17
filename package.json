@@ -3,9 +3,14 @@
   "description": "A neptune plugin monorepo template",
   "main": "index.js",
   "scripts": {
-    "build": "node ./build.js"
+    "build": "node ./build.js",
+    "watch": "chokidar '**/*.js' -c 'npm run build'"
   },
   "devDependencies": {
+    "chokidar-cli": "^3.0.0",
     "esbuild": "^0.18.13"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.6.0"
   }
 }
