@@ -35,16 +35,19 @@ const updateTrackElements = (trackElements) => {
 	const mediaItems = getState().content.mediaItems;
 
 	for (const { elem: trackElem, attr: trackId } of trackElements) {
-		const tags = mediaItems.get(trackId)?.item?.mediaMetadata?.tags;
+		let tags = mediaItems.get(trackId)?.item?.mediaMetadata?.tags;
 		if (tags === undefined) continue;
 		if (tags.length === 1 && tags[0] === HighQuality) continue;
-		if (trackElem.querySelector(".quality-tag")) continue;
+		if (trackElem.querySelector(".quality-tag-container")) continue;
 
 		const listElement = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"], [data-test="playqueue-item"]`);
 		if (listElement === null) continue;
 
+		const isPlayQueueItem = listElement.getAttribute("data-test") === "playqueue-item";
+
 		const fragment = document.createElement("span");
 		fragment.className = "quality-tag-container";
+		if (isPlayQueueItem && tags.includes("HIRES_LOSSLESS")) tags = ["HIRES_LOSSLESS"];
 		for (const tag of tags) {
 			if (tag === HighQuality) continue;
 
@@ -60,10 +63,8 @@ const updateTrackElements = (trackElements) => {
 			fragment.appendChild(tagElement);
 		}
 
-		if (listElement.getAttribute("data-test") === "playqueue-item") {
-			fragment.style.marginRight = "40px";
-			listElement.insertBefore(fragment, listElement.lastElementChild);
-		} else listElement.appendChild(fragment);
+		if (isPlayQueueItem) listElement.insertBefore(fragment, listElement.lastElementChild);
+		else listElement.appendChild(fragment);
 	}
 };
 

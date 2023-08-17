@@ -1,13 +1,13 @@
 export default `
 .quality-tag-container {
 	display: inline-flex;
-	justify-content: center;
-	align-items: center;
 	height: 18px;
 	font-size: 12px;
 	line-height: 20px;
 }
 .quality-tag {
+	justify-content: center;
+	align-items: center;
 	padding: 0 8px;
 	border-radius: 6px;
 	background-color: #222222;
