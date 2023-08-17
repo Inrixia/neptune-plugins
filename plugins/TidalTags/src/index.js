@@ -1,4 +1,3 @@
-// You can put anything you want in the body of your plugin code.
 import confetti from "canvas-confetti";
 import { getState } from "@neptune/store";
 import { appendStyle } from "@neptune/utils";
@@ -30,6 +29,7 @@ const queryAllAndAttribute = (selector) => {
 };
 
 const updateTrackElements = (trackElements) => {
+	if (trackElements.length === 0) return;
 	const mediaItems = getState().content.mediaItems;
 
 	for (const { elem: trackElem, attr: trackId } of trackElements) {
@@ -68,8 +68,6 @@ const updateTrackElements = (trackElements) => {
 
 const streamQualitySelector = "data-test-media-state-indicator-streaming-quality";
 const processItems = () => {
-	// Stop observing
-	observer.disconnect();
 	updateTrackElements([...queryAllAndAttribute("data-track-id"), ...queryAllAndAttribute("data-track--content-id")]);
 
 	const streamQuality = document.querySelector(`[${streamQualitySelector}]`);
@@ -79,14 +77,15 @@ const processItems = () => {
 		if (qualityMap[currentQuality].color !== undefined) streamQuality.children[0].style.color = qualityMap[currentQuality].color;
 		else streamQuality.children[0].style.color = null;
 	}
-
-	// Start observing again
-	observer.observe(document.body, { childList: true, subtree: true });
 };
 let timeoutId;
 const debouncedProcessItems = () => {
 	clearTimeout(timeoutId);
-	timeoutId = setTimeout(processItems, 5);
+	timeoutId = setTimeout(() => {
+		observer.disconnect();
+		processItems();
+		observer.observe(document.body, { childList: true, subtree: true });
+	}, 5);
 };
 const observer = new MutationObserver(debouncedProcessItems);
 // Start observing the document with the configured parameters
