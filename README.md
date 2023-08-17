@@ -6,4 +6,4 @@ This is a repository containing plugins I have made for the [Tidal Neptune](http
 
 This is a desktopo port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags), adding quality tags and more.
 
-Copy the following URL to the neptune plugin install page to install Quality Tags: `https://raw.githubusercontent.com/Inrixia/neptune-plugins/gh-pages/TidalTags`
+Copy the following URL to the neptune plugin install page to install Quality Tags: **https://raw.githubusercontent.com/Inrixia/neptune-plugins/gh-pages/TidalTags**

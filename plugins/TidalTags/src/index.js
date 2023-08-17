@@ -4,8 +4,6 @@ import { getState } from "@neptune/store";
 import { appendStyle } from "@neptune/utils";
 
 import style from "./style.js";
-
-console.log("Hello world!");
 confetti();
 
 // Cache class name and text content pairs to reduce lookup time
