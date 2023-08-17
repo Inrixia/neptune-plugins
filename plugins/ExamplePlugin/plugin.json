@@ -1,6 +1,0 @@
-{
-  "name": "Test",
-  "description": "An example neptune plugin that shows confetti when it's enabled.",
-  "author": "Inrixia",
-  "main": "./src/index.js"
-}

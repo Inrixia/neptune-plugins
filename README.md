@@ -1,4 +1,9 @@
-# neptune plugin template
-This is a repository template for a neptune plugin monorepo.
+# My [Tidal Neptune](https://github.com/uwu/neptune) Plugins
 
-Each plugin in the `plugins/` directory will be automatically built by running `pnpm run build` to their respective `dist/` folder.
+This is a repository containing plugins I have made for the [Tidal Neptune](https://github.com/uwu/neptune) app.
+
+## Tidal Tags
+
+This is a desktopo port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags), adding quality tags and more.
+
+Copy the following URL to the neptune plugin install page to install Quality Tags: TODO
