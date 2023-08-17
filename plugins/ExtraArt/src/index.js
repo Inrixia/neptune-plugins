@@ -18,13 +18,14 @@ const generateBaseImageUrl = (id) => {
 	return `https://resources.tidal.com/images/${parts[0]}/${parts[1]}/${parts[2]}/${parts[3]}/${parts[4]}`;
 };
 
+const newFlex = "0 0 56px";
 const patchTrackList = () => {
 	const trackList = document.querySelector(`[aria-label="Tracklist"]`);
 	if (trackList === null) return;
 
 	const listIndexHeader = trackList.querySelector(`[role="columnheader"]`);
 	if (listIndexHeader === null) return;
-	listIndexHeader.style.flex = "0 0 56px";
+	listIndexHeader.style.flex = newFlex;
 };
 
 const processItems = () => {
@@ -57,6 +58,8 @@ const processItems = () => {
 		img.setAttribute("data-prevent-search-close", "true");
 
 		elem.firstChild.querySelector("[data-test-is-playing]").remove();
+		elem.firstChild.style.flex = newFlex;
+		elem.firstChild.firstChild.firstChild.style.width = "56px";
 		elem.firstChild.prepend(img);
 	}
 };
