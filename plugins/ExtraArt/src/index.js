@@ -18,8 +18,6 @@ const generateBaseImageUrl = (id) => {
 	return `https://resources.tidal.com/images/${parts[0]}/${parts[1]}/${parts[2]}/${parts[3]}/${parts[4]}`;
 };
 
-console.log("BOOP!");
-
 const processItems = () => {
 	const elements = document.querySelectorAll(`[data-track-id]`);
 	if (elements.length === 0) return;
@@ -27,44 +25,28 @@ const processItems = () => {
 	const mediaItems = getState().content.mediaItems;
 
 	for (const elem of elements) {
-		const hasAlbumArt = elem.querySelector(`figure`) !== null;
+		const hasAlbumArt = elem.querySelector(`img`) !== null;
 		if (hasAlbumArt) continue;
 
 		const coverId = mediaItems.get(elem.getAttribute("data-track-id"))?.item?.album?.cover;
-		console.log(coverId);
 		if (coverId === null) continue;
 
 		const baseUrl = generateBaseImageUrl(coverId);
 		if (baseUrl === null) continue;
-
-		// Create the main div element
-		const coverColumnDiv = document.createElement("div");
-		coverColumnDiv.setAttribute("role", "cell");
-		coverColumnDiv.setAttribute("tabindex", "0");
-		coverColumnDiv.style.boxSizing = "unset";
-		coverColumnDiv.style.padding = "0 12px 0 0";
-
-		// Create the figure element
-		const figure = document.createElement("figure");
-		coverColumnDiv.appendChild(figure);
 
 		// Create the img element
 		const img = document.createElement("img");
 		img.src = `${baseUrl}/80x80.jpg`;
 		img.srcset = `${baseUrl}/80x80.jpg 80w, ${baseUrl}/160x160.jpg 160w, ${baseUrl}/320x320.jpg 320w, ${baseUrl}/640x640.jpg 640w, ${baseUrl}/1280x1280.jpg 1280w`;
 		img.sizes = "42px";
-		img.width = "100%";
 		img.loading = "lazy";
 		img.decoding = "async";
 		img.draggable = false;
 		img.alt = "";
 		img.setAttribute("data-prevent-search-close", "true");
-		figure.appendChild(img);
 
-		console.log(img);
-
-		// Append the created div to the target element
-		elem.appendChild(coverColumnDiv);
+		elem.firstChild.querySelector("[data-test-is-playing]").remove();
+		elem.firstChild.prepend(img);
 	}
 };
 
