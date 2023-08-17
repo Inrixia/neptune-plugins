@@ -1,15 +1,18 @@
-# My [Tidal Neptune](https://github.com/uwu/neptune) Plugins
+## My [Tidal Neptune](https://github.com/uwu/neptune) Plugins
 
 This is a repository containing plugins I have made for the [Tidal Neptune](https://github.com/uwu/neptune) app.
+To use any of these plugins you need to have the [Neptune](https://github.com/uwu/neptune) app installed. You see the image below for how to add a plugin in Neptune.
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/a997156c-a281-46ec-992a-397a742dd146)
 
-## Tidal Tags
+
+# Tidal Tags
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/735d0011-1cde-4e79-85ad-f806d3aa68bd)
 
 This is a desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags), adding quality tags and more.
 
 To install it use the following URL to the neptune plugins page: **https://raw.githubusercontent.com/Inrixia/neptune-plugins/gh-pages/TidalTags**
 
-## Extra Art
+# Extra Art
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/b6e9b5ce-6925-4cdd-85a1-2fff3c4a041b)
 
 
