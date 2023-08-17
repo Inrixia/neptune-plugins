@@ -1,7 +1,7 @@
 export default `
 .quality-tag-container {
 	display: inline-flex;
-	height: 18px;
+	height: 20px;
 	font-size: 12px;
 	line-height: 20px;
 }
