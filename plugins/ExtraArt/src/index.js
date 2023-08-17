@@ -18,11 +18,22 @@ const generateBaseImageUrl = (id) => {
 	return `https://resources.tidal.com/images/${parts[0]}/${parts[1]}/${parts[2]}/${parts[3]}/${parts[4]}`;
 };
 
+const patchTrackList = () => {
+	const trackList = document.querySelector(`[aria-label="Tracklist"]`);
+	if (trackList === null) return;
+
+	const listIndexHeader = trackList.querySelector(`[role="columnheader"]`);
+	if (listIndexHeader === null) return;
+	listIndexHeader.style.flex = "0 0 56px";
+};
+
 const processItems = () => {
 	const elements = document.querySelectorAll(`[data-track-id]`);
 	if (elements.length === 0) return;
 
 	const mediaItems = getState().content.mediaItems;
+
+	patchTrackList();
 
 	for (const elem of elements) {
 		const hasAlbumArt = elem.querySelector(`img`) !== null;
