@@ -64,7 +64,7 @@ const streamQualitySelector = "data-test-media-state-indicator-streaming-quality
 const processItems = () => {
 	// Stop observing
 	observer.disconnect();
-	updateTrackElements([...queryAllAndAttribute("data-track-id"), ...queryAllAndAttribute("data-test-element-id")]);
+	updateTrackElements([...queryAllAndAttribute("data-track-id"), ...queryAllAndAttribute("data-track--content-id")]);
 
 	const streamQuality = document.querySelector(`[${streamQualitySelector}]`);
 	const currentQuality = streamQuality.getAttribute(streamQualitySelector);
