@@ -10,14 +10,16 @@ confetti();
 
 // Cache class name and text content pairs to reduce lookup time
 const tagData = {
-	MQA: { className: "quality-tag tag-mqa", textContent: "MQA" },
-	HIRES_LOSSLESS: { className: "quality-tag tag-hr", textContent: "HiRes" },
-	DOLBY_ATMOS: { className: "quality-tag tag-atmos", textContent: "Atmos" },
+	MQA: { className: "quality-tag", textContent: "MQA", color: "#ffd432" },
+	HIRES_LOSSLESS: { className: "quality-tag", textContent: "HiRes", color: "#45eeff" },
+	DOLBY_ATMOS: { className: "quality-tag", textContent: "Atmos", color: "#0052a3" },
 };
+
+const HighQuality = "LOSSLESS";
 
 const qualityMap = {
 	HI_RES: { textContent: "MQA" },
-	HI_RES_LOSSLESS: { textContent: "HIRES LOSSLESS", color: "#45eeff" },
+	HI_RES_LOSSLESS: { textContent: "HIRES LOSSLESS", color: tagData.HIRES_LOSSLESS.color },
 };
 
 const queryAllAndAttribute = (selector) => {
@@ -35,16 +37,16 @@ const updateTrackElements = (trackElements) => {
 	for (const { elem: trackElem, attr: trackId } of trackElements) {
 		const tags = mediaItems.get(trackId)?.item?.mediaMetadata?.tags;
 		if (tags === undefined) continue;
+		if (tags.length === 1 && tags[0] === HighQuality) continue;
 		if (trackElem.querySelector(".quality-tag")) continue;
 
-		const listElement = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"]`);
+		const listElement = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"], [data-test="playqueue-item"]`);
 		if (listElement === null) continue;
 
-		// Using documentFragment to minimize browser reflow
 		const fragment = document.createElement("span");
-
+		fragment.className = "quality-tag-container";
 		for (const tag of tags) {
-			if (tag === "LOSSLESS") continue;
+			if (tag === HighQuality) continue;
 
 			const data = tagData[tag];
 			if (!data) continue;
@@ -53,10 +55,15 @@ const updateTrackElements = (trackElements) => {
 
 			tagElement.className = data.className;
 			tagElement.textContent = data.textContent;
+			tagElement.style.color = data.color;
 
 			fragment.appendChild(tagElement);
 		}
-		listElement.appendChild(fragment);
+
+		if (listElement.getAttribute("data-test") === "playqueue-item") {
+			fragment.style.marginRight = "40px";
+			listElement.insertBefore(fragment, listElement.lastElementChild);
+		} else listElement.appendChild(fragment);
 	}
 };
 
