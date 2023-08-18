@@ -7,16 +7,16 @@ confetti();
 
 // Cache class name and text content pairs to reduce lookup time
 const tagData = {
-	MQA: { className: "quality-tag", textContent: "MQA", color: "#ffd432" },
-	HIRES_LOSSLESS: { className: "quality-tag", textContent: "HiRes", color: "#45eeff" },
-	DOLBY_ATMOS: { className: "quality-tag", textContent: "Atmos", color: "#0052a3" },
+	MQA: { className: "quality-tag quality-tag-mqa", textContent: "MQA"},
+	HIRES_LOSSLESS: { className: "quality-tag quality-tag-hr", textContent: "HiRes"},
+	DOLBY_ATMOS: { className: "quality-tag quality-tag-atmos", textContent: "◗◖" },
 };
 
 const HighQuality = "LOSSLESS";
 
 const qualityMap = {
 	HI_RES: { textContent: "MQA" },
-	HI_RES_LOSSLESS: { textContent: "HIRES LOSSLESS", color: tagData.HIRES_LOSSLESS.color },
+	HI_RES_LOSSLESS: { textContent: "HIRES", color: tagData.HIRES_LOSSLESS.color },
 };
 
 const queryAllAndAttribute = (selector) => {
