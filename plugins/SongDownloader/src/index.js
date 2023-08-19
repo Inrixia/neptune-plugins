@@ -1,5 +1,3 @@
-import confetti from "canvas-confetti";
-
 import { getState } from "@neptune/store";
 import { intercept } from "@neptune";
 import { storage } from "@plugin";
@@ -8,8 +6,6 @@ import { unloadStyles } from "./styles";
 export { Settings } from "./Settings";
 
 import { downloadSong } from "./downloadSong";
-
-confetti();
 
 const downloadButtons = {};
 

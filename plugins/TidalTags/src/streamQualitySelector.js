@@ -1,7 +1,7 @@
 import { tagData, Quality } from "./index.js";
 
 const streamQualitySelector = "data-test-media-state-indicator-streaming-quality";
-const setStreamQualityIndicator = () => {
+export const setStreamQualityIndicator = () => {
 	const streamQuality = document.querySelector(`[${streamQualitySelector}]`);
 	const currentQuality = streamQuality.getAttribute(streamQualitySelector);
 	const qualityElement = streamQuality.children[0];

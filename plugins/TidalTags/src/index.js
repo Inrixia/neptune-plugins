@@ -1,4 +1,3 @@
-import confetti from "canvas-confetti";
 import { appendStyle } from "@neptune/utils";
 import { intercept } from "@neptune";
 
@@ -6,7 +5,6 @@ import { setStreamQualityIndicator } from "./streamQualitySelector";
 
 import style from "./style.js";
 import { updateTrackElements } from "./updateTrackElements";
-confetti();
 
 export const Quality = {
 	High: "LOSSLESS",

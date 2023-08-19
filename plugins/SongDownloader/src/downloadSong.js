@@ -4,7 +4,7 @@ import { fetchy } from "../../../lib/fetchy";
 import { saveFile } from "../../../lib/saveFile";
 import { AudioQualityInverse } from "../../../lib/AudioQuality";
 
-const { parseBuffer } = require("music-metadata/lib/core");
+// const { parseBuffer } = require("music-metadata/lib/core");
 
 export const downloadSong = async (songId, fileName, quality, onProgress) => {
 	const streamInfo = await getStreamInfo(songId, quality);

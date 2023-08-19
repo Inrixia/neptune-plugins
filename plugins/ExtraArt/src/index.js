@@ -1,11 +1,4 @@
 import { getState } from "@neptune/store";
-import confetti from "canvas-confetti";
-confetti();
-
-// window.neptune.store.getState().content.mediaItems.get("179547033")
-// item.album.cover
-// 34a566c0-8061-4a25-86d1-4beb48596a23
-// https://resources.tidal.com/images/34a566c0/8061/4a25/86d1/4beb48596a23/80x80.jpg
 
 const generateBaseImageUrl = (id) => {
 	// Validate that the input ID is in the expected format
