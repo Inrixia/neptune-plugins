@@ -17,18 +17,22 @@ To install any of these plugins you need to have the [Neptune](https://github.co
 This is a desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags), adding quality tags and more.  
 **Install Url: https://raw.githubusercontent.com/Inrixia/neptune-plugins/gh-pages/TidalTags**
 
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/735d0011-1cde-4e79-85ad-f806d3aa68bd)
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/f9614514-6a95-46ec-a5ac-ebfa48ff6bc2)
+
 
 # Extra Art
 
 This adds album artwork to songs in playlists and albums!  
 **Install Url: https://raw.githubusercontent.com/Inrixia/neptune-plugins/gh-pages/ExtraArt**
 
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/b6e9b5ce-6925-4cdd-85a1-2fff3c4a041b)
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/14a8e540-867f-46bf-b953-1a24dd83fb50)
+
 
 # Song Downloader
 
 This adds a download button on all songs context menus allowing you to download the FLAC file.  
 **Install Url: https://raw.githubusercontent.com/Inrixia/neptune-plugins/gh-pages/SongDownloader**
 
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/45c643cf-4c97-498b-a495-857b9f427772)
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/11d7c057-633f-4f0e-a9a3-00ef42b739b2)
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/94012be7-b115-43b1-a7e9-bf55b950c03b)
+
