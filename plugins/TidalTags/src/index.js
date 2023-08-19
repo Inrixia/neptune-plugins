@@ -43,8 +43,8 @@ const updateTrackElements = (trackElements) => {
 
 		const isPlayQueueItem = listElement.getAttribute("data-test") === "playqueue-item";
 
-		const fragment = document.createElement("span");
-		fragment.className = "quality-tag-container";
+		const span = document.createElement("span");
+		span.className = "quality-tag-container";
 		if (isPlayQueueItem && tags.includes("HIRES_LOSSLESS")) tags = ["HIRES_LOSSLESS"];
 		for (const tag of tags) {
 			if (tag === HighQuality) continue;
@@ -58,11 +58,11 @@ const updateTrackElements = (trackElements) => {
 			tagElement.textContent = data.textContent;
 			tagElement.style.color = data.color;
 
-			fragment.appendChild(tagElement);
+			span.appendChild(tagElement);
 		}
 
-		if (isPlayQueueItem) listElement.insertBefore(fragment, listElement.lastElementChild);
-		else listElement.appendChild(fragment);
+		if (isPlayQueueItem) listElement.insertBefore(span, listElement.lastElementChild);
+		else listElement.appendChild(span);
 	}
 };
 

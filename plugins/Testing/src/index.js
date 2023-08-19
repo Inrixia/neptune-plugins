@@ -1,4 +1,5 @@
 import { intercept } from "@neptune";
+
 import confetti from "canvas-confetti";
 confetti();
 

@@ -1,26 +1,50 @@
 import confetti from "canvas-confetti";
-import { getStreamInfo, AudioQuality } from "./getStreamInfo";
-import { decryptBuffer } from "./decryptBuffer";
-import { fetchy } from "./fetchy";
-import { saveFile } from "./saveFile";
+
+import { appendStyle } from "@neptune/utils";
+import { getState } from "@neptune/store";
+import { intercept } from "@neptune";
 confetti();
 
-const downloadTest = async () => {
-	const streamInfo = await getStreamInfo(307576013, AudioQuality.HiRes);
-	console.log(streamInfo);
+// window.go = () => {
+// 	downloadSong(307576013, AudioQuality.HiRes);
+// };
 
-	const { key, nonce } = streamInfo.cryptKey;
-	const url = streamInfo.manifest.urls[0];
+const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =>
+	setTimeout(() => {
+		const mediaItemInfo = getState().content.mediaItems.get(mediaItem.id.toString());
 
-	const encryptedBuffer = await fetchy(url);
+		const contextMenu = document.querySelector(`[data-type="list-container__context-menu"]`);
 
-	// Read the encrypted data from the Response object
-	const decodedBuffer = await decryptBuffer(encryptedBuffer, key, nonce);
+		const downloadButton = document.createElement("button");
+		downloadButton.type = "button";
+		downloadButton.role = "menuitem";
+		downloadButton.textContent = "Download";
+		downloadButton.className = "download-button"; // Set class name for styling
 
-	// Prompt the user to save the file
-	saveFile(new Blob([decodedBuffer], { type: "application/octet-stream" }), "test.flac");
-};
+		contextMenu.appendChild(downloadButton);
 
-window.go = async () => {
-	// downloadTest();
+		console.log(mediaItemInfo, contextMenu);
+	})
+);
+
+const unloadStyles = appendStyle(`
+.download-button {
+	align-items: center;
+	display: flex;
+	font-weight: 500;
+	padding: 14px 16px;
+	width: 100%;
+	flex-grow: 1;
+	height: 1.72rem;
+	color: #b878ff;
+}
+.download-button:hover {
+	background-color: #9e46ff;
+	color: #fff;
+}
+`);
+
+export const onUnload = () => {
+	unloadIntercept();
+	unloadStyles();
 };
