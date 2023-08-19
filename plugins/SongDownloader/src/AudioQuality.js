@@ -6,8 +6,10 @@ export const AudioQuality = {
 export const validQualities = Object.values(AudioQuality);
 export const validQualitiesSet = new Set(validQualities);
 
+// Dont show MQA as a option as if HiRes is avalible itl always be served even if MQA is requested.
+export const validQualitiesSettings = [AudioQuality.HiRes, AudioQuality.High];
+
 export const AudioQualityInverse = Object.fromEntries(Object.entries(AudioQuality).map(([key, value]) => [value, key]));
-export const validAudioQualitiesInverse = Object.values(AudioQualityInverse);
 
 export const qualityFromMeta = {
 	LOSSLESS: AudioQuality.High,
