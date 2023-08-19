@@ -1,10 +1,11 @@
-import { appendStyle } from "@neptune/utils";
 import { intercept } from "@neptune";
 
 import { setStreamQualityIndicator } from "./streamQualitySelector";
 
-import style from "./style.js";
+import { unloadStyles } from "./style";
 import { updateTrackElements } from "./updateTrackElements";
+
+export { Settings } from "./Settings";
 
 export const Quality = {
 	High: "LOSSLESS",
@@ -49,8 +50,6 @@ const debouncedProcessItems = () => {
 const observer = new MutationObserver(debouncedProcessItems);
 // Start observing the document with the configured parameters
 observer.observe(document.body, { childList: true, subtree: true });
-
-const unloadStyles = appendStyle(style);
 
 export const onUnload = () => {
 	observer.disconnect();

@@ -1,6 +1,8 @@
 import { appendStyle } from "@neptune/utils";
+import { settingsCSS } from "../../../lib/css/settings";
 
 export const unloadStyles = appendStyle(`
+${settingsCSS}
 .download-button {
 	align-items: center;
 	display: flex;
@@ -53,21 +55,5 @@ export const unloadStyles = appendStyle(`
 #qualityDropdown:focus {
     outline: none;
     border-color: #4f4f4f;
-}
-
-.settings-section {
-    color: #ffffff;
-    padding: 20px;
-    background-color: rgb(24, 24, 27);
-}
-.settings-header {
-    font-size: 1.2em;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-.settings-explainer {
-    font-size: 0.9em;
-    margin-bottom: 15px;
-    opacity: 0.85;
 }
 `);
