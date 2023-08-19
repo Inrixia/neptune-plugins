@@ -17,8 +17,6 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 		const mediaInfo = getState().content.mediaItems.get(mediaItem.id.toString())?.item;
 		if (mediaInfo === undefined) return;
 
-		console.log(mediaInfo);
-
 		const contextMenu = document.querySelector(`[data-type="list-container__context-menu"]`);
 
 		const downloadButton = document.createElement("button");
@@ -29,7 +27,10 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 
 		contextMenu.appendChild(downloadButton);
 
-		const fileName = `${mediaInfo.title} by ${mediaInfo.artist.name} [${AudioQualityInverse[mediaInfo.audioQuality]}]`;
+		const artist = mediaInfo.artist ?? mediaInfo.artists?.[0];
+		const artistPostfix = artist !== undefined ? ` by ${artist.name}` : "";
+
+		const fileName = `${mediaInfo.title}${artistPostfix} [${AudioQualityInverse[mediaInfo.audioQuality]}]`;
 
 		downloadButton.addEventListener("click", () => downloadSong(mediaInfo.id, fileName, storage.desiredDownloadQuality));
 	})
