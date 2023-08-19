@@ -1,22 +1,23 @@
 import confetti from "canvas-confetti";
 import { getState } from "@neptune/store";
 import { appendStyle } from "@neptune/utils";
+import { intercept } from "@neptune";
 
 import style from "./style.js";
 confetti();
 
-// Cache class name and text content pairs to reduce lookup time
-const tagData = {
-	MQA: { className: "quality-tag", textContent: "MQA", color: "#ffd432" },
-	HIRES_LOSSLESS: { className: "quality-tag", textContent: "HiRes", color: "#45eeff" },
-	DOLBY_ATMOS: { className: "quality-tag", textContent: "Atmos", color: "#0052a3" },
+const Quality = {
+	High: "LOSSLESS",
+	MQA: "MQA",
+	HiRes: "HIRES_LOSSLESS",
+	Atmos: "DOLBY_ATMOS",
 };
 
-const HighQuality = "LOSSLESS";
-
-const qualityMap = {
-	HI_RES: { textContent: "MQA" },
-	HI_RES_LOSSLESS: { textContent: "HIRES LOSSLESS", color: tagData.HIRES_LOSSLESS.color },
+// Cache class name and text content pairs to reduce lookup time
+const tagData = {
+	[Quality.MQA]: { className: "quality-tag", textContent: "MQA", color: "rgb(249, 186, 122)" },
+	[Quality.HiRes]: { className: "quality-tag", textContent: "HiRes", color: "#ffd432" },
+	[Quality.Atmos]: { className: "quality-tag", textContent: "Atmos", color: "#0052a3" },
 };
 
 const queryAllAndAttribute = (selector) => {
@@ -35,7 +36,7 @@ const updateTrackElements = (trackElements) => {
 	for (const { elem: trackElem, attr: trackId } of trackElements) {
 		let tags = mediaItems.get(trackId)?.item?.mediaMetadata?.tags;
 		if (tags === undefined) continue;
-		if (tags.length === 1 && tags[0] === HighQuality) continue;
+		if (tags.length === 1 && tags[0] === Quality.High) continue;
 		if (trackElem.querySelector(".quality-tag-container")) continue;
 
 		const listElement = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"], [data-test="playqueue-item"]`);
@@ -45,9 +46,9 @@ const updateTrackElements = (trackElements) => {
 
 		const span = document.createElement("span");
 		span.className = "quality-tag-container";
-		if (isPlayQueueItem && tags.includes("HIRES_LOSSLESS")) tags = ["HIRES_LOSSLESS"];
+		if (isPlayQueueItem && tags.includes(Quality.HiRes)) tags = [Quality.HiRes];
 		for (const tag of tags) {
-			if (tag === HighQuality) continue;
+			if (tag === Quality.High) continue;
 
 			const data = tagData[tag];
 			if (!data) continue;
@@ -67,24 +68,43 @@ const updateTrackElements = (trackElements) => {
 };
 
 const streamQualitySelector = "data-test-media-state-indicator-streaming-quality";
-const processItems = () => {
-	updateTrackElements([...queryAllAndAttribute("data-track-id"), ...queryAllAndAttribute("data-track--content-id")]);
 
+const unloadIntercept = intercept(`playbackControls/SET_PLAYBACK_STATE`, () => {
 	const streamQuality = document.querySelector(`[${streamQualitySelector}]`);
 	const currentQuality = streamQuality.getAttribute(streamQualitySelector);
-	if (qualityMap[currentQuality] !== undefined) {
-		streamQuality.children[0].textContent = qualityMap[currentQuality].textContent;
-		if (qualityMap[currentQuality].color !== undefined) streamQuality.children[0].style.color = qualityMap[currentQuality].color;
-		else streamQuality.children[0].style.color = null;
+	const qualityElement = streamQuality.children[0];
+	qualityElement.style.backgroundColor = null;
+	qualityElement.style.color = null;
+	if (qualityElement === null) return;
+	switch (currentQuality) {
+		// MQA
+		case "HI_RES":
+			if (qualityElement.textContent === "MQA") return;
+			qualityElement.textContent = "MQA";
+			qualityElement.style.backgroundColor = null;
+			qualityElement.style.color = tagData[Quality.MQA].color;
+			break;
+		case "HI_RES_LOSSLESS":
+			if (qualityElement.textContent === "HIRES") return;
+			qualityElement.textContent = "HI-RES";
+			qualityElement.style.color = tagData[Quality.HiRes].color;
+			break;
 	}
+});
+
+const processItems = () => {
+	observer.disconnect();
+	updateTrackElements([...queryAllAndAttribute("data-track-id"), ...queryAllAndAttribute("data-track--content-id")]);
+	observer.observe(document.body, { childList: true, subtree: true });
 };
+
 let timeoutId;
 const debouncedProcessItems = () => {
+	if (timeoutId === undefined) processItems();
 	clearTimeout(timeoutId);
 	timeoutId = setTimeout(() => {
-		observer.disconnect();
 		processItems();
-		observer.observe(document.body, { childList: true, subtree: true });
+		timeoutId = undefined;
 	}, 5);
 };
 const observer = new MutationObserver(debouncedProcessItems);
@@ -96,4 +116,5 @@ const unloadStyles = appendStyle(style);
 export const onUnload = () => {
 	observer.disconnect();
 	unloadStyles();
+	unloadIntercept();
 };

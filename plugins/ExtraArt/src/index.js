@@ -31,6 +31,7 @@ const patchTrackList = () => {
 const processItems = () => {
 	const elements = document.querySelectorAll(`[data-track-id]`);
 	if (elements.length === 0) return;
+	observer.disconnect();
 
 	const mediaItems = getState().content.mediaItems;
 
@@ -62,15 +63,16 @@ const processItems = () => {
 		elem.firstChild.firstChild.firstChild.style.width = "56px";
 		elem.firstChild.prepend(img);
 	}
+	observer.observe(document.body, { childList: true, subtree: true });
 };
 
 let timeoutId;
 const debouncedProcessItems = () => {
+	if (timeoutId === undefined) processItems();
 	clearTimeout(timeoutId);
 	timeoutId = setTimeout(() => {
-		observer.disconnect();
 		processItems();
-		observer.observe(document.body, { childList: true, subtree: true });
+		timeoutId = undefined;
 	}, 5);
 };
 const observer = new MutationObserver(debouncedProcessItems);
