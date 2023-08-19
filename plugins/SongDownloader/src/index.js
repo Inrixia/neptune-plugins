@@ -5,7 +5,7 @@ import { storage } from "@plugin";
 import { unloadStyles } from "./styles";
 export { Settings } from "./Settings";
 
-import { downloadSong } from "./downloadSong";
+import { downloadSong } from "../../../lib/download";
 
 const downloadButtons = {};
 
