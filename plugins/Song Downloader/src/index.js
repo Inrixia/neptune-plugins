@@ -1,8 +1,11 @@
 import confetti from "canvas-confetti";
 
-import { appendStyle } from "@neptune/utils";
 import { getState } from "@neptune/store";
 import { intercept } from "@neptune";
+import { storage } from "@plugin";
+
+import { unloadStyles } from "./styles";
+export { Settings } from "./Settings";
 confetti();
 
 // window.go = () => {
@@ -12,6 +15,8 @@ confetti();
 const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =>
 	setTimeout(() => {
 		const mediaItemInfo = getState().content.mediaItems.get(mediaItem.id.toString());
+
+		console.log(storage.desiredDownloadQuality);
 
 		const contextMenu = document.querySelector(`[data-type="list-container__context-menu"]`);
 
@@ -26,23 +31,6 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 		console.log(mediaItemInfo, contextMenu);
 	})
 );
-
-const unloadStyles = appendStyle(`
-.download-button {
-	align-items: center;
-	display: flex;
-	font-weight: 500;
-	padding: 14px 16px;
-	width: 100%;
-	flex-grow: 1;
-	height: 1.72rem;
-	color: #b878ff;
-}
-.download-button:hover {
-	background-color: #9e46ff;
-	color: #fff;
-}
-`);
 
 export const onUnload = () => {
 	unloadIntercept();
