@@ -10,10 +10,30 @@ export const unloadStyles = appendStyle(`
 	flex-grow: 1;
 	height: 1.72rem;
 	color: #b878ff;
+    position: relative;
 }
 .download-button:hover {
 	background-color: #9e46ff;
 	color: #fff;
+}
+.download-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--progress, 0); /* Initially set to 0 */
+    background: rgba(255, 255, 255, 0.25); /* Loading bar color */
+    z-index: 1;
+}
+.download-button.loading {
+    background-color: #9e46ff;
+    cursor: not-allowed;
+    color: #fff;
+}
+.download-button span {
+    z-index: 2;
+    position: relative;
 }
 
 #qualityDropdown {
@@ -27,11 +47,9 @@ export const unloadStyles = appendStyle(`
     color: #ffffff;
     cursor: pointer;
 }
-
 #qualityDropdown:hover {
     border-color: #b0b0b0;
 }
-
 #qualityDropdown:focus {
     outline: none;
     border-color: #4f4f4f;
@@ -42,13 +60,11 @@ export const unloadStyles = appendStyle(`
     padding: 20px;
     background-color: rgb(24, 24, 27);
 }
-
 .settings-header {
     font-size: 1.2em;
     margin-bottom: 5px;
     font-weight: bold;
 }
-
 .settings-explainer {
     font-size: 0.9em;
     margin-bottom: 15px;

@@ -9,7 +9,7 @@ export const getHeaders = () => {
 	};
 };
 
-export const fetchy = (url) =>
+export const fetchy = (url, onProgress) =>
 	new Promise((resolve, reject) => {
 		const req = https.request(
 			url,
@@ -17,11 +17,19 @@ export const fetchy = (url) =>
 				headers: getHeaders(),
 			},
 			(res) => {
+				const total = parseInt(res.headers["content-length"], 10);
+				let downloaded = 0;
 				const chunks = [];
-				res.on("data", (chunk) => chunks.push(chunk));
+
+				res.on("data", (chunk) => {
+					chunks.push(chunk);
+					downloaded += chunk.length;
+					if (onProgress !== undefined) onProgress({ total, downloaded, percent: (downloaded / total) * 100 });
+				});
 				res.on("end", () => {
 					// Chunks is an array of Buffer objects.
 					const chunkyBuffer = Buffer.concat(chunks);
+					onProgress({ total, downloaded: total, percent: 100 });
 					resolve(chunkyBuffer);
 				});
 			}

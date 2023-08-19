@@ -2,18 +2,19 @@ import { getStreamInfo } from "./getStreamInfo";
 import { decryptBuffer } from "./decryptBuffer";
 import { fetchy } from "./fetchy";
 import { saveFile } from "./saveFile";
+import { AudioQualityInverse } from "./AudioQuality";
 
-export const downloadSong = async (songId, fileName, quality) => {
+export const downloadSong = async (songId, fileName, quality, onProgress) => {
 	const streamInfo = await getStreamInfo(songId, quality);
 
 	const { key, nonce } = streamInfo.cryptKey;
 	const url = streamInfo.manifest.urls[0];
 
-	const encryptedBuffer = await fetchy(url);
+	const encryptedBuffer = await fetchy(url, onProgress);
 
 	// Read the encrypted data from the Response object
 	const decodedBuffer = await decryptBuffer(encryptedBuffer, key, nonce);
 
 	// Prompt the user to save the file
-	saveFile(new Blob([decodedBuffer], { type: "application/octet-stream" }), `${fileName}.flac`);
+	saveFile(new Blob([decodedBuffer], { type: "application/octet-stream" }), `${fileName} [${AudioQualityInverse[streamInfo.audioQuality]}].flac`);
 };
