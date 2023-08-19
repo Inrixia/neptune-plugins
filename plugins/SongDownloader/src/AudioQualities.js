@@ -3,8 +3,8 @@ export const AudioQuality = {
 	MQA: "HI_RES",
 	High: "LOSSLESS",
 };
-export const validQualitiesSet = new Set();
 export const validQualities = Object.values(AudioQuality);
+export const validQualitiesSet = new Set(validQualities);
 
 export const AudioQualityInverse = Object.fromEntries(Object.entries(AudioQuality).map(([key, value]) => [value, key]));
 export const validAudioQualitiesInverse = Object.values(AudioQualityInverse);

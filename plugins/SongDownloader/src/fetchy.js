@@ -17,7 +17,6 @@ export const fetchy = (url) =>
 				headers: getHeaders(),
 			},
 			(res) => {
-				console.log(res);
 				const chunks = [];
 				res.on("data", (chunk) => chunks.push(chunk));
 				res.on("end", () => {

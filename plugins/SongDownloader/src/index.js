@@ -6,17 +6,17 @@ import { storage } from "@plugin";
 
 import { unloadStyles } from "./styles";
 export { Settings } from "./Settings";
+
+import { downloadSong } from "./downloadSong";
+
 confetti();
 
-// window.go = () => {
-// 	downloadSong(307576013, AudioQuality.HiRes);
-// };
+const getMediaItem = (id) => getState().content.mediaItems.get(id.toString());
 
 const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =>
 	setTimeout(() => {
-		const mediaItemInfo = getState().content.mediaItems.get(mediaItem.id.toString());
-
-		console.log(storage.desiredDownloadQuality);
+		const mediaItemInfo = getMediaItem(mediaItem.id);
+		if (mediaItemInfo === undefined) return;
 
 		const contextMenu = document.querySelector(`[data-type="list-container__context-menu"]`);
 
@@ -28,7 +28,7 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 
 		contextMenu.appendChild(downloadButton);
 
-		console.log(mediaItemInfo, contextMenu);
+		downloadButton.addEventListener("click", () => downloadSong(mediaItem.id, storage.desiredDownloadQuality));
 	})
 );
 

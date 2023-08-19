@@ -1,9 +1,10 @@
 import { decryptKeyId } from "./decryptKeyId";
 import { getHeaders } from "./fetchy";
-import { validQualitiesSet } from "./AudioQualities";
+import { validQualitiesSet, validQualities } from "./AudioQualities";
 
 export const getStreamInfo = async (trackId, audioQuality) => {
-	if (!validQualitiesSet.has(audioQuality)) throw new Error(`Invalid audio quality: ${audioQuality}`);
+	if (!validQualitiesSet.has(audioQuality)) throw new Error(`Invalid audio quality: ${audioQuality}, should be one of ${validQualities.join(", ")}`);
+	if (trackId === undefined) throw new Error("trackId is required");
 
 	const url = `https://desktop.tidal.com/v1/tracks/${trackId}/playbackinfopostpaywall/v4?audioquality=${audioQuality}&playbackmode=STREAM&assetpresentation=FULL`;
 
