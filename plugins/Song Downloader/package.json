@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "canvas-confetti": "^1.6.0",
+    "https": "^1.0.0"
+  }
+}
