@@ -3,7 +3,7 @@ import { decryptBuffer } from "./decryptBuffer";
 import { fetchy } from "./fetchy";
 import { saveFile } from "./saveFile";
 
-export const downloadSong = async (songId, quality) => {
+export const downloadSong = async (songId, fileName, quality) => {
 	const streamInfo = await getStreamInfo(songId, quality);
 
 	const { key, nonce } = streamInfo.cryptKey;
@@ -15,5 +15,5 @@ export const downloadSong = async (songId, quality) => {
 	const decodedBuffer = await decryptBuffer(encryptedBuffer, key, nonce);
 
 	// Prompt the user to save the file
-	saveFile(new Blob([decodedBuffer], { type: "application/octet-stream" }), "test.flac");
+	saveFile(new Blob([decodedBuffer], { type: "application/octet-stream" }), `${fileName}.flac`);
 };

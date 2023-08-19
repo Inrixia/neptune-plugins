@@ -8,15 +8,16 @@ import { unloadStyles } from "./styles";
 export { Settings } from "./Settings";
 
 import { downloadSong } from "./downloadSong";
+import { AudioQualityInverse } from "./AudioQuality";
 
 confetti();
 
-const getMediaItem = (id) => getState().content.mediaItems.get(id.toString());
-
 const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =>
 	setTimeout(() => {
-		const mediaItemInfo = getMediaItem(mediaItem.id);
-		if (mediaItemInfo === undefined) return;
+		const mediaInfo = getState().content.mediaItems.get(mediaItem.id.toString())?.item;
+		if (mediaInfo === undefined) return;
+
+		console.log(mediaInfo);
 
 		const contextMenu = document.querySelector(`[data-type="list-container__context-menu"]`);
 
@@ -28,7 +29,9 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 
 		contextMenu.appendChild(downloadButton);
 
-		downloadButton.addEventListener("click", () => downloadSong(mediaItem.id, storage.desiredDownloadQuality));
+		const fileName = `${mediaInfo.title} by ${mediaInfo.artist.name} [${AudioQualityInverse[mediaInfo.audioQuality]}]`;
+
+		downloadButton.addEventListener("click", () => downloadSong(mediaInfo.id, fileName, storage.desiredDownloadQuality));
 	})
 );
 

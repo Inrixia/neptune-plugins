@@ -1,6 +1,6 @@
 import { decryptKeyId } from "./decryptKeyId";
 import { getHeaders } from "./fetchy";
-import { validQualitiesSet, validQualities } from "./AudioQualities";
+import { validQualitiesSet, validQualities } from "./AudioQuality";
 
 export const getStreamInfo = async (trackId, audioQuality) => {
 	if (!validQualitiesSet.has(audioQuality)) throw new Error(`Invalid audio quality: ${audioQuality}, should be one of ${validQualities.join(", ")}`);

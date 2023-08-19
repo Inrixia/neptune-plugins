@@ -1,6 +1,6 @@
 import { html } from "@neptune/voby";
 import { storage } from "@plugin";
-import { AudioQualityInverse, AudioQuality, validQualities } from "./AudioQualities";
+import { AudioQualityInverse, AudioQuality, validQualities } from "./AudioQuality";
 
 storage.desiredDownloadQuality = AudioQuality.HiRes;
 export const Settings = () => {
