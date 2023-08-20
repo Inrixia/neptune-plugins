@@ -1,7 +1,18 @@
 import { getState } from "@neptune/store";
-import { Quality, tagData } from ".";
+import { storage } from "@plugin";
+import { Quality, tagData } from "./TagData";
 
-export const updateTrackElements = (trackElements) => {
+const queryAllAndAttribute = (selector) => {
+	const results = [];
+	const elements = document.querySelectorAll(`[${selector}]`);
+	for (const elem of elements) {
+		results.push({ elem, attr: elem.getAttribute(selector) });
+	}
+	return results;
+};
+
+export const updateTrackElements = () => {
+	const trackElements = [...queryAllAndAttribute("data-track-id"), ...queryAllAndAttribute("data-track--content-id")];
 	if (trackElements.length === 0) return;
 	const mediaItems = getState().content.mediaItems;
 
@@ -18,9 +29,14 @@ export const updateTrackElements = (trackElements) => {
 
 		const span = document.createElement("span");
 		span.className = "quality-tag-container";
-		if (isPlayQueueItem && tags.includes(Quality.HiRes)) tags = [Quality.HiRes];
+		if (tags.includes(Quality.HiRes)) {
+			if (isPlayQueueItem) tags = [Quality.HiRes];
+			else if (!storage.showAllQualities) tags = tags.filter((tag) => tag !== Quality.MQA);
+		}
+
 		for (const tag of tags) {
 			if (tag === Quality.High) continue;
+			if (!storage.showAtmosQuality && tag === Quality.Atmos) continue;
 
 			const data = tagData[tag];
 			if (!data) continue;

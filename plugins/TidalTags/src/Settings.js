@@ -2,16 +2,25 @@ import { html } from "@neptune/voby";
 import { storage } from "@plugin";
 
 import { setStreamQualityIndicator } from "./streamQualitySelector";
+import { updateTrackElements } from "./updateTrackElements";
 
 storage.showFLACInfo = true;
 storage.showFLACInfoBorder = false;
+storage.showAllQualities = true;
+storage.showAtmosQuality = true;
 export const Settings = () => {
 	setTimeout(() => {
-		const flacCheck = document.getElementById("flacInfoToggle");
-		if (flacCheck.checked !== storage.showFLACInfo) flacCheck.checked = storage.showFLACInfo;
+		const showFLACInfo = document.getElementById("showFLACInfo");
+		if (showFLACInfo.checked !== storage.showFLACInfo) showFLACInfo.checked = storage.showFLACInfo;
 
-		const flacBorderCheck = document.getElementById("flacInfoBorderToggle");
-		if (flacBorderCheck.checked !== storage.showFLACInfoBorder) flacBorderCheck.checked = storage.showFLACInfoBorder;
+		const showFLACInfoBorder = document.getElementById("showFLACInfoBorder");
+		if (showFLACInfoBorder.checked !== storage.showFLACInfoBorder) showFLACInfoBorder.checked = storage.showFLACInfoBorder;
+
+		const showAllQualities = document.getElementById("showAllQualities");
+		if (showAllQualities.checked !== storage.showAllQualities) showAllQualities.checked = storage.showAllQualities;
+
+		const showAtmosQuality = document.getElementById("showAtmosQuality");
+		if (showAtmosQuality.checked !== storage.showAtmosQuality) showAtmosQuality.checked = storage.showAtmosQuality;
 	});
 	const onChange = (key) => (e) => {
 		switch (key) {
@@ -21,21 +30,45 @@ export const Settings = () => {
 			case "showFLACInfoBorder":
 				storage.showFLACInfoBorder = e.target.checked;
 				break;
+			case "showAllQualities":
+				storage.showAllQualities = e.target.checked;
+				break;
+			case "showAtmosQuality":
+				storage.showAtmosQuality = e.target.checked;
+				break;
 		}
 		setStreamQualityIndicator();
+		updateTrackElements();
 	};
 	return html`<div class="settings-section">
+		<h3 class="settings-header">Display all Qualities</h3>
+		<p class="settings-explainer">Display MQA if HiRes is avalible.</p>
+		<label class="switch">
+			<input type="checkbox" id="showAllQualities" onChange=${onChange("showAllQualities")} />
+			<span class="slider" />
+		</label>
+
+		<br class="settings-spacer" />
+		<h3 class="settings-header">Display Atmos Quality</h3>
+		<p class="settings-explainer">Display the Atmos Quality tags.</p>
+		<label class="switch">
+			<input type="checkbox" id="showAtmosQuality" onChange=${onChange("showAtmosQuality")} />
+			<span class="slider" />
+		</label>
+
+		<br class="settings-spacer" />
 		<h3 class="settings-header">Show FLAC Info</h3>
 		<p class="settings-explainer">Show Sample Rate/Bit Depth</p>
 		<label class="switch">
-			<input type="checkbox" id="flacInfoToggle" onChange=${onChange("showFLACInfo")} />
+			<input type="checkbox" id="showFLACInfo" onChange=${onChange("showFLACInfo")} />
 			<span class="slider" />
 		</label>
+
 		<br class="settings-spacer" />
 		<h3 class="settings-header">Show FLAC Info Border</h3>
 		<p class="settings-explainer">Show a border around the FLAC Info</p>
 		<label class="switch">
-			<input type="checkbox" id="flacInfoBorderToggle" onChange=${onChange("showFLACInfoBorder")} />
+			<input type="checkbox" id="showFLACInfoBorder" onChange=${onChange("showFLACInfoBorder")} />
 			<span class="slider" />
 		</label>
 	</div>`;

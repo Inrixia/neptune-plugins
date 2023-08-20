@@ -1,4 +1,4 @@
-import { tagData, Quality } from "./index.js";
+import { tagData, Quality } from "./TagData";
 import { downloadBytes } from "../../../lib/download";
 import { AudioQuality, validQualitiesSet } from "../../../lib/AudioQuality";
 
