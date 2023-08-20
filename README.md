@@ -32,6 +32,7 @@ This adds album artwork to songs in playlists and albums!
 # Song Downloader
 
 This adds a download button on all songs context menus allowing you to download the FLAC file.  
+*This intended purely for testing and analysis, do not use this to pirate music from Tidal*  
 **Install Url: https://inrixia.github.io/neptune-plugins/SongDownloader**
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/11d7c057-633f-4f0e-a9a3-00ef42b739b2)
