@@ -39,6 +39,11 @@ const getQualityElements = () => {
 };
 
 const flacInfoElem = document.createElement("span");
+const removeElems = (qualitySelector) => {
+	const allElems = qualitySelector.parentElement.querySelectorAll(".bitInfo");
+	// Remove to avoid buggy duplicates
+	allElems.forEach((elem) => elem.remove());
+};
 
 export const setStreamQualityIndicator = async () => {
 	const playbackContext = getState().playbackControls.playbackContext;
@@ -73,13 +78,12 @@ export const setStreamQualityIndicator = async () => {
 			break;
 	}
 
+	if (!storage.showFLACInfo) return removeElems(qualitySelector);
 	if (storage.showFLACInfo && validQualitiesSet.has(actualAudioQuality) && flacInfoElem !== undefined) {
 		flacInfoElem.textContent = "";
 		flacInfoElem.style.border = null;
 
-		const allElems = qualitySelector.parentElement.querySelectorAll(".bitInfo");
-		// Remove to avoid buggy duplicates
-		allElems.forEach((elem) => elem.remove());
+		removeElems(qualitySelector);
 		qualitySelector.parentElement.prepend(flacInfoElem);
 
 		const { bitrate, bitsPerSample, sampleRate } = await getFLACInfo(actualProductId, actualAudioQuality);
@@ -88,9 +92,11 @@ export const setStreamQualityIndicator = async () => {
 		flacInfoElem.textContent = `${bitsPerSample}bit - ${sampleRate / 1000}kHz ${(bitrate / 1000).toFixed(0)}kb/s`;
 		flacInfoElem.style.maxWidth = "100px";
 		flacInfoElem.style.textAlign = "center";
-		flacInfoElem.style.borderRadius = "8px";
 		flacInfoElem.style.padding = "4px";
-		flacInfoElem.style.border = `solid 1px ${rgbToRgba(window.getComputedStyle(qualityElement).color, 0.3)}`;
+		if (storage.showFLACInfoBorder) {
+			flacInfoElem.style.borderRadius = "8px";
+			flacInfoElem.style.border = `solid 1px ${rgbToRgba(window.getComputedStyle(qualityElement).color, 0.3)}`;
+		}
 
 		// Fix for grid spacing issues
 		qualitySelector.parentElement.style.setProperty("grid-auto-columns", "auto");
