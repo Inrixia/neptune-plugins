@@ -4,7 +4,7 @@ import { storage } from "@plugin";
 import { setStreamQualityIndicator } from "./streamQualitySelector";
 
 storage.showFLACInfo = true;
-storage.showFLACInfoBorder = true;
+storage.showFLACInfoBorder = false;
 export const Settings = () => {
 	setTimeout(() => {
 		const flacCheck = document.getElementById("flacInfoToggle");

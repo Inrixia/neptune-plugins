@@ -93,6 +93,7 @@ export const setStreamQualityIndicator = async () => {
 		flacInfoElem.style.maxWidth = "100px";
 		flacInfoElem.style.textAlign = "center";
 		flacInfoElem.style.padding = "4px";
+		flacInfoElem.style.color = "#cfcfcf";
 		if (storage.showFLACInfoBorder) {
 			flacInfoElem.style.borderRadius = "8px";
 			flacInfoElem.style.border = `solid 1px ${rgbToRgba(window.getComputedStyle(qualityElement).color, 0.3)}`;
