@@ -9,21 +9,22 @@ To install any of these plugins you need to have the [Neptune](https://github.co
 
 - **Tidal Tags** Adds quality tags.
 - **Extra Art** Adds album art to playlists.
-- **Song Meta** Shows current song Sample Rate/Bit Depth. **COMING SOON**
 - **Song Downloader** Adds FLAC download for songs.
 
 # Tidal Tags
 
-This is a desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags), adding quality tags and more.  
-**Install Url: https://raw.githubusercontent.com/Inrixia/neptune-plugins/gh-pages/TidalTags**
+This is a desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags).  
+This adds Track Quality Tags and Sample Rate/Bit Depth/Bitrate information.
+**Install Url: https://inrixia.github.io/neptune-plugins/TidalTags**
 
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/f9614514-6a95-46ec-a5ac-ebfa48ff6bc2)
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/fcd819b7-d0c5-46eb-9f06-b8150dc8351b)
+
 
 
 # Extra Art
 
 This adds album artwork to songs in playlists and albums!  
-**Install Url: https://raw.githubusercontent.com/Inrixia/neptune-plugins/gh-pages/ExtraArt**
+**Install Url: https://inrixia.github.io/neptune-plugins/ExtraArt**
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/14a8e540-867f-46bf-b953-1a24dd83fb50)
 
@@ -31,7 +32,7 @@ This adds album artwork to songs in playlists and albums!
 # Song Downloader
 
 This adds a download button on all songs context menus allowing you to download the FLAC file.  
-**Install Url: https://raw.githubusercontent.com/Inrixia/neptune-plugins/gh-pages/SongDownloader**
+**Install Url: https://inrixia.github.io/neptune-plugins/SongDownloader**
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/11d7c057-633f-4f0e-a9a3-00ef42b739b2)
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/94012be7-b115-43b1-a7e9-bf55b950c03b)
