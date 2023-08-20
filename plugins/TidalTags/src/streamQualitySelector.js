@@ -30,6 +30,8 @@ const getFLACInfo = (id, quality) => {
 	return qualityCache.get(key);
 };
 
+const rgbToRgba = (rgb, alpha) => rgb.replace("rgb", "rgba").replace(")", `, ${alpha})`);
+
 const streamQualitySelector = "data-test-media-state-indicator-streaming-quality";
 export const setStreamQualityIndicator = async () => {
 	const playbackContext = getState().playbackControls.playbackContext;
@@ -72,9 +74,14 @@ export const setStreamQualityIndicator = async () => {
 		const { bitrate, bitsPerSample, sampleRate } = await getFLACInfo(actualProductId, actualAudioQuality);
 
 		span.className = "bitInfo";
-		span.textContent = `${bitsPerSample}bit/${sampleRate / 1000}kHz ${(bitrate / 1000).toFixed(0)}kb/s`;
+		span.textContent = `${bitsPerSample}bit - ${sampleRate / 1000}kHz ${(bitrate / 1000).toFixed(0)}kb/s`;
 		span.style.maxWidth = "100px";
 		span.style.textAlign = "center";
+		span.style.borderRadius = "8px";
+		span.style.padding = "4px";
+		span.style.border = `solid 1px ${rgbToRgba(window.getComputedStyle(qualityElement).color, 0.3)}`;
+
+		console.log(window.getComputedStyle(qualityElement).color);
 
 		// Fix for grid spacing issues
 		qualitySelector.parentElement.style.setProperty("grid-auto-columns", "auto");

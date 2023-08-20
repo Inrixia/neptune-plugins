@@ -16,7 +16,7 @@ export const Quality = {
 
 // Cache class name and text content pairs to reduce lookup time
 export const tagData = {
-	[Quality.MQA]: { className: "quality-tag", textContent: "MQA", color: "rgb(249, 186, 122)" },
+	[Quality.MQA]: { className: "quality-tag", textContent: "MQA", color: "#F9BA7A" },
 	[Quality.HiRes]: { className: "quality-tag", textContent: "HiRes", color: "#ffd432" },
 	[Quality.Atmos]: { className: "quality-tag", textContent: "Atmos", color: "#0052a3" },
 };
