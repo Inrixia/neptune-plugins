@@ -9,7 +9,6 @@ To install any of these plugins you need to have the [Neptune](https://github.co
 
 - **Tidal Tags** Adds quality tags.
 - **Extra Art** Adds album art to playlists.
-- **Song Downloader** Adds FLAC download for songs.
 
 # Tidal Tags
 
@@ -25,12 +24,3 @@ This adds album artwork to songs in playlists and albums!
 **Install Url: https://inrixia.github.io/neptune-plugins/ExtraArt**
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/14a8e540-867f-46bf-b953-1a24dd83fb50)
-
-# Song Downloader
-
-This adds a download button on all songs context menus allowing you to download the FLAC file.  
-_This intended purely for testing and analysis, do not use abuse it_  
-**Install Url: https://inrixia.github.io/neptune-plugins/SongDownloader**
-
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/11d7c057-633f-4f0e-a9a3-00ef42b739b2)
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/94012be7-b115-43b1-a7e9-bf55b950c03b)
