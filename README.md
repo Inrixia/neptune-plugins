@@ -17,7 +17,7 @@ This is a desktop port of my browser extension [TidalTags](https://github.com/In
 This adds Track Quality Tags and Sample Rate/Bit Depth/Bitrate information.
 **Install Url: https://inrixia.github.io/neptune-plugins/TidalTags**
 
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/fcd819b7-d0c5-46eb-9f06-b8150dc8351b)
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/aec4adb2-0edb-4441-8509-9a672c824946)
 
 # Extra Art
 
