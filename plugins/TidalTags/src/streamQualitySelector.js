@@ -32,20 +32,26 @@ const getFLACInfo = (id, quality) => {
 
 const rgbToRgba = (rgb, alpha) => rgb.replace("rgb", "rgba").replace(")", `, ${alpha})`);
 
-const streamQualitySelector = "data-test-media-state-indicator-streaming-quality";
+const getQualityElements = () => {
+	const qualitySelector = document.querySelector(`[data-test-media-state-indicator-streaming-quality]`);
+	const qualityElement = qualitySelector?.firstChild;
+	return { qualitySelector, qualityElement };
+};
+
+const flacInfoElem = document.createElement("span");
+
 export const setStreamQualityIndicator = async () => {
 	const playbackContext = getState().playbackControls.playbackContext;
 	if (!playbackContext) return;
 
-	const qualitySelector = document.querySelector(`[${streamQualitySelector}]`);
-	const qualityElement = qualitySelector.firstChild;
-	if (qualityElement === null) return;
+	const { qualitySelector, qualityElement } = getQualityElements();
+	if (!qualitySelector || !qualityElement) return;
 
 	const { actualAudioQuality, actualProductId } = playbackContext;
 
 	switch (actualAudioQuality) {
 		case AudioQuality.MQA:
-			if (qualityElement.textContent === "MQA") return;
+			if (qualityElement.textContent === "MQA") break;
 			qualityElement.textContent = "MQA";
 
 			qualityElement.style.backgroundColor = null;
@@ -53,7 +59,7 @@ export const setStreamQualityIndicator = async () => {
 			qualityElement.style.width = null;
 			break;
 		case AudioQuality.HiRes:
-			if (qualityElement.textContent === "HI-RES") return;
+			if (qualityElement.textContent === "HI-RES") break;
 			qualityElement.textContent = "HI-RES";
 
 			qualityElement.style.backgroundColor = null;
@@ -67,24 +73,26 @@ export const setStreamQualityIndicator = async () => {
 			break;
 	}
 
-	if (storage.showFLACInfo && validQualitiesSet.has(actualAudioQuality)) {
-		const span = qualitySelector.parentElement.querySelector(".bitInfo") ?? document.createElement("span");
-		span.textContent = "";
+	if (storage.showFLACInfo && validQualitiesSet.has(actualAudioQuality) && flacInfoElem !== undefined) {
+		flacInfoElem.textContent = "";
+		flacInfoElem.style.border = null;
+
+		const allElems = qualitySelector.parentElement.querySelectorAll(".bitInfo");
+		// Remove to avoid buggy duplicates
+		allElems.forEach((elem) => elem.remove());
+		qualitySelector.parentElement.prepend(flacInfoElem);
 
 		const { bitrate, bitsPerSample, sampleRate } = await getFLACInfo(actualProductId, actualAudioQuality);
 
-		span.className = "bitInfo";
-		span.textContent = `${bitsPerSample}bit - ${sampleRate / 1000}kHz ${(bitrate / 1000).toFixed(0)}kb/s`;
-		span.style.maxWidth = "100px";
-		span.style.textAlign = "center";
-		span.style.borderRadius = "8px";
-		span.style.padding = "4px";
-		span.style.border = `solid 1px ${rgbToRgba(window.getComputedStyle(qualityElement).color, 0.3)}`;
-
-		console.log(window.getComputedStyle(qualityElement).color);
+		flacInfoElem.className = "bitInfo";
+		flacInfoElem.textContent = `${bitsPerSample}bit - ${sampleRate / 1000}kHz ${(bitrate / 1000).toFixed(0)}kb/s`;
+		flacInfoElem.style.maxWidth = "100px";
+		flacInfoElem.style.textAlign = "center";
+		flacInfoElem.style.borderRadius = "8px";
+		flacInfoElem.style.padding = "4px";
+		flacInfoElem.style.border = `solid 1px ${rgbToRgba(window.getComputedStyle(qualityElement).color, 0.3)}`;
 
 		// Fix for grid spacing issues
 		qualitySelector.parentElement.style.setProperty("grid-auto-columns", "auto");
-		qualitySelector.parentElement.insertBefore(span, qualityElement.parentElement);
 	}
 };
