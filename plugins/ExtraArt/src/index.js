@@ -51,7 +51,9 @@ const processItems = () => {
 		img.alt = "";
 		img.setAttribute("data-prevent-search-close", "true");
 
-		elem.firstChild.querySelector("[data-test-is-playing]").remove();
+		const somethingIForgor = elem.firstChild.querySelector("[data-test-is-playing]");
+		if (somethingIForgor !== null) somethingIForgor.remove();
+
 		elem.firstChild.style.flex = newFlex;
 		elem.firstChild.firstChild.firstChild.style.width = "56px";
 		elem.firstChild.prepend(img);
