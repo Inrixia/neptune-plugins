@@ -54,6 +54,8 @@ const processItems = () => {
 		const somethingIForgor = elem.firstChild.querySelector("[data-test-is-playing]");
 		if (somethingIForgor !== null) somethingIForgor.remove();
 
+		if (elem.firstChild?.firstChild?.firstChild === undefined)  continue;
+
 		elem.firstChild.style.flex = newFlex;
 		elem.firstChild.firstChild.firstChild.style.width = "56px";
 		elem.firstChild.prepend(img);
