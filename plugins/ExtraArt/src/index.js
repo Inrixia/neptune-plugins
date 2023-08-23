@@ -29,10 +29,10 @@ const processItems = () => {
 	const mediaItems = getState().content.mediaItems;
 
 	patchTrackList();
+	console.log("do update!")
 
 	for (const elem of elements) {
-		const hasAlbumArt = elem.querySelector(`img`) !== null;
-		if (hasAlbumArt) continue;
+		let img = elem.querySelector(`img`) ?? document.createElement("img");
 
 		const coverId = mediaItems.get(elem.getAttribute("data-track-id"))?.item?.album?.cover;
 		if (coverId === null) continue;
@@ -41,7 +41,6 @@ const processItems = () => {
 		if (baseUrl === null) continue;
 
 		// Create the img element
-		const img = document.createElement("img");
 		img.src = `${baseUrl}/80x80.jpg`;
 		img.srcset = `${baseUrl}/80x80.jpg 80w, ${baseUrl}/160x160.jpg 160w, ${baseUrl}/320x320.jpg 320w, ${baseUrl}/640x640.jpg 640w, ${baseUrl}/1280x1280.jpg 1280w`;
 		img.sizes = "42px";
@@ -54,7 +53,7 @@ const processItems = () => {
 		const somethingIForgor = elem.firstChild.querySelector("[data-test-is-playing]");
 		if (somethingIForgor !== null) somethingIForgor.remove();
 
-		if (elem.firstChild?.firstChild?.firstChild === undefined)  continue;
+		if (!elem.firstChild?.firstChild?.firstChild) continue;
 
 		elem.firstChild.style.flex = newFlex;
 		elem.firstChild.firstChild.firstChild.style.width = "56px";
