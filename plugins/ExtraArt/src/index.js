@@ -31,6 +31,9 @@ const processItems = () => {
 	patchTrackList();
 
 	for (const elem of elements) {
+		const hasAlbumArt = elem.querySelector(`figure`) !== null;
+		if (hasAlbumArt) continue;
+
 		let img = elem.querySelector(`img`) ?? document.createElement("img");
 
 		const coverId = mediaItems.get(elem.getAttribute("data-track-id"))?.item?.album?.cover;
