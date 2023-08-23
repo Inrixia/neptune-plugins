@@ -20,15 +20,17 @@ export const updateTrackElements = () => {
 		let tags = mediaItems.get(trackId)?.item?.mediaMetadata?.tags;
 		if (tags === undefined) continue;
 		if (tags.length === 1 && tags[0] === Quality.High) continue;
-		if (trackElem.querySelector(".quality-tag-container")) continue;
 
 		const listElement = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"], [data-test="playqueue-item"]`);
 		if (listElement === null) continue;
 
 		const isPlayQueueItem = listElement.getAttribute("data-test") === "playqueue-item";
 
-		const span = document.createElement("span");
+		let span = trackElem.querySelector(".quality-tag-container") ?? document.createElement("span");
+		if (span.getAttribute("track-id") === trackId) continue;
+		span.innerHTML = null;
 		span.className = "quality-tag-container";
+		span.setAttribute("track-id", trackId);
 		if (tags.includes(Quality.HiRes)) {
 			if (isPlayQueueItem) tags = [Quality.HiRes];
 			else if (!storage.showAllQualities) tags = tags.filter((tag) => tag !== Quality.MQA);

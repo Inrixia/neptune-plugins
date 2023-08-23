@@ -29,7 +29,6 @@ const processItems = () => {
 	const mediaItems = getState().content.mediaItems;
 
 	patchTrackList();
-	console.log("do update!")
 
 	for (const elem of elements) {
 		let img = elem.querySelector(`img`) ?? document.createElement("img");
