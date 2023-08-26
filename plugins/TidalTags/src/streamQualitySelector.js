@@ -94,10 +94,15 @@ export const setStreamQualityIndicator = async () => {
 		flacInfoElem.style.textAlign = "center";
 		flacInfoElem.style.padding = "4px";
 		flacInfoElem.style.color = "#cfcfcf";
+
+		const qualityElemColor = window.getComputedStyle(qualityElement).color;
 		if (storage.showFLACInfoBorder) {
 			flacInfoElem.style.borderRadius = "8px";
-			flacInfoElem.style.border = `solid 1px ${rgbToRgba(window.getComputedStyle(qualityElement).color, 0.3)}`;
+			flacInfoElem.style.border = `solid 1px ${rgbToRgba(qualityElemColor, 0.3)}`;
 		}
+
+		const progressBar = document.getElementById("progressBar");
+		if (progressBar !== null) progressBar.style.color = qualityElemColor;
 
 		// Fix for grid spacing issues
 		qualitySelector.parentElement.style.setProperty("grid-auto-columns", "auto");
