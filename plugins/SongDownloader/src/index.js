@@ -37,6 +37,9 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 		const mediaInfo = getState().content.mediaItems.get(mediaItem.id.toString())?.item;
 
 		const contextMenu = document.querySelector(`[data-type="list-container__context-menu"]`);
+		if (document.getElementsByClassName("download-button").length >= 1){
+			document.getElementsByClassName("download-button")[0].remove();
+		}
 
 		const downloadButton = document.createElement("button");
 		downloadButton.type = "button";
