@@ -74,11 +74,12 @@ export const setStreamQualityIndicator = async () => {
 		const { bitrate, bitsPerSample, sampleRate } = await getFLACInfo(actualProductId, actualAudioQuality);
 
 		flacInfoElem.className = "bitInfo";
-		flacInfoElem.textContent = `${bitsPerSample}bit - ${sampleRate / 1000}kHz ${(bitrate / 1000).toFixed(0)}kb/s`;
+		flacInfoElem.textContent = `${bitsPerSample}bit ${sampleRate / 1000}kHz ${(bitrate / 1000).toFixed(0)}kb/s`;
 		flacInfoElem.style.maxWidth = "100px";
 		flacInfoElem.style.textAlign = "center";
 		flacInfoElem.style.padding = "4px";
 		flacInfoElem.style.color = "#cfcfcf";
+		flacInfoElem.style.fontSize = "13px";
 
 		const qualityElemColor = window.getComputedStyle(qualityElement).color;
 		if (storage.showFLACInfoBorder) {
