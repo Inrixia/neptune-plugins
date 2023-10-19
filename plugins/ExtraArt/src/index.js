@@ -53,7 +53,7 @@ const processItems = () => {
 		img.setAttribute("data-prevent-search-close", "true");
 
 		const somethingIForgor = elem.firstChild.querySelector("[data-test-is-playing]");
-		if (somethingIForgor !== null) somethingIForgor.remove();
+		somethingIForgor.style.visibility = "hidden";
 
 		if (!elem.firstChild?.firstChild?.firstChild) continue;
 
