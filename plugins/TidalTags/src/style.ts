@@ -1,7 +1,7 @@
 import { appendStyle } from "@neptune/utils";
 import { settingsCSS } from "../../../lib/css/settings";
 
-export const unloadStyles = appendStyle(`
+appendStyle(`
 ${settingsCSS}
 .quality-tag-container {
 	display: inline-flex;

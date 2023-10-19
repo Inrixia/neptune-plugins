@@ -1,4 +1,4 @@
-export const saveFile = (blob, fileName) => {
+export const saveFile = (blob: Blob, fileName: string) => {
 	// Create a new Object URL for the Blob
 	const objectUrl = URL.createObjectURL(blob);
 

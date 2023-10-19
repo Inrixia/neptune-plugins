@@ -1,8 +1,9 @@
 import { html } from "@neptune/voby";
+// @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 
 import { setStreamQualityIndicator } from "./streamQualitySelector";
-import { updateTrackElements } from "./updateTrackElements";
+import { updateTrackLists } from "./updateTrackElements";
 
 storage.showFLACInfo = true;
 storage.showFLACInfoBorder = false;
@@ -11,18 +12,19 @@ storage.showAtmosQuality = true;
 export const Settings = () => {
 	setTimeout(() => {
 		const showFLACInfo = document.getElementById("showFLACInfo");
-		if (showFLACInfo.checked !== storage.showFLACInfo) showFLACInfo.checked = storage.showFLACInfo;
+		if (showFLACInfo instanceof HTMLInputElement && showFLACInfo.checked !== storage.showFLACInfo) showFLACInfo!.checked = storage.showFLACInfo;
 
 		const showFLACInfoBorder = document.getElementById("showFLACInfoBorder");
-		if (showFLACInfoBorder.checked !== storage.showFLACInfoBorder) showFLACInfoBorder.checked = storage.showFLACInfoBorder;
+		if (showFLACInfoBorder instanceof HTMLInputElement && showFLACInfoBorder.checked !== storage.showFLACInfoBorder) showFLACInfoBorder.checked = storage.showFLACInfoBorder;
 
 		const showAllQualities = document.getElementById("showAllQualities");
-		if (showAllQualities.checked !== storage.showAllQualities) showAllQualities.checked = storage.showAllQualities;
+		if (showAllQualities instanceof HTMLInputElement && showAllQualities.checked !== storage.showAllQualities) showAllQualities.checked = storage.showAllQualities;
 
 		const showAtmosQuality = document.getElementById("showAtmosQuality");
-		if (showAtmosQuality.checked !== storage.showAtmosQuality) showAtmosQuality.checked = storage.showAtmosQuality;
+		if (showAtmosQuality instanceof HTMLInputElement && showAtmosQuality.checked !== storage.showAtmosQuality) showAtmosQuality.checked = storage.showAtmosQuality;
 	});
-	const onChange = (key) => (e) => {
+
+	const onChange = (key: string) => (e: { target: { checked: boolean } }) => {
 		switch (key) {
 			case "showFLACInfo":
 				storage.showFLACInfo = e.target.checked;
@@ -38,7 +40,7 @@ export const Settings = () => {
 				break;
 		}
 		setStreamQualityIndicator();
-		updateTrackElements();
+		updateTrackLists();
 	};
 	return html`<div class="settings-section">
 		<h3 class="settings-header">Display all Qualities</h3>

@@ -1,15 +1,19 @@
-const https = require("https");
-import { getState } from "@neptune/store";
+import type https from "https";
+const { request } = <typeof https>require("https");
 
-export const getHeaders = () => {
-	const state = getState();
+import { store } from "@neptune";
+
+export const getHeaders = (): Record<string, string> => {
+	const state = store.getState();
 	return {
 		Authorization: `Bearer ${state.session.oAuthAccessToken}`,
 		"x-tidal-token": state.session.apiToken,
 	};
 };
 
-export const fetchy = (url, onProgress, byteRangeStart = 0, byteRangeEnd) =>
+export type OnProgress = (info: { total: number; downloaded: number; percent: number }) => void;
+
+export const fetchy = (url: string, onProgress: OnProgress, byteRangeStart = 0, byteRangeEnd?: number) =>
 	new Promise((resolve, reject) => {
 		const headers = getHeaders();
 		if (typeof byteRangeStart !== "number") throw new Error("byteRangeStart must be a number");
@@ -17,25 +21,26 @@ export const fetchy = (url, onProgress, byteRangeStart = 0, byteRangeEnd) =>
 			if (typeof byteRangeEnd !== "number") throw new Error("byteRangeEnd must be a number");
 			headers["Range"] = `bytes=${byteRangeStart}-${byteRangeEnd}`;
 		}
-		const req = https.request(
+		const req = request(
 			url,
 			{
 				headers,
 			},
 			(res) => {
-				let total;
+				let total = -1;
+
 				if (res.headers["content-range"]) {
 					// Server supports byte range, parse total file size from header
 					const match = /\/(\d+)$/.exec(res.headers["content-range"]);
-					total = match ? parseInt(match[1], 10) : null;
+					if (match) total = parseInt(match[1], 10);
 				} else {
-					total = parseInt(res.headers["content-length"], 10);
+					if (res.headers["content-length"] !== undefined) total = parseInt(res.headers["content-length"], 10);
 				}
 
 				let downloaded = 0;
-				const chunks = [];
+				const chunks: Buffer[] = [];
 
-				res.on("data", (chunk) => {
+				res.on("data", (chunk: Buffer) => {
 					chunks.push(chunk);
 					downloaded += chunk.length;
 					if (onProgress !== undefined) onProgress({ total, downloaded, percent: (downloaded / total) * 100 });

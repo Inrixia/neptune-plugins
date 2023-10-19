@@ -6,7 +6,12 @@
 		"build": "node ./build.js"
 	},
 	"devDependencies": {
-		"esbuild": "^0.18.13"
+		"@types/node": "^20.8.7",
+		"esbuild": "^0.18.13",
+		"neptune-types": "^1.0.0",
+		"typescript": "^5.2.2"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"@inrixia/helpers": "^2.0.10"
+	}
 }

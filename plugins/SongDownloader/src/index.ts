@@ -1,15 +1,24 @@
-import { getState } from "@neptune/store";
+import { store } from "@neptune";
 import { intercept } from "@neptune";
+
+// @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 
-import { unloadStyles } from "./styles";
+import "./styles";
 export { Settings } from "./Settings";
 
 import { downloadSong } from "../../../lib/download";
 
-const downloadButtons = {};
+type DownloadButtoms = Record<number, HTMLButtonElement>;
+const downloadButtons: DownloadButtoms = {};
 
-const buttonMethods = (id) => ({
+interface ButtonMethods {
+	prep(): void;
+	tick(info: { total: number; downloaded: number; percent: number }): void;
+	clear(): void;
+}
+
+const buttonMethods = (id: number): ButtonMethods => ({
 	prep: () => {
 		const downloadButton = downloadButtons[id];
 		downloadButton.disabled = true;
@@ -32,12 +41,16 @@ const buttonMethods = (id) => ({
 	},
 });
 
-const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =>
+const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) => {
 	setTimeout(() => {
-		const mediaInfo = getState().content.mediaItems.get(mediaItem.id.toString())?.item;
+		const mediaInfo = store.getState().content.mediaItems.get(mediaItem.id.toString())?.item;
+
+		if (mediaInfo?.contentType !== "track" || mediaInfo.id === undefined) return;
 
 		const contextMenu = document.querySelector(`[data-type="list-container__context-menu"]`);
-		if (document.getElementsByClassName("download-button").length >= 1){
+		if (contextMenu === null) return;
+
+		if (document.getElementsByClassName("download-button").length >= 1) {
 			document.getElementsByClassName("download-button")[0].remove();
 		}
 
@@ -62,13 +75,11 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 
 		const { prep, tick, clear } = buttonMethods(mediaInfo.id);
 		downloadButton.addEventListener("click", () => {
+			if (mediaInfo.id === undefined) return;
 			prep();
 			downloadSong(mediaInfo.id, fileName, storage.desiredDownloadQuality, tick).then(clear);
 		});
-	})
-);
+	});
+});
 
-export const onUnload = () => {
-	unloadIntercept();
-	unloadStyles();
-};
+export const onUnload = unloadIntercept;
