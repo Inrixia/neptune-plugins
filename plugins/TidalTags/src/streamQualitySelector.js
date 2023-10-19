@@ -56,25 +56,10 @@ export const setStreamQualityIndicator = async () => {
 
 	switch (actualAudioQuality) {
 		case AudioQuality.MQA:
-			if (qualityElement.textContent === "MQA") break;
-			qualityElement.textContent = "MQA";
-
-			qualityElement.style.backgroundColor = null;
 			qualityElement.style.color = tagData[Quality.MQA].color;
-			qualityElement.style.width = null;
-			break;
-		case AudioQuality.HiRes:
-			if (qualityElement.textContent === "HI-RES") break;
-			qualityElement.textContent = "HI-RES";
-
-			qualityElement.style.backgroundColor = null;
-			qualityElement.style.color = tagData[Quality.HiRes].color;
-			qualityElement.style.width = "33px";
 			break;
 		default:
-			qualityElement.style.backgroundColor = null;
 			qualityElement.style.color = null;
-			qualityElement.style.width = null;
 			break;
 	}
 
