@@ -27,10 +27,8 @@ export const updateTrackLists = () => {
 		if (trackTags === undefined) continue;
 		if (trackTags.length === 1 && trackTags[0] === MediaMetadataQuality.High) continue;
 
-		const trackList = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"], [data-test="playqueue-item"]`);
+		const trackList = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"]`);
 		if (trackList === null) continue;
-
-		const isPlayQueueItem = trackList.getAttribute("data-test") === "playqueue-item";
 
 		let span = trackElem.querySelector(".quality-tag-container") ?? document.createElement("span");
 		if (span.getAttribute("track-id") === trackId) continue;
@@ -39,10 +37,7 @@ export const updateTrackLists = () => {
 		span.className = "quality-tag-container";
 		span.setAttribute("track-id", trackId);
 
-		if (trackTags.includes(MediaMetadataQuality.HiRes)) {
-			if (isPlayQueueItem) trackTags = [MediaMetadataQuality.HiRes];
-			else if (!storage.showAllQualities) trackTags = trackTags.filter((tag) => tag !== MediaMetadataQuality.MQA);
-		}
+		if (trackTags.includes(MediaMetadataQuality.HiRes) && !storage.showAllQualities) trackTags = trackTags.filter((tag) => tag !== MediaMetadataQuality.MQA);
 
 		for (const tag of trackTags) {
 			if (tag === MediaMetadataQuality.High) continue;
@@ -60,7 +55,6 @@ export const updateTrackLists = () => {
 			span.appendChild(tagElement);
 		}
 
-		if (isPlayQueueItem) trackList.insertBefore(span, trackList.lastElementChild);
-		else trackList.appendChild(span);
+		trackList.appendChild(span);
 	}
 };
