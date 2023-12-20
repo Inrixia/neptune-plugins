@@ -82,14 +82,13 @@ input:checked + .slider:before {
 	transform: translateX(26px);
 }
 `);import{store as Pm}from"@neptune";import{storage as No}from"@plugin";var Lo=a=>{let e=[],t=document.querySelectorAll(`[${a}]`);for(let r of t)e.push({elem:r,attr:r.getAttribute(a)});return e},mr=()=>{let a=[...Lo("data-track-id"),...Lo("data-track--content-id")];if(a.length===0)return;let e=Pm.getState().content.mediaItems;for(let{elem:t,attr:r}of a){if(r==null)continue;let i=e.get(r)?.item;if(i?.contentType!=="track")continue;let n=i.mediaMetadata?.tags;if(n===void 0||n.length===1&&n[0]==="LOSSLESS")continue;let s=t.querySelector('[data-test="table-row-title"], [data-test="list-item-track"]');if(s===null)continue;let o=t.querySelector(".quality-tag-container")??document.createElement("span");if(o.getAttribute("track-id")!==r){o.innerHTML="",o.className="quality-tag-container",o.setAttribute("track-id",r),n.includes("HIRES_LOSSLESS")&&!No.showAllQualities&&(n=n.filter(c=>c!=="MQA"));for(let c of n){if(c==="LOSSLESS"||!No.showAtmosQuality&&c==="DOLBY_ATMOS")continue;let h=Dt[c];if(h===void 0)continue;let l=document.createElement("span");l.className=h.className,l.textContent=h.textContent,l.style.color=h.color,o.appendChild(l)}s.appendChild(o)}}};import{html as Mm}from"@neptune/voby";import{storage as L}from"@plugin";L.showTags??=!0;L.showFLACInfo??=!0;L.showFLACInfoBorder??=!1;L.showAllQualities??=!0;L.showAtmosQuality??=!0;var Om=()=>{setTimeout(()=>{let e=document.getElementById("showTags");e instanceof HTMLInputElement&&e.checked!==L.showTags&&(e.checked=L.showTags);let t=document.getElementById("showFLACInfo");t instanceof HTMLInputElement&&t.checked!==L.showFLACInfo&&(t.checked=L.showFLACInfo);let r=document.getElementById("showFLACInfoBorder");r instanceof HTMLInputElement&&r.checked!==L.showFLACInfoBorder&&(r.checked=L.showFLACInfoBorder);let i=document.getElementById("showAllQualities");i instanceof HTMLInputElement&&i.checked!==L.showAllQualities&&(i.checked=L.showAllQualities);let n=document.getElementById("showAtmosQuality");n instanceof HTMLInputElement&&n.checked!==L.showAtmosQuality&&(n.checked=L.showAtmosQuality)});let a=e=>t=>{L[e]=t.target.checked,dr(),mr()};return Mm`<div class="settings-section">
-		<h3 class="settings-header">Display Tags</h3>
-		<p class="settings-explainer">Display Quality Tags.</p>
-		<label class="switch">
-			<input type="checkbox" id="showAllQualities" onChange=${a("showAllQualities")} />
-			<span class="slider" />
-		</label>
+			<h3 class="settings-header">Display Tags</h3>
+			<p class="settings-explainer">Display Quality Tags.</p>
+			<label class="switch">
+				<input type="checkbox" id="showAllQualities" onChange=${a("showAllQualities")} />
+				<span class="slider" />
+			</label>
 
-		<div class="settings-section">
 			<h3 class="settings-header">Display all Qualities</h3>
 			<p class="settings-explainer">Display MQA if HiRes is avalible.</p>
 			<label class="switch">
