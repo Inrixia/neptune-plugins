@@ -5,10 +5,10 @@ import { storage } from "@plugin";
 import { setStreamQualityIndicator } from "./streamQualitySelector";
 import { updateTrackLists } from "./updateTrackElements";
 
-storage.showFLACInfo = true;
-storage.showFLACInfoBorder = false;
-storage.showAllQualities = true;
-storage.showAtmosQuality = true;
+storage.showFLACInfo ??= true;
+storage.showFLACInfoBorder ??= false;
+storage.showAllQualities ??= true;
+storage.showAtmosQuality ??= true;
 export const Settings = () => {
 	setTimeout(() => {
 		const showFLACInfo = document.getElementById("showFLACInfo");
