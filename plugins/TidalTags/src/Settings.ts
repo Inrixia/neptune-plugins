@@ -5,12 +5,16 @@ import { storage } from "@plugin";
 import { setStreamQualityIndicator } from "./streamQualitySelector";
 import { updateTrackLists } from "./updateTrackElements";
 
+storage.showTags ??= true;
 storage.showFLACInfo ??= true;
 storage.showFLACInfoBorder ??= false;
 storage.showAllQualities ??= true;
 storage.showAtmosQuality ??= true;
 export const Settings = () => {
 	setTimeout(() => {
+		const showTags = document.getElementById("showTags");
+		if (showTags instanceof HTMLInputElement && showTags.checked !== storage.showTags) showTags!.checked = storage.showTags;
+
 		const showFLACInfo = document.getElementById("showFLACInfo");
 		if (showFLACInfo instanceof HTMLInputElement && showFLACInfo.checked !== storage.showFLACInfo) showFLACInfo!.checked = storage.showFLACInfo;
 
@@ -25,53 +29,48 @@ export const Settings = () => {
 	});
 
 	const onChange = (key: string) => (e: { target: { checked: boolean } }) => {
-		switch (key) {
-			case "showFLACInfo":
-				storage.showFLACInfo = e.target.checked;
-				break;
-			case "showFLACInfoBorder":
-				storage.showFLACInfoBorder = e.target.checked;
-				break;
-			case "showAllQualities":
-				storage.showAllQualities = e.target.checked;
-				break;
-			case "showAtmosQuality":
-				storage.showAtmosQuality = e.target.checked;
-				break;
-		}
+		storage[key] = e.target.checked;
 		setStreamQualityIndicator();
 		updateTrackLists();
 	};
 	return html`<div class="settings-section">
-		<h3 class="settings-header">Display all Qualities</h3>
-		<p class="settings-explainer">Display MQA if HiRes is avalible.</p>
-		<label class="switch">
-			<input type="checkbox" id="showAllQualities" onChange=${onChange("showAllQualities")} />
-			<span class="slider" />
-		</label>
+			<h3 class="settings-header">Display Tags</h3>
+			<p class="settings-explainer">Display Quality Tags.</p>
+			<label class="switch">
+				<input type="checkbox" id="showAllQualities" onChange=${onChange("showAllQualities")} />
+				<span class="slider" />
+			</label>
 
-		<br class="settings-spacer" />
-		<h3 class="settings-header">Display Atmos Quality</h3>
-		<p class="settings-explainer">Display the Atmos Quality tags.</p>
-		<label class="switch">
-			<input type="checkbox" id="showAtmosQuality" onChange=${onChange("showAtmosQuality")} />
-			<span class="slider" />
-		</label>
+			<h3 class="settings-header">Display all Qualities</h3>
+			<p class="settings-explainer">Display MQA if HiRes is avalible.</p>
+			<label class="switch">
+				<input type="checkbox" id="showTags" onChange=${onChange("showTags")} />
+				<span class="slider" />
+			</label>
 
-		<br class="settings-spacer" />
-		<h3 class="settings-header">Show FLAC Info</h3>
-		<p class="settings-explainer">Show Sample Rate/Bit Depth</p>
-		<label class="switch">
-			<input type="checkbox" id="showFLACInfo" onChange=${onChange("showFLACInfo")} />
-			<span class="slider" />
-		</label>
+			<br class="settings-spacer" />
+			<h3 class="settings-header">Display Atmos Quality</h3>
+			<p class="settings-explainer">Display the Atmos Quality tags.</p>
+			<label class="switch">
+				<input type="checkbox" id="showAtmosQuality" onChange=${onChange("showAtmosQuality")} />
+				<span class="slider" />
+			</label>
 
-		<br class="settings-spacer" />
-		<h3 class="settings-header">Show FLAC Info Border</h3>
-		<p class="settings-explainer">Show a border around the FLAC Info</p>
-		<label class="switch">
-			<input type="checkbox" id="showFLACInfoBorder" onChange=${onChange("showFLACInfoBorder")} />
-			<span class="slider" />
-		</label>
+			<br class="settings-spacer" />
+			<h3 class="settings-header">Show FLAC Info</h3>
+			<p class="settings-explainer">Show Sample Rate/Bit Depth</p>
+			<label class="switch">
+				<input type="checkbox" id="showFLACInfo" onChange=${onChange("showFLACInfo")} />
+				<span class="slider" />
+			</label>
+
+			<br class="settings-spacer" />
+			<h3 class="settings-header">Show FLAC Info Border</h3>
+			<p class="settings-explainer">Show a border around the FLAC Info</p>
+			<label class="switch">
+				<input type="checkbox" id="showFLACInfoBorder" onChange=${onChange("showFLACInfoBorder")} />
+				<span class="slider" />
+			</label>
+		</div>
 	</div>`;
 };
