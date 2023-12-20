@@ -72,7 +72,7 @@ ${h}
     outline: none;
     border-color: #4f4f4f;
 }
-`);import{html as B}from"@neptune/voby";import{storage as b}from"@plugin";var p=(e=>(e.HiRes="HI_RES_LOSSLESS",e.MQA="HI_RES",e.High="LOSSLESS",e))(p||{});var g=Object.values(p),S=new Set(g),v=["HI_RES_LOSSLESS","LOSSLESS"],f=Object.fromEntries(Object.entries(p).map(([o,t])=>[t,o]));b.desiredDownloadQuality="HI_RES_LOSSLESS";var D=()=>B`<div class="settings-section">
+`);import{html as B}from"@neptune/voby";import{storage as b}from"@plugin";var p=(e=>(e.HiRes="HI_RES_LOSSLESS",e.MQA="HI_RES",e.High="LOSSLESS",e))(p||{});var g=Object.values(p),S=new Set(g),v=["HI_RES_LOSSLESS","LOSSLESS"],f=Object.fromEntries(Object.entries(p).map(([o,t])=>[t,o]));b.desiredDownloadQuality??="HI_RES_LOSSLESS";var D=()=>B`<div class="settings-section">
 	<h3 class="settings-header">Download Quality</h3>
 	<p class="settings-explainer">Select the desired max download quality:</p>
 	<select id="qualityDropdown" onChange=${o=>b.desiredDownloadQuality=o.target.value}>
