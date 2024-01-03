@@ -2,6 +2,7 @@ import { store } from "@neptune";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 import { QualityMeta, MediaMetadataQuality } from "../../../lib/AudioQuality";
+import type { MediaItem } from "neptune-types/tidal";
 
 const queryAllAndAttribute = (selector: string) => {
 	const results = [];
@@ -15,12 +16,12 @@ const queryAllAndAttribute = (selector: string) => {
 export const updateTrackLists = () => {
 	const trackElements = [...queryAllAndAttribute("data-track-id"), ...queryAllAndAttribute("data-track--content-id")];
 	if (trackElements.length === 0) return;
-	const mediaItems = store.getState().content.mediaItems;
+	const mediaItems: Record<number, MediaItem> = store.getState().content.mediaItems;
 
 	for (const { elem: trackElem, attr: trackId } of trackElements) {
 		if (trackId == null) continue;
 
-		const mediaItem = mediaItems.get(trackId)?.item;
+		const mediaItem = mediaItems[+trackId]?.item;
 		if (mediaItem?.contentType !== "track") continue;
 
 		let trackTags = mediaItem.mediaMetadata?.tags;
