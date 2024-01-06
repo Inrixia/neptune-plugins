@@ -7,10 +7,9 @@ ${settingsCSS}
 	align-items: center;
 	display: flex;
 	font-weight: 500;
-	padding: 14px 16px;
+	padding: 20px 16px;
 	width: 100%;
 	flex-grow: 1;
-	height: 1.72rem;
 	color: #b878ff;
     position: relative;
 }

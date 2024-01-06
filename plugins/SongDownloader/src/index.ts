@@ -8,6 +8,7 @@ import "./styles";
 export { Settings } from "./Settings";
 
 import { downloadSong } from "../../../lib/download";
+import { MediaItem } from "neptune-types/tidal";
 
 type DownloadButtoms = Record<number, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};
@@ -43,7 +44,8 @@ const buttonMethods = (id: number): ButtonMethods => ({
 
 const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) => {
 	setTimeout(() => {
-		const mediaInfo = store.getState().content.mediaItems.get(mediaItem.id.toString())?.item;
+		const mediaItems: Record<number, MediaItem> = store.getState().content.mediaItems;
+		const mediaInfo = mediaItems[+mediaItem.id]?.item;
 
 		if (mediaInfo?.contentType !== "track" || mediaInfo.id === undefined) return;
 
