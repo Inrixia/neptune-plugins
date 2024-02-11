@@ -7,7 +7,7 @@ export const getHeaders = (): Record<string, string> => {
 	const state = store.getState();
 	return {
 		Authorization: `Bearer ${state.session.oAuthAccessToken}`,
-		"x-tidal-token": state.session.apiToken,
+		"x-tidal-token": <string>state.session.oAuthAccessToken,
 	};
 };
 
