@@ -3,13 +3,16 @@ const { request } = <typeof https>require("https");
 
 import { store } from "@neptune";
 
+let _oAuthAccessToken: string | null = null;
 export const getHeaders = (): Record<string, string> => {
+	if (_oAuthAccessToken === null) throw new Error("oAuthAccessToken token not set");
 	const state = store.getState();
 	return {
-		Authorization: `Bearer ${state.session.oAuthAccessToken}`,
+		Authorization: `Bearer ${_oAuthAccessToken}`,
 		"x-tidal-token": <string>(<any>state.session.clientId),
 	};
 };
+export const setOAuthAccessToken = (oAuthAccessToken: string | null) => (_oAuthAccessToken = oAuthAccessToken);
 
 export type OnProgress = (info: { total: number; downloaded: number; percent: number }) => void;
 

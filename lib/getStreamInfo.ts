@@ -1,5 +1,5 @@
 import { decryptKeyId } from "./decryptKeyId";
-import { getHeaders } from "./fetchy";
+import { getHeaders, setOAuthAccessToken } from "./fetchy";
 import { validQualitiesSet, validQualities, PlaybackContextAudioQuality } from "./AudioQuality";
 
 export const getStreamInfo = async (trackId: number, audioQuality: PlaybackContextAudioQuality) => {
@@ -10,7 +10,14 @@ export const getStreamInfo = async (trackId: number, audioQuality: PlaybackConte
 
 	const playbackInfo = await fetch(url, {
 		headers: getHeaders(),
-	}).then((r) => r.json());
+	}).then((r) => {
+		if (r.status === 401) {
+			alert("Failed to fetch Stream Info... Invalid OAuth Access Token! Please update it in settings.");
+			setOAuthAccessToken(null);
+			throw new Error("Invalid OAuth Access Token!");
+		}
+		return r.json();
+	});
 
 	const manifest = JSON.parse(atob(playbackInfo.manifest));
 	if (manifest.encryptionType !== "OLD_AES") throw new Error(`Unexpected manifest encryption type ${manifest.encryptionType}`);
