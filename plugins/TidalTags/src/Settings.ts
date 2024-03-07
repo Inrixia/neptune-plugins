@@ -6,10 +6,12 @@ import { setStreamQualityIndicator } from "./streamQualitySelector";
 import { updateTrackLists } from "./updateTrackElements";
 
 storage.showTags ??= true;
-storage.showFLACInfo ??= true;
-storage.showFLACInfoBorder ??= false;
 storage.showAllQualities ??= true;
 storage.showAtmosQuality ??= true;
+
+// Hardcode to false for now as FLAC meta is broken while api calls are blocked.
+storage.showFLACInfo = false;
+storage.showFLACInfoBorder = false;
 export const Settings = () => {
 	setTimeout(() => {
 		const showTags = document.getElementById("showTags");
@@ -57,18 +59,18 @@ export const Settings = () => {
 		</label>
 
 		<br class="settings-spacer" />
-		<h3 class="settings-header">Show FLAC Info</h3>
-		<p class="settings-explainer">Show Sample Rate/Bit Depth</p>
+		<h3 class="settings-header" style="color: grey;">Show FLAC Info</h3>
+		<p class="settings-explainer" style="color: grey;">Show Sample Rate/Bit Depth (unavalible)</p>
 		<label class="switch">
-			<input type="checkbox" id="showFLACInfo" onChange=${onChange("showFLACInfo")} />
+			<input type="checkbox" id="showFLACInfo" onChange=${onChange("showFLACInfo")} disabled />
 			<span class="slider" />
 		</label>
 
 		<br class="settings-spacer" />
-		<h3 class="settings-header">Show FLAC Info Border</h3>
-		<p class="settings-explainer">Show a border around the FLAC Info</p>
+		<h3 class="settings-header" style="color: grey;">Show FLAC Info Border</h3>
+		<p class="settings-explainer" style="color: grey;">Show a border around the FLAC Info (unavalible)</p>
 		<label class="switch">
-			<input type="checkbox" id="showFLACInfoBorder" onChange=${onChange("showFLACInfoBorder")} />
+			<input type="checkbox" id="showFLACInfoBorder" onChange=${onChange("showFLACInfoBorder")} disabled />
 			<span class="slider" />
 		</label>
 	</div>`;
