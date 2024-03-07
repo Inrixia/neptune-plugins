@@ -81,7 +81,7 @@ input:checked + .slider {
 input:checked + .slider:before {
 	transform: translateX(26px);
 }
-`);import{store as Mm}from"@neptune";import{storage as Lo}from"@plugin";var Ro=a=>{let e=[],t=document.querySelectorAll(`[${a}]`);for(let r of t)e.push({elem:r,attr:r.getAttribute(a)});return e},dr=()=>{let a=[...Ro("data-track-id"),...Ro("data-track--content-id")];if(a.length===0)return;let e=Mm.getState().content.mediaItems;for(let{elem:t,attr:r}of a){if(r==null)continue;let i=e[+r]?.item;if(i?.contentType!=="track")continue;let n=i.mediaMetadata?.tags;if(n===void 0||n.length===1&&n[0]==="LOSSLESS")continue;let s=t.querySelector('[data-test="table-row-title"], [data-test="list-item-track"]');if(s===null)continue;let o=t.querySelector(".quality-tag-container")??document.createElement("span");if(o.getAttribute("track-id")!==r){o.innerHTML="",o.className="quality-tag-container",o.setAttribute("track-id",r),n.includes("HIRES_LOSSLESS")&&!Lo.showAllQualities&&(n=n.filter(c=>c!=="MQA"));for(let c of n){if(c==="LOSSLESS"||!Lo.showAtmosQuality&&c==="DOLBY_ATMOS")continue;let h=At[c];if(h===void 0)continue;let l=document.createElement("span");l.className=h.className,l.textContent=h.textContent,l.style.color=h.color,o.appendChild(l)}s.appendChild(o)}}};import{html as Om}from"@neptune/voby";import{storage as L}from"@plugin";L.showTags??=!0;L.showFLACInfo??=!0;L.showFLACInfoBorder??=!1;L.showAllQualities??=!0;L.showAtmosQuality??=!0;var zm=()=>{setTimeout(()=>{let e=document.getElementById("showTags");e instanceof HTMLInputElement&&e.checked!==L.showTags&&(e.checked=L.showTags);let t=document.getElementById("showFLACInfo");t instanceof HTMLInputElement&&t.checked!==L.showFLACInfo&&(t.checked=L.showFLACInfo);let r=document.getElementById("showFLACInfoBorder");r instanceof HTMLInputElement&&r.checked!==L.showFLACInfoBorder&&(r.checked=L.showFLACInfoBorder);let i=document.getElementById("showAllQualities");i instanceof HTMLInputElement&&i.checked!==L.showAllQualities&&(i.checked=L.showAllQualities);let n=document.getElementById("showAtmosQuality");n instanceof HTMLInputElement&&n.checked!==L.showAtmosQuality&&(n.checked=L.showAtmosQuality)});let a=e=>t=>{L[e]=t.target.checked,ur(),dr()};return Om`<div class="settings-section">
+`);import{store as Mm}from"@neptune";import{storage as Lo}from"@plugin";var Ro=a=>{let e=[],t=document.querySelectorAll(`[${a}]`);for(let r of t)e.push({elem:r,attr:r.getAttribute(a)});return e},dr=()=>{let a=[...Ro("data-track-id"),...Ro("data-track--content-id")];if(a.length===0)return;let e=Mm.getState().content.mediaItems;for(let{elem:t,attr:r}of a){if(r==null)continue;let i=e[+r]?.item;if(i?.contentType!=="track")continue;let n=i.mediaMetadata?.tags;if(n===void 0||n.length===1&&n[0]==="LOSSLESS")continue;let s=t.querySelector('[data-test="table-row-title"], [data-test="list-item-track"]');if(s===null)continue;let o=t.querySelector(".quality-tag-container")??document.createElement("span");if(o.getAttribute("track-id")!==r){o.innerHTML="",o.className="quality-tag-container",o.setAttribute("track-id",r),n.includes("HIRES_LOSSLESS")&&!Lo.showAllQualities&&(n=n.filter(c=>c!=="MQA"));for(let c of n){if(c==="LOSSLESS"||!Lo.showAtmosQuality&&c==="DOLBY_ATMOS")continue;let h=At[c];if(h===void 0)continue;let l=document.createElement("span");l.className=h.className,l.textContent=h.textContent,l.style.color=h.color,o.appendChild(l)}s.appendChild(o)}}};import{html as Om}from"@neptune/voby";import{storage as L}from"@plugin";L.showTags??=!0;L.showAllQualities??=!0;L.showAtmosQuality??=!0;L.showFLACInfo=!1;L.showFLACInfoBorder=!1;var zm=()=>{setTimeout(()=>{let e=document.getElementById("showTags");e instanceof HTMLInputElement&&e.checked!==L.showTags&&(e.checked=L.showTags);let t=document.getElementById("showFLACInfo");t instanceof HTMLInputElement&&t.checked!==L.showFLACInfo&&(t.checked=L.showFLACInfo);let r=document.getElementById("showFLACInfoBorder");r instanceof HTMLInputElement&&r.checked!==L.showFLACInfoBorder&&(r.checked=L.showFLACInfoBorder);let i=document.getElementById("showAllQualities");i instanceof HTMLInputElement&&i.checked!==L.showAllQualities&&(i.checked=L.showAllQualities);let n=document.getElementById("showAtmosQuality");n instanceof HTMLInputElement&&n.checked!==L.showAtmosQuality&&(n.checked=L.showAtmosQuality)});let a=e=>t=>{L[e]=t.target.checked,ur(),dr()};return Om`<div class="settings-section">
 		<h3 class="settings-header">Display Tags</h3>
 		<p class="settings-explainer">Display Quality Tags.</p>
 		<label class="switch">
@@ -105,18 +105,18 @@ input:checked + .slider:before {
 		</label>
 
 		<br class="settings-spacer" />
-		<h3 class="settings-header">Show FLAC Info</h3>
-		<p class="settings-explainer">Show Sample Rate/Bit Depth</p>
+		<h3 class="settings-header" style="color: grey;">Show FLAC Info</h3>
+		<p class="settings-explainer" style="color: grey;">Show Sample Rate/Bit Depth (unavalible)</p>
 		<label class="switch">
-			<input type="checkbox" id="showFLACInfo" onChange=${a("showFLACInfo")} />
+			<input type="checkbox" id="showFLACInfo" onChange=${a("showFLACInfo")} disabled />
 			<span class="slider" />
 		</label>
 
 		<br class="settings-spacer" />
-		<h3 class="settings-header">Show FLAC Info Border</h3>
-		<p class="settings-explainer">Show a border around the FLAC Info</p>
+		<h3 class="settings-header" style="color: grey;">Show FLAC Info Border</h3>
+		<p class="settings-explainer" style="color: grey;">Show a border around the FLAC Info (unavalible)</p>
 		<label class="switch">
-			<input type="checkbox" id="showFLACInfoBorder" onChange=${a("showFLACInfoBorder")} />
+			<input type="checkbox" id="showFLACInfoBorder" onChange=${a("showFLACInfoBorder")} disabled />
 			<span class="slider" />
 		</label>
 	</div>`};import{storage as Lm}from"@plugin";var Rm=Nm(["playbackControls/SET_PLAYBACK_STATE","playbackControls/MEDIA_PRODUCT_TRANSITION"],()=>{setTimeout(ur)}),Uo=()=>{pr.disconnect(),dr(),pr.observe(document.body,{childList:!0,subtree:!0})},mr,Um=()=>{Lm.showTags&&(mr===null?Uo():clearTimeout(mr),mr=setTimeout(()=>{Uo(),mr=null},5))},pr=new MutationObserver(Um);pr.observe(document.body,{childList:!0,subtree:!0});var hh=()=>{pr.disconnect(),Rm()};export{zm as Settings,hh as onUnload};
