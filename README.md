@@ -5,7 +5,7 @@ To install any of these plugins you need to have the [Neptune](https://github.co
 
 Want to chat? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**
 
-You can see a list of all plugins under the **plugins** directory.
+[**You can see a list of all plugins under the plugins directory.**](https://github.com/Inrixia/neptune-plugins/tree/master/plugins)
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/a997156c-a281-46ec-992a-397a742dd146)
 
