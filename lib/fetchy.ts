@@ -1,29 +1,36 @@
 import type https from "https";
 const { request } = <typeof https>require("https");
 
-import { store } from "@neptune";
+import { modules } from "@neptune";
+const findModuleFunction = (functionName: string) => {
+	for (const module of modules) {
+		if (typeof module?.exports !== "object") continue;
+		for (const _key in module.exports) {
+			const func = module.exports[_key]?.[functionName];
+			if (typeof func === "function") return func;
+		}
+	}
+};
+const getCredentials: () => Promise<{ token: string; clientId: string }> = findModuleFunction("getCredentials");
 
-let _oAuthAccessToken: string | null = null;
-export const getHeaders = (): Record<string, string> => {
-	if (_oAuthAccessToken === null) throw new Error("oAuthAccessToken token not set");
-	const state = store.getState();
+export const getHeaders = async (): Promise<Record<string, string>> => {
+	const { clientId, token } = await getCredentials();
 	return {
-		Authorization: `Bearer ${_oAuthAccessToken}`,
-		"x-tidal-token": <string>(<any>state.session.clientId),
+		Authorization: `Bearer ${token}`,
+		"x-tidal-token": clientId,
 	};
 };
-export const setOAuthAccessToken = (oAuthAccessToken: string | null) => (_oAuthAccessToken = oAuthAccessToken);
 
 export type OnProgress = (info: { total: number; downloaded: number; percent: number }) => void;
 
-export const fetchy = (url: string, onProgress: OnProgress, byteRangeStart = 0, byteRangeEnd?: number) =>
-	new Promise((resolve, reject) => {
-		const headers = getHeaders();
-		if (typeof byteRangeStart !== "number") throw new Error("byteRangeStart must be a number");
-		if (byteRangeEnd !== undefined) {
-			if (typeof byteRangeEnd !== "number") throw new Error("byteRangeEnd must be a number");
-			headers["Range"] = `bytes=${byteRangeStart}-${byteRangeEnd}`;
-		}
+export const fetchy = async (url: string, onProgress: OnProgress, byteRangeStart = 0, byteRangeEnd?: number) => {
+	const headers = await getHeaders();
+	if (typeof byteRangeStart !== "number") throw new Error("byteRangeStart must be a number");
+	if (byteRangeEnd !== undefined) {
+		if (typeof byteRangeEnd !== "number") throw new Error("byteRangeEnd must be a number");
+		headers["Range"] = `bytes=${byteRangeStart}-${byteRangeEnd}`;
+	}
+	return new Promise((resolve, reject) => {
 		const req = request(
 			url,
 			{
@@ -59,3 +66,4 @@ export const fetchy = (url: string, onProgress: OnProgress, byteRangeStart = 0, 
 		req.on("error", reject);
 		req.end();
 	});
+};
