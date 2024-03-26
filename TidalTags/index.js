@@ -106,7 +106,7 @@ input:checked + .slider:before {
 
 		<br class="settings-spacer" />
 		<h3 class="settings-header">Show FLAC Info</h3>
-		<p class="settings-explainer">Show Sample Rate/Bit Depth (unavalible)</p>
+		<p class="settings-explainer">Show Sample Rate/Bit Depth</p>
 		<label class="switch">
 			<input type="checkbox" id="showFLACInfo" onChange=${a("showFLACInfo")} />
 			<span class="slider" />
@@ -114,7 +114,7 @@ input:checked + .slider:before {
 
 		<br class="settings-spacer" />
 		<h3 class="settings-header">Show FLAC Info Border</h3>
-		<p class="settings-explainer">Show a border around the FLAC Info (unavalible)</p>
+		<p class="settings-explainer">Show a border around the FLAC Info</p>
 		<label class="switch">
 			<input type="checkbox" id="showFLACInfoBorder" onChange=${a("showFLACInfoBorder")} />
 			<span class="slider" />
