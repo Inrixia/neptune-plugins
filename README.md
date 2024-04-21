@@ -5,11 +5,17 @@ To install any of these plugins you need to have the [Neptune](https://github.co
 
 Want to chat? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**
 
-[**You can see a list of all plugins under the plugins directory.**](https://github.com/Inrixia/neptune-plugins/tree/master/plugins)
-
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/a997156c-a281-46ec-992a-397a742dd146)
 
-# Tidal Tags
+# My Public Plugins
+You can see a list of all plugins including unreleased ones under the [**plugins directory**](https://github.com/Inrixia/neptune-plugins/tree/master/plugins)
+
+## Always Exclusive
+
+While enabled will ensure that audio output is set to exclusive mode
+**Install Url: https://inrixia.github.io/neptune-plugins/AlwaysExlusive/**
+
+## Tidal Tags
 
 This is a desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags).  
 This adds Track Quality Tags and Sample Rate/Bit Depth/Bitrate information.  
@@ -17,7 +23,7 @@ This adds Track Quality Tags and Sample Rate/Bit Depth/Bitrate information.
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/aec4adb2-0edb-4441-8509-9a672c824946)
 
-# Always Exclusive
+## Shazam Files - PRE RELEASE
 
-While enabled will ensure that audio output is set to exclusive mode
-**Install Url: https://inrixia.github.io/neptune-plugins/AlwaysExlusive/**
+When enabled any files you drag onto your client will be run through [**Shazam**](https://www.shazam.com/) and added to the current playlist!
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/f637d5a0-fea0-4ba4-984e-ccddb81341b9)
