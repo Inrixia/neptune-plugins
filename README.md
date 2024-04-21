@@ -14,14 +14,15 @@ You can see a list of all plugins including unreleased ones under the [**plugins
 ## Always Exclusive
 
 **Install Url: https://inrixia.github.io/neptune-plugins/AlwaysExlusive/**  
-While enabled will ensure that audio output is set to exclusive mode
+While enabled will ensure that audio output is set to exclusive mode  
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/32ff8e55-728c-4a77-9e9e-50b53e90541c)
+
 
 ## Tidal Tags
 
 **Install Url: https://inrixia.github.io/neptune-plugins/TidalTags/**  
 This is a desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags).  
-This adds Track Quality Tags and Sample Rate/Bit Depth/Bitrate information.
-
+This adds Track Quality Tags and Sample Rate/Bit Depth/Bitrate information.  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/aec4adb2-0edb-4441-8509-9a672c824946)
 
 ## Shazam Files
