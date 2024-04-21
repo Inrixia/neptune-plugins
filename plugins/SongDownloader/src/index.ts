@@ -79,7 +79,7 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 		downloadButton.addEventListener("click", () => {
 			if (mediaInfo.id === undefined) return;
 			prep();
-			downloadSong(mediaInfo.id, fileName, storage.desiredDownloadQuality, tick).then(clear);
+			downloadSong(mediaInfo.id, fileName, storage.desiredDownloadQuality, tick).catch(alert).finally(clear);
 		});
 	});
 });
