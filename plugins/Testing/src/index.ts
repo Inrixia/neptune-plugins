@@ -1,9 +1,7 @@
 import { intercept } from "@neptune";
 
-import confetti from "canvas-confetti";
 import { ActionType, UninterceptFunction } from "neptune-types/api/intercept";
 import { NeptuneDispatchers } from "neptune-types/tidal";
-confetti();
 
 function convertToUpperCaseWithUnderscores(str: string) {
 	return str

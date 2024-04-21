@@ -13,7 +13,8 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@inrixia/helpers": "^2.0.10"
+		"@inrixia/helpers": "^2.0.10",
+		"shazamio-core": "^1.3.0"
 	},
 	"nodemonConfig": {
 		"watch": [
