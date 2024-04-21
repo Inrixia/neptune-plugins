@@ -1,7 +1,6 @@
 import { intercept } from "@neptune";
 
 import { ActionType, UninterceptFunction } from "neptune-types/api/intercept";
-import { NeptuneDispatchers } from "neptune-types/tidal";
 
 function convertToUpperCaseWithUnderscores(str: string) {
 	return str

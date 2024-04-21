@@ -19,6 +19,7 @@
 	"nodemonConfig": {
 		"watch": [
 			"./plugins/Shazam/src/**",
+			"./plugins/AlwaysExclusive/src/**",
 			"./plugins/SongDownloader/src/**",
 			"./plugins/Testing/src/**",
 			"./plugins/TidalTags/src/**"

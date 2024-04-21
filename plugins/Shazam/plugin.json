@@ -1,0 +1,6 @@
+{
+  "name": "Shazam",
+  "description": "Drop any file onto the tidal client and go to its tidal song if it exists",
+  "author": "Inrixia",
+  "main": "./src/index.js"
+}
