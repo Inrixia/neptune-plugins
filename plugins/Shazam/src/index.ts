@@ -62,6 +62,7 @@ const getShazamPlaylist = async (): Promise<Playlist> => {
 const addToPlaylist = async (playlistUUID: string, mediaItemIdsToAdd: string[]) => {
 	actions.content.addMediaItemsToPlaylist({ mediaItemIdsToAdd, onDupes: "SKIP", playlistUUID });
 	await interceptPromise(["etag/SET_PLAYLIST_ETAG", "content/ADD_MEDIA_ITEMS_TO_PLAYLIST_SUCCESS"], ["content/ADD_MEDIA_ITEMS_TO_PLAYLIST_FAIL"]);
+	actions.content.loadListItemsPage({ listName: `playlists/${playlistUUID}`, listType: "mediaItems", reset: false });
 	setTimeout(() => actions.content.loadListItemsPage({ listName: `playlists/${playlistUUID}`, listType: "mediaItems", reset: true }), 1000);
 };
 
@@ -90,7 +91,7 @@ const handleDrop = async (event: DragEvent) => {
 	for (const file of event.dataTransfer?.files ?? []) {
 		const bytes = await file.arrayBuffer();
 		if (bytes === undefined) continue;
-		await using(recognizeBytes(new Uint8Array(bytes)), async (signatures) => {
+		await using(recognizeBytes(new Uint8Array(bytes), 25), async (signatures) => {
 			for (const sig of signatures) {
 				const shazamData = await fetchShazamData({ samplems: sig.samplems, uri: sig.uri });
 				if (shazamData.matches.length === 0) return messageWarn(`No matches for ${file.name}`);
