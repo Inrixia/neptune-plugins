@@ -1,0 +1,1 @@
+import{actions as e,store as t}from"@neptune";var o=setInterval(()=>{t.getState().player.activeDeviceMode==="shared"&&e.player.setDeviceMode("exclusive")},5e3),c=()=>clearTimeout(o);export{c as onUnload};
