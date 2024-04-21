@@ -1,6 +1,0 @@
-{
-  "name": "Extra Art",
-  "description": "Adds album artwork to song lists outside of favorites.",
-  "author": "Inrixia",
-  "main": "./src/index.js"
-}
