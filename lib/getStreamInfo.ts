@@ -1,9 +1,9 @@
 import { decryptKeyId } from "./decryptKeyId";
 import { getHeaders } from "./fetchy";
-import { validQualitiesSet, validQualities, PlaybackContextAudioQuality } from "./AudioQuality";
+import { audioQualities, AudioQuality } from "./AudioQuality";
 
-export const getStreamInfo = async (trackId: number, audioQuality: PlaybackContextAudioQuality) => {
-	if (!validQualitiesSet.has(audioQuality)) throw new Error(`Cannot get Stream Info! Invalid audio quality: ${audioQuality}, should be one of ${validQualities.join(", ")}`);
+export const getStreamInfo = async (trackId: number, audioQuality: AudioQuality) => {
+	if (!audioQualities.includes(audioQuality)) throw new Error(`Cannot get Stream Info! Invalid audio quality: ${audioQuality}, should be one of ${audioQualities.join(", ")}`);
 	if (trackId === undefined) throw new Error("Cannot get Stream Info! trackId is missing");
 
 	try {

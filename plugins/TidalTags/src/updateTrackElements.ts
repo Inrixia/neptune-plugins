@@ -1,7 +1,7 @@
 import { store } from "@neptune";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
-import { QualityMeta, MediaMetadataQuality } from "../../../lib/AudioQuality";
+import { AudioQuality, QualityMeta, QualityTag } from "../../../lib/AudioQuality";
 import type { MediaItem } from "neptune-types/tidal";
 
 const queryAllAndAttribute = (selector: string) => {
@@ -24,9 +24,11 @@ export const updateTrackLists = () => {
 		const mediaItem = mediaItems[+trackId]?.item;
 		if (mediaItem?.contentType !== "track") continue;
 
+		const isLowQuality = mediaItem.audioQuality === AudioQuality.Low || mediaItem.audioQuality === AudioQuality.Lowest;
+
 		let trackTags = mediaItem.mediaMetadata?.tags;
 		if (trackTags === undefined) continue;
-		if (trackTags.length === 1 && trackTags[0] === MediaMetadataQuality.High) continue;
+		if (trackTags.length === 1 && trackTags[0] === QualityTag.High && !isLowQuality) continue;
 
 		const trackList = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"]`);
 		if (trackList === null) continue;
@@ -38,18 +40,28 @@ export const updateTrackLists = () => {
 		span.className = "quality-tag-container";
 		span.setAttribute("track-id", trackId);
 
-		if (trackTags.includes(MediaMetadataQuality.HiRes) && !storage.showAllQualities) trackTags = trackTags.filter((tag) => tag !== MediaMetadataQuality.MQA);
+		if (isLowQuality) {
+			const tagElement = document.createElement("span");
+
+			tagElement.className = "quality-tag";
+			tagElement.textContent = "Low";
+			tagElement.style.color = "#b9b9b9";
+
+			span.appendChild(tagElement);
+		}
+
+		if (trackTags.includes(QualityTag.HiRes) && !storage.showAllQualities) trackTags = trackTags.filter((tag) => tag !== QualityTag.MQA);
 
 		for (const tag of trackTags) {
-			if (tag === MediaMetadataQuality.High) continue;
-			if (!storage.showAtmosQuality && tag === MediaMetadataQuality.Atmos) continue;
+			if (tag === QualityTag.High) continue;
+			if (!storage.showAtmosQuality && tag === QualityTag.DolbyAtmos) continue;
 
 			const data = QualityMeta[tag];
 			if (data === undefined) continue;
 
 			const tagElement = document.createElement("span");
 
-			tagElement.className = data.className;
+			tagElement.className = "quality-tag";
 			tagElement.textContent = data.textContent;
 			tagElement.style.color = data.color;
 

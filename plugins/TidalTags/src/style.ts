@@ -5,9 +5,9 @@ appendStyle(`
 ${settingsCSS}
 .quality-tag-container {
 	display: inline-flex;
-	height: 20px;
+	height: 24px;
 	font-size: 12px;
-	line-height: 20px;
+	line-height: 24px;
 }
 .quality-tag {
 	justify-content: center;

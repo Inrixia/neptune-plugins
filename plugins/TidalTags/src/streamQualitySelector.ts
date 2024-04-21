@@ -1,6 +1,6 @@
-import { QualityMeta, MediaMetadataQuality } from "../../../lib/AudioQuality";
+import { audioQualities, QualityMeta } from "../../../lib/AudioQuality";
 import { downloadBytes } from "../../../lib/download";
-import { PlaybackContextAudioQuality, PlaybackContext, validQualitiesSet } from "../../../lib/AudioQuality";
+import { AudioQuality, PlaybackContext } from "../../../lib/AudioQuality";
 
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
@@ -17,7 +17,7 @@ interface ExtendedFormat extends IFormat {
 }
 
 const qualityCache = new Map();
-const getFLACInfo = (id: number, quality: PlaybackContextAudioQuality) => {
+const getFLACInfo = (id: number, quality: AudioQuality) => {
 	const key = `${id}-${quality}`;
 
 	// If a promise for this key is already in the cache, await it
@@ -66,15 +66,15 @@ export const setStreamQualityIndicator = async () => {
 	const { actualAudioQuality, actualProductId } = playbackContext;
 
 	switch (actualAudioQuality) {
-		case PlaybackContextAudioQuality.MQA:
-			qualityElement.style.color = QualityMeta[MediaMetadataQuality.MQA].color;
+		case AudioQuality.MQA:
+			qualityElement.style.color = QualityMeta["MQA"].color;
 			break;
 		default:
 			qualityElement.style.color = "";
 			break;
 	}
 
-	const invalidState = !validQualitiesSet.has(actualAudioQuality) || flacInfoElem === undefined || qualitySelector.parentElement === null;
+	const invalidState = !audioQualities.includes(actualAudioQuality) || flacInfoElem === undefined || qualitySelector.parentElement === null;
 	if (!storage.showFLACInfo || invalidState) return removeElems(qualitySelector);
 
 	flacInfoElem.textContent = "";
