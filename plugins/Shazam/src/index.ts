@@ -6,6 +6,7 @@ const { default: init, recognizeBytes } = require("shazamio-core/web");
 
 import { actions, store, intercept } from "@neptune";
 import { ActionType, CallbackFunction, PayloadActionTypeTuple } from "neptune-types/api/intercept";
+import { DecodedSignature } from "shazamio-core";
 
 const parseResponse = async <T>(responseP: Promise<Response> | Response): Promise<T> => {
 	const response = await responseP;
@@ -29,16 +30,16 @@ const fetchIsrc = async (isrc: string) => {
 
 init();
 
-const interceptPromise = <RESAT extends ActionType, REJAT extends ActionType>(resActionType: RESAT, rejActionType: REJAT, timeoutMs = 5000): Promise<PayloadActionTypeTuple<RESAT>> => {
+const interceptPromise = <RESAT extends ActionType, REJAT extends ActionType>(resActionType: RESAT[], rejActionType: REJAT[], timeoutMs = 5000): Promise<PayloadActionTypeTuple<RESAT>> => {
 	let res: CallbackFunction<RESAT>;
-	let rej: CallbackFunction<REJAT>;
+	let rej: (err: PayloadActionTypeTuple<REJAT> | string) => void;
 	const p = new Promise<PayloadActionTypeTuple<RESAT>>((_res, _rej) => {
 		res = _res;
 		rej = _rej;
 	});
 	const unloadRes = intercept(resActionType, res!, true);
 	const unloadRej = intercept(rejActionType, rej!, true);
-	const timeout = setTimeout(rej!, timeoutMs);
+	const timeout = setTimeout(() => rej(`${rejActionType}_TIMEOUT`), timeoutMs);
 	return p.finally(() => {
 		clearTimeout(timeout);
 		unloadRes();
@@ -53,41 +54,60 @@ const getShazamPlaylist = async (): Promise<Playlist> => {
 	}
 	actions.folders.createPlaylist({ description: "", title: shazamTitle, folderId: "root" });
 
-	const [{ playlist }] = await interceptPromise("content/LOAD_PLAYLIST_SUCCESS", "content/LOAD_PLAYLIST_FAIL");
+	const [{ playlist }] = await interceptPromise(["content/LOAD_PLAYLIST_SUCCESS"], ["content/LOAD_PLAYLIST_FAIL"]);
 	if (playlist.title !== "Shazam") throw new Error("Failed to load Shazam playlist");
 	return playlist;
 };
 
-const addToShazamPlaylist = async (mediaItemIdsToAdd: string[]) => {
-	const { uuid } = await getShazamPlaylist();
-	actions.content.addMediaItemsToPlaylist({ mediaItemIdsToAdd, onDupes: "SKIP", playlistUUID: uuid! });
-	await interceptPromise("content/ADD_MEDIA_ITEMS_TO_PLAYLIST_SUCCESS", "content/ADD_MEDIA_ITEMS_TO_PLAYLIST_FAIL");
-	actions.content.loadPlaylist({ playlistUUID: uuid! });
-	actions.content.loadListItemsPage({ listName: `playlists/${uuid!}`, listType: "mediaItems", reset: true });
-	await interceptPromise("content/LOAD_PLAYLIST_SUCCESS", "content/LOAD_PLAYLIST_FAIL");
-	await interceptPromise("content/LOAD_LIST_ITEMS_PAGE_SUCCESS", "content/LOAD_LIST_ITEMS_PAGE_FAIL");
+const addToPlaylist = async (playlistUUID: string, mediaItemIdsToAdd: string[]) => {
+	actions.content.addMediaItemsToPlaylist({ mediaItemIdsToAdd, onDupes: "SKIP", playlistUUID });
+	await interceptPromise(["etag/SET_PLAYLIST_ETAG", "content/ADD_MEDIA_ITEMS_TO_PLAYLIST_SUCCESS"], ["content/ADD_MEDIA_ITEMS_TO_PLAYLIST_FAIL"]);
+	setTimeout(() => actions.content.loadListItemsPage({ listName: `playlists/${playlistUUID}`, listType: "mediaItems", reset: true }), 1000);
 };
+
+export const using = async <T>(signatures: DecodedSignature[], fun: (signatures: ReadonlyArray<DecodedSignature>) => T) => {
+	const ret = await fun(signatures);
+	for (const signature of signatures) signature.free();
+	return ret;
+};
+
+const messageError = (message: string) => actions.message.messageError({ message, category: "OTHER", severity: "ERROR" });
+const messageWarn = (message: string) => actions.message.messageWarn({ message, category: "OTHER", severity: "WARN" });
+const messageInfo = (message: string) => actions.message.messageInfo({ message, category: "OTHER", severity: "INFO" });
 
 // Define the function
 const handleDrop = async (event: DragEvent) => {
 	event.preventDefault();
 	event.stopPropagation();
-	const bytes = await event.dataTransfer?.files[0].arrayBuffer();
-	console.log(bytes);
-	if (bytes !== undefined) {
-		const sigs = recognizeBytes(new Uint8Array(bytes));
-		for (const sig of sigs) {
-			const shazamData = await fetchShazamData({ samplems: sig.samplems, uri: sig.uri });
-			console.log(shazamData, sig);
-			if (shazamData.matches.length > 0) {
+
+	// @ts-expect-error TS Api
+	const { pathname, params } = store.getState().router;
+
+	if (!pathname.startsWith("/playlist/")) {
+		return messageError(`This is not a playlist!`);
+	}
+	const playlistUUID: string = params.id;
+	for (const file of event.dataTransfer?.files ?? []) {
+		const bytes = await file.arrayBuffer();
+		if (bytes === undefined) continue;
+		await using(recognizeBytes(new Uint8Array(bytes)), async (signatures) => {
+			for (const sig of signatures) {
+				const shazamData = await fetchShazamData({ samplems: sig.samplems, uri: sig.uri });
+				if (shazamData.matches.length === 0) return messageWarn(`No matches for ${file.name}`);
+
+				const trackName = shazamData.track?.share?.subject ?? "Unknown";
 				const isrc = shazamData.track?.isrc;
 				const isrcData = isrc !== undefined ? await fetchIsrc(isrc).catch(() => undefined) : undefined;
 				const ids = (isrcData?.data ?? []).map((track) => track.id);
-				console.log(ids);
-				addToShazamPlaylist(ids);
-				return;
+				if (ids.length > 0) {
+					messageInfo(`Adding ${trackName} to playlist`);
+					await addToPlaylist(playlistUUID, ids);
+				} else {
+					console.log("SHAZ", shazamData);
+					messageWarn(`Track ${trackName} is not avalible in Tidal`);
+				}
 			}
-		}
+		});
 	}
 };
 
