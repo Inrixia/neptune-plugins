@@ -3,6 +3,7 @@ import { ISRCResponse } from "./types/isrcTypes";
 import { ShazamData } from "./types/shazamTypes";
 
 const { default: init, recognizeBytes } = require("shazamio-core/web");
+init();
 
 import { actions, store, intercept } from "@neptune";
 import { ActionType, CallbackFunction, PayloadActionTypeTuple } from "neptune-types/api/intercept";
@@ -27,8 +28,6 @@ const fetchShazamData = async (signature: { samplems: number; uri: string }) => 
 const fetchIsrc = async (isrc: string) => {
 	return parseResponse<ISRCResponse>(fetch(`https://shazamwow.com/isrc?isrc=${isrc}&countryCode=US&limit=100`));
 };
-
-init();
 
 const interceptPromise = <RESAT extends ActionType, REJAT extends ActionType>(resActionType: RESAT[], rejActionType: REJAT[], timeoutMs = 5000): Promise<PayloadActionTypeTuple<RESAT>> => {
 	let res: CallbackFunction<RESAT>;
