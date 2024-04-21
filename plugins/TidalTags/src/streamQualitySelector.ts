@@ -74,24 +74,29 @@ export const setStreamQualityIndicator = async () => {
 			break;
 	}
 
-	if (!storage.showFLACInfo) return removeElems(qualitySelector);
+	const invalidState = !validQualitiesSet.has(actualAudioQuality) || flacInfoElem === undefined || qualitySelector.parentElement === null;
+	if (!storage.showFLACInfo || invalidState) return removeElems(qualitySelector);
 
-	if (storage.showFLACInfo && validQualitiesSet.has(actualAudioQuality) && flacInfoElem !== undefined && qualitySelector.parentElement !== null) {
-		flacInfoElem.textContent = "";
-		flacInfoElem.style.border = "";
+	flacInfoElem.textContent = "";
+	flacInfoElem.style.border = "";
 
-		removeElems(qualitySelector);
-		qualitySelector.parentElement.prepend(flacInfoElem);
+	removeElems(qualitySelector);
+	qualitySelector.parentElement.prepend(flacInfoElem);
 
+	flacInfoElem.className = "bitInfo";
+	flacInfoElem.style.maxWidth = "100px";
+	flacInfoElem.style.textAlign = "center";
+	flacInfoElem.style.padding = "4px";
+	flacInfoElem.style.fontSize = "13px";
+
+	flacInfoElem.style.color = "white";
+	flacInfoElem.textContent = "Loading...";
+
+	try {
 		const { bitrate, bitsPerSample, sampleRate } = await getFLACInfo(actualProductId, actualAudioQuality);
 
-		flacInfoElem.className = "bitInfo";
 		flacInfoElem.textContent = `${bitsPerSample}bit ${sampleRate / 1000}kHz ${(bitrate / 1000).toFixed(0)}kb/s`;
-		flacInfoElem.style.maxWidth = "100px";
-		flacInfoElem.style.textAlign = "center";
-		flacInfoElem.style.padding = "4px";
 		flacInfoElem.style.color = "#cfcfcf";
-		flacInfoElem.style.fontSize = "13px";
 
 		const qualityElemColor = window.getComputedStyle(qualityElement).color;
 		if (storage.showFLACInfoBorder) {
@@ -104,5 +109,10 @@ export const setStreamQualityIndicator = async () => {
 
 		// Fix for grid spacing issues
 		qualitySelector.parentElement.style.setProperty("grid-auto-columns", "auto");
+	} catch (err) {
+		flacInfoElem.style.maxWidth = "256px";
+		flacInfoElem.style.color = "#cfcfcf";
+		flacInfoElem.style.border = "solid 1px red";
+		flacInfoElem.textContent = `Loading Info Failed - ${(<Error>err).message.substring(0, 64)}`;
 	}
 };
