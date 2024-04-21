@@ -13,11 +13,11 @@ Want to chat? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3
 
 This is a desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags).  
 This adds Track Quality Tags and Sample Rate/Bit Depth/Bitrate information.  
-**Install Url: https://inrixia.github.io/neptune-plugins/TidalTags**
+**Install Url: https://inrixia.github.io/neptune-plugins/TidalTags/**
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/aec4adb2-0edb-4441-8509-9a672c824946)
 
 # Always Exclusive
 
 While enabled will ensure that audio output is set to exclusive mode
-**Install Url: https://inrixia.github.io/neptune-plugins/AlwaysExlusive**
+**Install Url: https://inrixia.github.io/neptune-plugins/AlwaysExlusive/**
