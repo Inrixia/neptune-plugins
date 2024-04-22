@@ -1,6 +1,6 @@
 import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType } from "./getStreamInfo";
 import { decryptBuffer } from "./decryptBuffer";
-import { FetchyOptions, OnProgress, fetchy } from "./fetchy";
+import { FetchyOptions, fetchy } from "./fetchy";
 import { saveFile } from "./saveFile";
 import { AudioQualityEnum } from "./AudioQuality";
 import { decryptKeyId } from "./decryptKeyId";
@@ -51,10 +51,32 @@ export const downloadTrack = async ({ songId, desiredQuality }: TrackOptions, op
 			return { playbackInfo, manifest, manifestMimeType, buffer };
 		}
 		case ManifestMimeType.Dash: {
-			if (options?.headers?.["range"] !== undefined) throw new Error("Range header not supported for dash streams");
 			const trackManifest = manifest.tracks.audios[0];
-			const buffer = Buffer.concat(await Promise.all(trackManifest.segments.map(({ url }) => fetchy(url.replaceAll("amp;", ""), options))));
+
+			let buffer: Buffer;
+			const { bytesWanted } = options ?? {};
+			if (bytesWanted !== undefined) {
+				delete options?.bytesWanted;
+				let buffers: Buffer[] = [];
+				let bytes = 0;
+				for (const { url } of trackManifest.segments) {
+					const segmentBuffer = await fetchy(url.replaceAll("amp;", ""), options);
+					bytes += segmentBuffer.length;
+					buffers.push(segmentBuffer);
+					if (bytes >= bytesWanted) break;
+				}
+				buffer = Buffer.concat(buffers);
+			} else {
+				buffer = Buffer.concat(await Promise.all(trackManifest.segments.map(({ url }) => fetchy(url.replaceAll("amp;", ""), options))));
+			}
 			return { playbackInfo, manifest, manifestMimeType, buffer };
 		}
 	}
+};
+
+const parseRange = (range?: string): [number?, number?] => {
+	if (range === undefined) return [];
+	const [_, start, end] = range.match(/bytes=(\d+)-(\d+)?/) ?? [];
+	if (start) return [parseInt(start, 10), end ? parseInt(end, 10) : undefined];
+	return [];
 };

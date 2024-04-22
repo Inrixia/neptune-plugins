@@ -25,14 +25,16 @@ export const getHeaders = async (): Promise<Record<string, string>> => {
 };
 
 export type OnProgress = (info: { total: number; downloaded: number; percent: number }) => void;
-export interface FetchyOptions extends RequestOptions {
+export interface FetchyOptions {
 	onProgress?: OnProgress;
+	bytesWanted?: number;
 }
 
 export const fetchy = async (url: string, options?: FetchyOptions): Promise<Buffer> =>
 	new Promise((resolve, reject) => {
-		const { onProgress } = options ?? {};
-		const req = request(url, options ?? {}, (res) => {
+		const { onProgress, bytesWanted } = options ?? {};
+		const reqOptions = bytesWanted ? { headers: { Range: `bytes=0-${bytesWanted}` } } : {};
+		const req = request(url, reqOptions, (res) => {
 			const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
 			if (!OK) reject(new Error(`Status code is ${res.statusCode}`));
 			let total = -1;

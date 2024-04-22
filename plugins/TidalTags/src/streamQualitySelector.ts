@@ -12,10 +12,7 @@ import { IFormat } from "music-metadata/lib/type";
 
 const { parseBuffer } = <typeof meta>require("music-metadata/lib/core");
 
-type AudioInfo = ExtendedPlayackInfo &
-	Partial<IFormat> & {
-		bitrate?: number;
-	};
+type AudioInfo = IFormat;
 
 const qualityCache = new Map<string, Promise<AudioInfo>>();
 const getTrackInfo = ({ songId, desiredQuality }: TrackOptions): Promise<AudioInfo> => {
@@ -27,21 +24,30 @@ const getTrackInfo = ({ songId, desiredQuality }: TrackOptions): Promise<AudioIn
 	qualityCache.set(
 		key,
 		(async (): Promise<AudioInfo> => {
-			let totalBytes = -1;
+			let totalBytes;
 			const onProgress = ({ total }: { total: number }) => (totalBytes = total);
-			const playbackInfo = await getPlaybackInfo(songId, desiredQuality);
-			switch (playbackInfo.manifestMimeType) {
+			const { buffer, manifestMimeType, manifest } = await downloadTrack({ songId, desiredQuality }, { bytesWanted: 43, onProgress });
+			const { format } = await parseBuffer(buffer);
+
+			let duration = format.duration;
+			let bitrate = format.bitrate;
+			switch (manifestMimeType) {
 				case ManifestMimeType.Tidal: {
-					const { buffer } = await downloadTrack({ songId, desiredQuality }, { headers: { range: "bytes=0-43" }, onProgress, playbackInfo });
-					const { format } = await parseBuffer(buffer);
-					const bitrate = format.duration !== undefined ? (totalBytes / format.duration) * 8 : undefined;
-					return { ...playbackInfo, ...format, bitrate };
+					if (totalBytes !== undefined && duration !== undefined) bitrate = (totalBytes / duration) * 8;
+					break;
 				}
 				case ManifestMimeType.Dash: {
-					const trackManifest = playbackInfo.manifest.tracks.audios[0];
-					return { ...playbackInfo, bitrate: trackManifest.bitrate.bps, codec: trackManifest.codec };
+					duration = manifest.duration;
+					bitrate = manifest.tracks.audios[0].bitrate.bps;
+					break;
 				}
 			}
+
+			return {
+				...format,
+				bitrate,
+				duration,
+			};
 		})()
 	);
 
@@ -105,13 +111,12 @@ export const setStreamQualityIndicator = async () => {
 	qualitySelector.parentElement.style.setProperty("grid-auto-columns", "auto");
 
 	try {
-		const { bitrate, bitsPerSample, sampleRate, codec, manifestMimeType } = await getTrackInfo({ songId: actualProductId, desiredQuality: actualAudioQuality });
+		const { bitrate, bitsPerSample, sampleRate } = await getTrackInfo({ songId: actualProductId, desiredQuality: actualAudioQuality });
 
 		flacInfoElem.textContent = "";
 		if (sampleRate !== undefined) flacInfoElem.textContent += `${sampleRate / 1000}kHz `;
 		if (bitsPerSample !== undefined) flacInfoElem.textContent += `${bitsPerSample}bit `;
-		if (bitrate !== undefined) flacInfoElem.textContent += `${(bitrate / 1000).toFixed(0)}kb/s `;
-		if (manifestMimeType === ManifestMimeType.Dash && codec !== undefined) flacInfoElem.textContent += `${codec}`;
+		if (bitrate !== undefined) flacInfoElem.textContent += `${Math.floor(bitrate / 1000)}kb/s `;
 
 		if (flacInfoElem.textContent.length === 0) flacInfoElem.textContent = "Unknown";
 
