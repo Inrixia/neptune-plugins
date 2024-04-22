@@ -1,5 +1,6 @@
-import { store } from "@neptune";
-import { intercept } from "@neptune";
+import { intercept, actions, store, utils } from "@neptune";
+
+import { requestBuffer } from "../../../lib/fetchy";
 
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
@@ -11,6 +12,11 @@ import { downloadTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/
 import { MediaItem, TrackItem } from "neptune-types/tidal";
 import { ExtendedPlayackInfo, ManifestMimeType } from "../../../lib/getStreamInfo";
 import { saveFile } from "./saveFile";
+
+import { interceptPromise } from "../../../lib/interceptPromise";
+import { getHeaders } from "../../../lib/fetchy";
+
+import { createFlacTagsBuffer, PictureType, type FlacTagMap } from "./flac-tagger/index.js";
 
 type DownloadButtoms = Record<number, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};
@@ -76,7 +82,12 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 		downloadButton.addEventListener("click", () => {
 			if (mediaInfo.id === undefined) return;
 			prep();
-			saveTrack(mediaInfo, { songId: mediaInfo.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress }).catch(alert).finally(clear);
+			saveTrack(mediaInfo, { songId: mediaInfo.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress })
+				.catch((err) => {
+					alert(err);
+					console.error(err);
+				})
+				.finally(clear);
 		});
 	});
 });
@@ -91,17 +102,86 @@ export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType 
 		}
 		case ManifestMimeType.Dash: {
 			const trackManifest = manifest.tracks.audios[0];
-			return `${base}.${trackManifest.codec.toLowerCase()}.mp4`;
+			return `${base}.${trackManifest.codec.toLowerCase()}.m4a`;
 		}
 	}
 };
 
 export const saveTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
+	let albumP;
+	let lyricsP;
+
+	const albumId = track.album?.id;
+	if (albumId !== undefined) {
+		actions.content.loadAlbum({ albumId });
+		albumP = interceptPromise(["content/LOAD_ALBUM_SUCCESS"], [])
+			.catch(() => undefined)
+			.then((res) => res?.[0].album);
+	}
+	if (track.id) {
+		actions.content.loadItemLyrics({ itemId: track.id, itemType: "track" });
+		lyricsP = interceptPromise(["content/LOAD_ITEM_LYRICS_SUCCESS"], ["content/LOAD_ITEM_LYRICS_FAIL"])
+			.catch(() => undefined)
+			.then((res) => res?.[0]);
+	}
+
 	// Download the bytes
 	const trackInfo = await downloadTrack(trackOptions, options);
 
+	const fileName = fileNameFromInfo(track, trackInfo);
+
+	let bufferWithTags;
+	if (trackInfo.manifestMimeType === ManifestMimeType.Tidal) {
+		const album = await albumP;
+		const lyrics = await lyricsP;
+
+		const tagMap: FlacTagMap = {};
+
+		if (track.title) tagMap.title = track.title;
+		if (track.album?.title) tagMap.album = track.album.title;
+		if (track.trackNumber !== undefined) tagMap.trackNumber = track.trackNumber.toString();
+		if (track.releaseDate !== undefined) tagMap.date = track.releaseDate;
+		if (track.copyright) tagMap.copyright = track.copyright;
+		if (track.isrc) tagMap.isrc = track.isrc;
+		if (lyrics?.lyrics !== undefined) tagMap.lyrics = lyrics.lyrics;
+		if (track.replayGain) tagMap.REPLAYGAIN_TRACK_GAIN = track.replayGain.toString();
+		if (track.peak) tagMap.REPLAYGAIN_TRACK_PEAK = track.peak.toString();
+		if (track.url) tagMap.comment = track.url;
+
+		if (track.artist?.name) tagMap.artist = track.artist.name;
+		tagMap.performer = (track.artists ?? []).map(({ name }) => name).filter((name) => name !== undefined);
+
+		if (album !== undefined) {
+			tagMap.albumArtist = (album.artists ?? []).map(({ name }) => name).filter((name) => name !== undefined);
+			if (album.genre) tagMap.genres = album.genre;
+			if (album.recordLabel) tagMap.organization = album.recordLabel;
+			if (album.numberOfTracks) tagMap.totalTracks = album.numberOfTracks.toString();
+			if (!tagMap.date && album.releaseDate) tagMap.date = album.releaseDate;
+			if (!tagMap.date && album.releaseYear) tagMap.date = album.releaseYear.toString();
+		}
+
+		let picture;
+		const cover = track.album?.cover ?? album?.cover;
+		if (cover !== undefined) {
+			try {
+				picture = {
+					pictureType: PictureType.BackCover,
+					buffer: await requestBuffer(utils.getMediaURLFromID(cover)),
+				};
+			} catch {}
+		}
+
+		bufferWithTags = createFlacTagsBuffer(
+			{
+				tagMap,
+				picture,
+			},
+			trackInfo.buffer
+		);
+	}
+
 	// Prompt the user to save the file
-	saveFile(new Blob([trackInfo.buffer], { type: "application/octet-stream" }), fileNameFromInfo(track, trackInfo));
+	saveFile(new Blob([bufferWithTags ?? trackInfo.buffer], { type: "application/octet-stream" }), fileName);
 };
 
 export const onUnload = unloadIntercept;

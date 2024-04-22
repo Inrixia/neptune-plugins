@@ -1,9 +1,8 @@
 import type https from "https";
-import type { RequestOptions } from "https";
-
 const { request } = <typeof https>require("https");
 
 import { modules } from "@neptune";
+import { RequestOptions } from "https";
 
 const findModuleFunction = (functionName: string) => {
 	for (const module of modules) {
@@ -29,6 +28,20 @@ export interface FetchyOptions {
 	onProgress?: OnProgress;
 	bytesWanted?: number;
 }
+
+export const requestBuffer = async (url: string, options: RequestOptions = {}) =>
+	new Promise<Buffer>((resolve, reject) => {
+		const req = request(url, options, (res) => {
+			const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
+			if (!OK) reject(new Error(`Status code is ${res.statusCode}`));
+
+			const chunks: Buffer[] = [];
+			res.on("data", (data) => chunks.push(data));
+			res.on("end", () => resolve(Buffer.concat(chunks)));
+		});
+		req.on("error", reject);
+		req.end();
+	});
 
 export const fetchy = async (url: string, options?: FetchyOptions): Promise<Buffer> =>
 	new Promise((resolve, reject) => {
