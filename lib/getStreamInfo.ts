@@ -1,7 +1,7 @@
 import { decryptKeyId } from "./decryptKeyId";
 import { getHeaders } from "./fetchy";
 import { audioQualities, AudioQualityEnum } from "./AudioQuality";
-import { saveFile } from "./saveFile";
+import { saveFile } from "../plugins/SongDownloader/src/saveFile";
 import { TrackItem } from "neptune-types/tidal";
 import type { Manifest as DashManifest } from "dasha";
 import type dasha from "dasha";

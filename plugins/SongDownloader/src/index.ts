@@ -7,8 +7,10 @@ import { storage } from "@plugin";
 import "./styles";
 export { Settings } from "./Settings";
 
-import { saveTrack } from "../../../lib/download";
-import { MediaItem } from "neptune-types/tidal";
+import { downloadTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/download";
+import { MediaItem, TrackItem } from "neptune-types/tidal";
+import { ExtendedPlayackInfo, ManifestMimeType } from "../../../lib/getStreamInfo";
+import { saveFile } from "./saveFile";
 
 type DownloadButtoms = Record<number, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};
@@ -78,5 +80,28 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 		});
 	});
 });
+
+export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
+	const artistName = track.artists?.[0].name;
+	const base = `${track.title} by ${artistName ?? "Unknown"}`;
+	switch (manifestMimeType) {
+		case ManifestMimeType.Tidal: {
+			const codec = manifest.codecs !== "flac" ? `.${manifest.codecs}` : "";
+			return `${base}${codec.toLowerCase()}.flac`;
+		}
+		case ManifestMimeType.Dash: {
+			const trackManifest = manifest.tracks.audios[0];
+			return `${base}.${trackManifest.codec.toLowerCase()}.mp4`;
+		}
+	}
+};
+
+export const saveTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
+	// Download the bytes
+	const trackInfo = await downloadTrack(trackOptions, options);
+
+	// Prompt the user to save the file
+	saveFile(new Blob([trackInfo.buffer], { type: "application/octet-stream" }), fileNameFromInfo(track, trackInfo));
+};
 
 export const onUnload = unloadIntercept;
