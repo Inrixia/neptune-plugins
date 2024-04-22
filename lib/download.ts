@@ -1,4 +1,4 @@
-import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType } from "./getStreamInfo";
+import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType } from "./getPlaybackInfo";
 import { decryptBuffer } from "./decryptBuffer";
 import { FetchyOptions, fetchy } from "./fetchy";
 import { AudioQualityEnum } from "./AudioQuality";
@@ -35,14 +35,14 @@ export const downloadTrack = async ({ songId, desiredQuality }: TrackOptions, op
 				let buffers: Buffer[] = [];
 				let bytes = 0;
 				for (const { url } of trackManifest.segments) {
-					const segmentBuffer = await fetchy(url.replaceAll("amp;", ""), options);
+					const segmentBuffer = await fetchy(url, options);
 					bytes += segmentBuffer.length;
 					buffers.push(segmentBuffer);
 					if (bytes >= bytesWanted) break;
 				}
 				buffer = Buffer.concat(buffers);
 			} else {
-				buffer = Buffer.concat(await Promise.all(trackManifest.segments.map(({ url }) => fetchy(url.replaceAll("amp;", ""), options))));
+				buffer = Buffer.concat(await Promise.all(trackManifest.segments.map(({ url }) => fetchy(url, options))));
 			}
 			return { playbackInfo, manifest, manifestMimeType, buffer };
 		}

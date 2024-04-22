@@ -8,6 +8,7 @@ init();
 import { actions, store } from "@neptune";
 import { DecodedSignature } from "shazamio-core";
 import { interceptPromise } from "../../../lib/interceptPromise";
+import { messageError, messageWarn, messageInfo } from "../../../lib/messageLogging";
 
 const parseResponse = async <T>(responseP: Promise<Response> | Response): Promise<T> => {
 	const response = await responseP;
@@ -53,10 +54,6 @@ export const using = async <T>(signatures: DecodedSignature[], fun: (signatures:
 	for (const signature of signatures) signature.free();
 	return ret;
 };
-
-const messageError = (message: string) => actions.message.messageError({ message, category: "OTHER", severity: "ERROR" });
-const messageWarn = (message: string) => actions.message.messageWarn({ message, category: "OTHER", severity: "WARN" });
-const messageInfo = (message: string) => actions.message.messageInfo({ message, category: "OTHER", severity: "INFO" });
 
 // Define the function
 const handleDrop = async (event: DragEvent) => {

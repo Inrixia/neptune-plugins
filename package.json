@@ -7,14 +7,14 @@
 		"serve": "npx http-server --cors -S --port 443 -C .\\cert.pem -K .\\key.pem"
 	},
 	"devDependencies": {
-		"@types/node": "^20.8.7",
-		"esbuild": "^0.18.13",
+		"@types/node": "^20.12.7",
+		"esbuild": "^0.20.2",
 		"neptune-types": "^1.0.0",
-		"typescript": "^5.2.2"
+		"typescript": "^5.4.5"
 	},
 	"dependencies": {
 		"@inrixia/helpers": "^2.0.10",
-		"dasha": "^3.0.1"
+		"dasha": "^3.0.2"
 	},
 	"nodemonConfig": {
 		"watch": [

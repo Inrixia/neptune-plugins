@@ -9,17 +9,21 @@ import "./styles";
 export { Settings } from "./Settings";
 
 import { downloadTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/download";
-import { MediaItem, TrackItem } from "neptune-types/tidal";
-import { ExtendedPlayackInfo, ManifestMimeType } from "../../../lib/getStreamInfo";
+import { ItemId, MediaItem, MediaItems, Track, TrackItem, Video, VideoItem } from "neptune-types/tidal";
+import { ExtendedPlayackInfo, ManifestMimeType } from "../../../lib/getPlaybackInfo";
 import { saveFile } from "./saveFile";
 
 import { interceptPromise } from "../../../lib/interceptPromise";
 import { getHeaders } from "../../../lib/fetchy";
 
 import { createFlacTagsBuffer, PictureType, type FlacTagMap } from "./flac-tagger/index.js";
+import { messageError } from "../../../lib/messageLogging";
 
-type DownloadButtoms = Record<number, HTMLButtonElement>;
+type DownloadButtoms = Record<string, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};
+
+import type * as fsMod from "fs/promises";
+const {} = <typeof fsMod>require("fs/promises");
 
 interface ButtonMethods {
 	prep(): void;
@@ -27,7 +31,7 @@ interface ButtonMethods {
 	clear(): void;
 }
 
-const buttonMethods = (id: number): ButtonMethods => ({
+const buttonMethods = (id: string): ButtonMethods => ({
 	prep: () => {
 		const downloadButton = downloadButtons[id];
 		downloadButton.disabled = true;
@@ -50,16 +54,51 @@ const buttonMethods = (id: number): ButtonMethods => ({
 	},
 });
 
-const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) => {
-	setTimeout(() => {
-		const mediaItems: Record<number, MediaItem> = store.getState().content.mediaItems;
-		const mediaInfo = mediaItems[+mediaItem.id]?.item;
+const intercepts = [
+	intercept([`contextMenu/OPEN_MEDIA_ITEM`], ([mediaItem]) => queueMediaIds([mediaItem.id])),
+	intercept([`contextMenu/OPEN_MULTI_MEDIA_ITEM`], ([mediaItems]) => queueMediaIds(mediaItems.ids)),
+	intercept("contextMenu/OPEN", ([info]) => {
+		switch (info.type) {
+			case "ALBUM": {
+				onAlbum(info.id);
+				break;
+			}
+			case "PLAYLIST": {
+				onPlaylist(info.id);
+				break;
+			}
+		}
+	}),
+];
+export const onUnload = () => intercepts.forEach((unload) => unload());
 
-		if (mediaInfo?.contentType !== "track" || mediaInfo.id === undefined) return;
+const onAlbum = async (albumId: ItemId) => {
+	await actions.content.loadAllAlbumMediaItems({ albumId });
+	const [{ mediaItems }] = await interceptPromise(["content/LOAD_ALL_ALBUM_MEDIA_ITEMS_SUCCESS"], ["content/LOAD_ALL_ALBUM_MEDIA_ITEMS_FAIL"]);
+	downloadItems(Object.values<MediaItem>(<any>mediaItems).map((mediaItem) => mediaItem.item));
+};
+const onPlaylist = async (playlistUUID: ItemId) => {
+	await actions.content.loadListItemsPage({ loadAll: true, listName: `playlists/${playlistUUID}`, listType: "mediaItems" });
+	const [{ items }] = await interceptPromise(["content/LOAD_LIST_ITEMS_PAGE_SUCCESS"], ["content/LOAD_LIST_ITEMS_PAGE_FAIL"]);
+	downloadItems(Object.values(items).map((mediaItem) => mediaItem?.item));
+};
+
+type MediaId = string | number | undefined;
+const queueMediaIds = (mediaIds: MediaId[]) => {
+	const mediaItemsLookup: Record<number, MediaItem> = store.getState().content.mediaItems;
+	const mediaItems = mediaIds.map((mediaId) => mediaItemsLookup[+(mediaId ?? -1)]?.item).filter((item) => item !== undefined);
+	downloadItems(mediaItems);
+};
+
+const downloadItems = (items: (TrackItem | VideoItem)[]) =>
+	// Wrap in a timeout to ensure that the context menu is open
+	setTimeout(() => {
+		const trackItems = items.filter((item) => item.contentType === "track");
+		if (trackItems.length === 0) return;
 
 		const contextMenu = document.querySelector(`[data-type="list-container__context-menu"]`);
+		console.log(contextMenu);
 		if (contextMenu === null) return;
-
 		if (document.getElementsByClassName("download-button").length >= 1) {
 			document.getElementsByClassName("download-button")[0].remove();
 		}
@@ -70,27 +109,28 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 		downloadButton.textContent = "Download";
 		downloadButton.className = "download-button"; // Set class name for styling
 
-		if (downloadButtons[mediaInfo.id]?.disabled === true) {
+		const context = JSON.stringify(trackItems.map((trackItem) => trackItem.id));
+
+		if (downloadButtons[context]?.disabled === true) {
 			downloadButton.disabled = true;
 			downloadButton.classList.add("loading");
 		}
-		downloadButtons[mediaInfo.id] = downloadButton;
-
+		downloadButtons[context] = downloadButton;
 		contextMenu.appendChild(downloadButton);
-
-		const { prep, onProgress, clear } = buttonMethods(mediaInfo.id);
-		downloadButton.addEventListener("click", () => {
-			if (mediaInfo.id === undefined) return;
+		const { prep, onProgress, clear } = buttonMethods(context);
+		downloadButton.addEventListener("click", async () => {
+			if (context === undefined) return;
 			prep();
-			saveTrack(mediaInfo, { songId: mediaInfo.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress })
-				.catch((err) => {
-					alert(err);
+			for (const trackItem of trackItems) {
+				if (trackItem.id === undefined) continue;
+				await bufferTrack(trackItem, { songId: trackItem.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress }).catch((err) => {
+					messageError(err.message);
 					console.error(err);
-				})
-				.finally(clear);
+				});
+			}
+			clear();
 		});
 	});
-});
 
 export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
 	const artistName = track.artists?.[0].name;
@@ -107,7 +147,7 @@ export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType 
 	}
 };
 
-export const saveTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
+export const bufferTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
 	let albumP;
 	let lyricsP;
 
@@ -180,8 +220,5 @@ export const saveTrack = async (track: TrackItem, trackOptions: TrackOptions, op
 		);
 	}
 
-	// Prompt the user to save the file
 	saveFile(new Blob([bufferWithTags ?? trackInfo.buffer], { type: "application/octet-stream" }), fileName);
 };
-
-export const onUnload = unloadIntercept;

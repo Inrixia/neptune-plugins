@@ -7,7 +7,7 @@ import { storage } from "@plugin";
 import { store } from "@neptune";
 
 import type meta from "music-metadata/lib/core";
-import { ManifestMimeType } from "../../../lib/getStreamInfo";
+import { ManifestMimeType } from "../../../lib/getPlaybackInfo";
 import { IFormat } from "music-metadata/lib/type";
 
 const { parseBuffer } = <typeof meta>require("music-metadata/lib/core");
