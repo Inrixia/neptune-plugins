@@ -137,7 +137,8 @@ const fullTitle = (track: TrackItem) => {
 export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
 	const artistName = track.artists?.[0].name ?? "Unknown Artist";
 	const albumName = track.album?.title ?? "Unknown Album";
-	const base = `${artistName} - ${albumName} - ${fullTitle(track)}`;
+	const title = fullTitle(track);
+	const base = title !== albumName ? `${artistName} - ${albumName} - ${title}` : `${artistName} - ${title}`;
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
 			const codec = manifest.codecs !== "flac" ? `.${manifest.codecs}` : "";
