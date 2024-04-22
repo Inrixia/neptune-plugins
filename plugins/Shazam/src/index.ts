@@ -1,7 +1,3 @@
-import { Playlist } from "neptune-types/tidal";
-import { ISRCResponse } from "./types/isrcTypes";
-import { ShazamData } from "./types/shazamTypes";
-
 import type * as shazamio from "shazamio-core/web";
 const { default: init, recognizeBytes } = <typeof shazamio>require("shazamio-core/web");
 init();
@@ -10,26 +6,12 @@ import { actions, store } from "@neptune";
 import { DecodedSignature } from "shazamio-core";
 import { interceptPromise } from "../../../lib/interceptPromise";
 import { messageError, messageWarn, messageInfo } from "../../../lib/messageLogging";
+import { fetchShazamData, fetchIsrc } from "./fetch";
 
-const parseResponse = async <T>(responseP: Promise<Response> | Response): Promise<T> => {
-	const response = await responseP;
-	if (!response.ok) throw new Error(`Status ${response.status}`);
-	return response.json();
-};
+// @ts-expect-error Remove this when types are available
+import { storage } from "@plugin";
 
-const fetchShazamData = async (signature: { samplems: number; uri: string }) => {
-	return parseResponse<ShazamData>(
-		fetch(`https://shazamwow.com/shazam`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ signature }),
-		})
-	);
-};
-
-const fetchIsrc = async (isrc: string) => {
-	return parseResponse<ISRCResponse>(fetch(`https://shazamwow.com/isrc?isrc=${isrc}&countryCode=US&limit=100`));
-};
+export { Settings } from "./Settings";
 
 const addToPlaylist = async (playlistUUID: string, mediaItemIdsToAdd: string[]) => {
 	actions.content.addMediaItemsToPlaylist({ mediaItemIdsToAdd, onDupes: "SKIP", playlistUUID });
@@ -61,10 +43,12 @@ const handleDrop = async (event: DragEvent) => {
 		if (bytes === undefined) continue;
 
 		try {
-			await using(recognizeBytes(new Uint8Array(bytes), 25), async (signatures) => {
-				for (const sig of signatures) {
+			await using(recognizeBytes(new Uint8Array(bytes), 0, Number.MAX_SAFE_INTEGER), async (signatures) => {
+				for (let i = 0; i < signatures.length; i += 4) {
+					messageInfo(`Matching ${file.name}...`);
+					const sig = signatures[i];
 					const shazamData = await fetchShazamData({ samplems: sig.samplems, uri: sig.uri });
-					if (shazamData.matches.length === 0) return messageWarn(`No matches for ${file.name}`);
+					if (shazamData.matches.length === 0) continue;
 
 					const trackName = shazamData.track?.share?.subject ?? "Unknown";
 					const isrc = shazamData.track?.isrc;
@@ -77,7 +61,9 @@ const handleDrop = async (event: DragEvent) => {
 						console.log("SHAZ", shazamData);
 						messageWarn(`Track ${trackName} is not avalible in Tidal`);
 					}
+					if (storage.exitOnFirstMatch) return;
 				}
+				messageWarn(`No matches for ${file.name}`);
 			});
 		} catch (err) {
 			messageError(`Failed to recognize ${file.name}: ${(<Error>err).message}`);
