@@ -5,9 +5,9 @@ import { ShazamData } from "./types/shazamTypes";
 const { default: init, recognizeBytes } = require("shazamio-core/web");
 init();
 
-import { actions, store, intercept } from "@neptune";
-import { ActionType, CallbackFunction, PayloadActionTypeTuple } from "neptune-types/api/intercept";
+import { actions, store } from "@neptune";
 import { DecodedSignature } from "shazamio-core";
+import { interceptPromise } from "../../../lib/interceptPromise";
 
 const parseResponse = async <T>(responseP: Promise<Response> | Response): Promise<T> => {
 	const response = await responseP;
@@ -27,23 +27,6 @@ const fetchShazamData = async (signature: { samplems: number; uri: string }) => 
 
 const fetchIsrc = async (isrc: string) => {
 	return parseResponse<ISRCResponse>(fetch(`https://shazamwow.com/isrc?isrc=${isrc}&countryCode=US&limit=100`));
-};
-
-const interceptPromise = <RESAT extends ActionType, REJAT extends ActionType>(resActionType: RESAT[], rejActionType: REJAT[], timeoutMs = 5000): Promise<PayloadActionTypeTuple<RESAT>> => {
-	let res: CallbackFunction<RESAT>;
-	let rej: (err: PayloadActionTypeTuple<REJAT> | string) => void;
-	const p = new Promise<PayloadActionTypeTuple<RESAT>>((_res, _rej) => {
-		res = _res;
-		rej = _rej;
-	});
-	const unloadRes = intercept(resActionType, res!, true);
-	const unloadRej = intercept(rejActionType, rej!, true);
-	const timeout = setTimeout(() => rej(`${rejActionType}_TIMEOUT`), timeoutMs);
-	return p.finally(() => {
-		clearTimeout(timeout);
-		unloadRes();
-		unloadRej();
-	});
 };
 
 const shazamTitle = "Shazam";
