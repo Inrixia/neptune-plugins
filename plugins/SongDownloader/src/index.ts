@@ -129,9 +129,15 @@ const downloadItems = (items: (TrackItem | VideoItem)[]) =>
 		});
 	});
 
+const fullTitle = (track: TrackItem) => {
+	const versionPostfix = track.version ? ` (${track.version})` : "";
+	return `${track.title}${versionPostfix}`;
+};
+
 export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
-	const artistName = track.artists?.[0].name;
-	const base = `${track.title} by ${artistName ?? "Unknown"}`;
+	const artistName = track.artists?.[0].name ?? "Unknown Artist";
+	const albumName = track.album?.title ?? "Unknown Album";
+	const base = `${artistName} - ${albumName} - ${fullTitle(track)}`;
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
 			const codec = manifest.codecs !== "flac" ? `.${manifest.codecs}` : "";
@@ -174,7 +180,7 @@ export const bufferTrack = async (track: TrackItem, trackOptions: TrackOptions, 
 
 		const tagMap: FlacTagMap = {};
 
-		if (track.title) tagMap.title = track.title;
+		if (track.title) tagMap.title = fullTitle(track);
 		if (track.album?.title) tagMap.album = track.album.title;
 		if (track.trackNumber !== undefined) tagMap.trackNumber = track.trackNumber.toString();
 		if (track.releaseDate !== undefined) tagMap.date = track.releaseDate;
