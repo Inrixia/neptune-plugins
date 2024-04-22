@@ -1,32 +1,60 @@
-import { getStreamInfo } from "./getStreamInfo";
+import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType } from "./getStreamInfo";
 import { decryptBuffer } from "./decryptBuffer";
-import { OnProgress, fetchy } from "./fetchy";
+import { FetchyOptions, OnProgress, fetchy } from "./fetchy";
 import { saveFile } from "./saveFile";
-import { AudioQualityInverse, AudioQuality } from "./AudioQuality";
+import { AudioQualityEnum } from "./AudioQuality";
+import { decryptKeyId } from "./decryptKeyId";
+import { TrackItem } from "neptune-types/tidal";
 
-export const downloadSong = async (songId: number, fileName: string, quality: AudioQuality, onProgress: OnProgress) => {
-	const streamInfo = await getStreamInfo(songId, quality);
-
-	const { key, nonce } = streamInfo.cryptKey;
-	const url = streamInfo.manifest.urls[0];
-
-	const encryptedBuffer = await fetchy(url, onProgress);
-
-	// Read the encrypted data from the Response object
-	const decodedBuffer = await decryptBuffer(encryptedBuffer, key, nonce);
-
-	// Prompt the user to save the file
-	saveFile(new Blob([decodedBuffer], { type: "application/octet-stream" }), `${fileName} [${AudioQualityInverse[streamInfo.audioQuality]}].flac`);
+export type TrackOptions = {
+	songId: number;
+	desiredQuality: AudioQualityEnum;
 };
 
-export const downloadBytes = async (songId: number, quality: AudioQuality, byteRangeStart = 0, byteRangeEnd: number, onProgress: OnProgress) => {
-	const streamInfo = await getStreamInfo(songId, quality);
+export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
+	const artistName = track.artists?.[0].name;
+	const base = `${track.title} by ${artistName ?? "Unknown"}`;
+	switch (manifestMimeType) {
+		case ManifestMimeType.Tidal: {
+			const codec = manifest.codecs !== "flac" ? `.${manifest.codecs}` : "";
+			return `${base}${codec}.flac`;
+		}
+		case ManifestMimeType.Dash: {
+			const trackManifest = manifest.tracks.audios[0];
+			return `${base}.${trackManifest.codec}.mp4`;
+		}
+	}
+};
 
-	const { key, nonce } = streamInfo.cryptKey;
-	const url = streamInfo.manifest.urls[0];
+export const saveTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
+	// Download the bytes
+	const trackInfo = await downloadTrack(trackOptions, options);
 
-	const encryptedBuffer = await fetchy(url, onProgress, byteRangeStart, byteRangeEnd);
+	// Prompt the user to save the file
+	saveFile(new Blob([trackInfo.buffer], { type: "application/octet-stream" }), fileNameFromInfo(track, trackInfo));
+};
 
-	// Read the encrypted data from the Response object
-	return decryptBuffer(encryptedBuffer, key, nonce);
+export type ExtendedPlaybackInfoWithBytes = ExtendedPlayackInfo & { buffer: Buffer };
+
+export interface DownloadTrackOptions extends FetchyOptions {
+	playbackInfo?: ExtendedPlayackInfo;
+}
+
+export const downloadTrack = async ({ songId, desiredQuality }: TrackOptions, options?: DownloadTrackOptions): Promise<ExtendedPlaybackInfoWithBytes> => {
+	const { playbackInfo, manifest, manifestMimeType } = options?.playbackInfo ?? (await getPlaybackInfo(songId, desiredQuality));
+
+	switch (manifestMimeType) {
+		case ManifestMimeType.Tidal: {
+			const encryptedBuffer = await fetchy(manifest.urls[0], options);
+			const decryptedKey = await decryptKeyId(manifest.keyId);
+			const buffer = await decryptBuffer(encryptedBuffer, decryptedKey);
+			return { playbackInfo, manifest, manifestMimeType, buffer };
+		}
+		case ManifestMimeType.Dash: {
+			if (options?.headers?.["range"] !== undefined) throw new Error("Range header not supported for dash streams");
+			const trackManifest = manifest.tracks.audios[0];
+			const buffer = Buffer.concat(await Promise.all(trackManifest.segments.map(({ url }) => fetchy(url.replaceAll("amp;", ""), options))));
+			return { playbackInfo, manifest, manifestMimeType, buffer };
+		}
+	}
 };

@@ -1,43 +1,51 @@
 import { audioQualities, QualityMeta } from "../../../lib/AudioQuality";
-import { downloadBytes } from "../../../lib/download";
-import { AudioQuality, PlaybackContext } from "../../../lib/AudioQuality";
+import { downloadTrack, TrackOptions } from "../../../lib/download";
+import { AudioQualityEnum, PlaybackContext } from "../../../lib/AudioQuality";
 
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 import { store } from "@neptune";
 
 import type meta from "music-metadata/lib/core";
-import type { IFormat } from "music-metadata/lib/type";
+import { getPlaybackInfo, ManifestMimeType, type ExtendedPlayackInfo } from "../../../lib/getStreamInfo";
+import { IFormat } from "music-metadata/lib/type";
 
 const { parseBuffer } = <typeof meta>require("music-metadata/lib/core");
 
-interface ExtendedFormat extends IFormat {
-	totalBytes?: number;
-	bitrate?: number;
-}
+type AudioInfo = ExtendedPlayackInfo &
+	Partial<IFormat> & {
+		bitrate?: number;
+	};
 
-const qualityCache = new Map();
-const getFLACInfo = (id: number, quality: AudioQuality) => {
-	const key = `${id}-${quality}`;
+const qualityCache = new Map<string, Promise<AudioInfo>>();
+const getTrackInfo = ({ songId, desiredQuality }: TrackOptions): Promise<AudioInfo> => {
+	const key = `${songId}-${desiredQuality}`;
 
 	// If a promise for this key is already in the cache, await it
-	if (qualityCache.has(key)) return qualityCache.get(key);
+	if (qualityCache.has(key)) return qualityCache.get(key)!;
 
 	qualityCache.set(
 		key,
-		(async () => {
+		(async (): Promise<AudioInfo> => {
 			let totalBytes = -1;
 			const onProgress = ({ total }: { total: number }) => (totalBytes = total);
-			const bytes = await downloadBytes(id, quality, 0, 43, onProgress);
-			const { format }: { format: ExtendedFormat } = await parseBuffer(bytes);
-
-			if (totalBytes !== -1) format.totalBytes = totalBytes;
-			if (format.duration) format.bitrate = (totalBytes / format.duration) * 8;
-			return format;
+			const playbackInfo = await getPlaybackInfo(songId, desiredQuality);
+			switch (playbackInfo.manifestMimeType) {
+				case ManifestMimeType.Tidal: {
+					const { buffer } = await downloadTrack({ songId, desiredQuality }, { headers: { range: "bytes=0-43" }, onProgress, playbackInfo });
+					const { format } = await parseBuffer(buffer);
+					const bitrate = format.duration !== undefined ? (totalBytes / format.duration) * 8 : undefined;
+					return { ...playbackInfo, ...format, bitrate };
+				}
+				case ManifestMimeType.Dash: {
+					const trackManifest = playbackInfo.manifest.tracks.audios[0];
+					return { ...playbackInfo, bitrate: trackManifest.bitrate.bps, codec: trackManifest.codec };
+				}
+			}
 		})()
 	);
 
-	return qualityCache.get(key);
+	return qualityCache.get(key)!;
 };
 
 const rgbToRgba = (rgb: string, alpha: number) => rgb.replace("rgb", "rgba").replace(")", `, ${alpha})`);
@@ -66,7 +74,7 @@ export const setStreamQualityIndicator = async () => {
 	const { actualAudioQuality, actualProductId } = playbackContext;
 
 	switch (actualAudioQuality) {
-		case AudioQuality.MQA:
+		case AudioQualityEnum.MQA:
 			qualityElement.style.color = QualityMeta["MQA"].color;
 			break;
 		default:
@@ -88,30 +96,34 @@ export const setStreamQualityIndicator = async () => {
 	flacInfoElem.style.textAlign = "center";
 	flacInfoElem.style.padding = "4px";
 	flacInfoElem.style.fontSize = "13px";
+	flacInfoElem.style.borderRadius = "8px";
 
-	flacInfoElem.style.color = "white";
+	flacInfoElem.style.color = "#cfcfcf";
 	flacInfoElem.textContent = "Loading...";
 
-	try {
-		const { bitrate, bitsPerSample, sampleRate } = await getFLACInfo(actualProductId, actualAudioQuality);
+	// Fix for grid spacing issues
+	qualitySelector.parentElement.style.setProperty("grid-auto-columns", "auto");
 
-		flacInfoElem.textContent = `${bitsPerSample}bit ${sampleRate / 1000}kHz ${(bitrate / 1000).toFixed(0)}kb/s`;
-		flacInfoElem.style.color = "#cfcfcf";
+	try {
+		const { bitrate, bitsPerSample, sampleRate, codec, manifestMimeType } = await getTrackInfo({ songId: actualProductId, desiredQuality: actualAudioQuality });
+
+		flacInfoElem.textContent = "";
+		if (sampleRate !== undefined) flacInfoElem.textContent += `${sampleRate / 1000}kHz `;
+		if (bitsPerSample !== undefined) flacInfoElem.textContent += `${bitsPerSample}bit `;
+		if (bitrate !== undefined) flacInfoElem.textContent += `${(bitrate / 1000).toFixed(0)}kb/s `;
+		if (manifestMimeType === ManifestMimeType.Dash && codec !== undefined) flacInfoElem.textContent += `${codec}`;
+
+		if (flacInfoElem.textContent.length === 0) flacInfoElem.textContent = "Unknown";
 
 		const qualityElemColor = window.getComputedStyle(qualityElement).color;
 		if (storage.showFLACInfoBorder) {
-			flacInfoElem.style.borderRadius = "8px";
 			flacInfoElem.style.border = `solid 1px ${rgbToRgba(qualityElemColor, 0.3)}`;
 		}
 
 		const progressBar = document.getElementById("progressBar");
 		if (progressBar !== null) progressBar.style.color = qualityElemColor;
-
-		// Fix for grid spacing issues
-		qualitySelector.parentElement.style.setProperty("grid-auto-columns", "auto");
 	} catch (err) {
 		flacInfoElem.style.maxWidth = "256px";
-		flacInfoElem.style.color = "#cfcfcf";
 		flacInfoElem.style.border = "solid 1px red";
 		flacInfoElem.textContent = `Loading Info Failed - ${(<Error>err).message.substring(0, 64)}`;
 	}

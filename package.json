@@ -13,7 +13,10 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@inrixia/helpers": "^2.0.10"
+		"@inrixia/helpers": "^2.0.10",
+		"dasha": "^3.0.1",
+		"xml-js": "^1.6.11",
+		"xml2js": "^0.6.2"
 	},
 	"nodemonConfig": {
 		"watch": [
@@ -21,7 +24,8 @@
 			"./plugins/AlwaysExclusive/src/**",
 			"./plugins/SongDownloader/src/**",
 			"./plugins/Testing/src/**",
-			"./plugins/TidalTags/src/**"
+			"./plugins/TidalTags/src/**",
+			"./lib/**"
 		],
 		"ext": "ts",
 		"exec": "npm run build"

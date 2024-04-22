@@ -7,7 +7,7 @@ import { storage } from "@plugin";
 import "./styles";
 export { Settings } from "./Settings";
 
-import { downloadSong } from "../../../lib/download";
+import { saveTrack } from "../../../lib/download";
 import { MediaItem } from "neptune-types/tidal";
 
 type DownloadButtoms = Record<number, HTMLButtonElement>;
@@ -15,7 +15,7 @@ const downloadButtons: DownloadButtoms = {};
 
 interface ButtonMethods {
 	prep(): void;
-	tick(info: { total: number; downloaded: number; percent: number }): void;
+	onProgress(info: { total: number; downloaded: number; percent: number }): void;
 	clear(): void;
 }
 
@@ -26,7 +26,7 @@ const buttonMethods = (id: number): ButtonMethods => ({
 		downloadButton.classList.add("loading");
 		downloadButton.textContent = "Fetching Meta...";
 	},
-	tick: ({ total, downloaded, percent }) => {
+	onProgress: ({ total, downloaded, percent }) => {
 		const downloadButton = downloadButtons[id];
 		downloadButton.style.setProperty("--progress", `${percent}%`);
 		const downloadedMB = (downloaded / 1048576).toFixed(0);
@@ -70,16 +70,11 @@ const unloadIntercept = intercept(`contextMenu/OPEN_MEDIA_ITEM`, ([mediaItem]) =
 
 		contextMenu.appendChild(downloadButton);
 
-		const artist = mediaInfo.artist ?? mediaInfo.artists?.[0];
-		const artistPostfix = artist !== undefined ? ` by ${artist.name}` : "";
-
-		const fileName = `${mediaInfo.title}${artistPostfix}`;
-
-		const { prep, tick, clear } = buttonMethods(mediaInfo.id);
+		const { prep, onProgress, clear } = buttonMethods(mediaInfo.id);
 		downloadButton.addEventListener("click", () => {
 			if (mediaInfo.id === undefined) return;
 			prep();
-			downloadSong(mediaInfo.id, fileName, storage.desiredDownloadQuality, tick).catch(alert).finally(clear);
+			saveTrack(mediaInfo, { songId: mediaInfo.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress }).catch(alert).finally(clear);
 		});
 	});
 });

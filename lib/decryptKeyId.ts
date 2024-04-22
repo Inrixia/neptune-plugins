@@ -4,7 +4,12 @@ const { createDecipheriv } = <typeof crypto>require("crypto");
 // Do not change this
 const mastKey = "UIlTTEMmmLfGowo/UC60x2H45W6MdGgTRfo/umg4754=";
 
-export const decryptKeyId = async (keyId: string) => {
+export type DecryptedKey = {
+	key: Buffer;
+	nonce: Buffer;
+};
+
+export const decryptKeyId = async (keyId: string): Promise<DecryptedKey> => {
 	// Decode the base64 strings to buffers
 	const mastKeyBuffer = Buffer.from(mastKey, "base64");
 	const keyIdBuffer = Buffer.from(keyId, "base64");
