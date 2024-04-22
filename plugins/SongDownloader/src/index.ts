@@ -22,9 +22,6 @@ import { messageError } from "../../../lib/messageLogging";
 type DownloadButtoms = Record<string, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};
 
-import type * as fsMod from "fs/promises";
-const {} = <typeof fsMod>require("fs/promises");
-
 interface ButtonMethods {
 	prep(): void;
 	onProgress(info: { total: number; downloaded: number; percent: number }): void;

@@ -62,7 +62,7 @@ export const getPlaybackInfo = async (trackId: number, audioQuality: AudioQualit
 				return { playbackInfo, manifestMimeType: playbackInfo.manifestMimeType, manifest };
 			}
 			case ManifestMimeType.Dash: {
-				return { playbackInfo, manifestMimeType: playbackInfo.manifestMimeType, manifest: await parse(atob(playbackInfo.manifest), "https://sp-ad-cf.audio.tidal.com") };
+				return { playbackInfo, manifestMimeType: playbackInfo.manifestMimeType, manifest: await parse(atob(playbackInfo.manifest)) };
 			}
 			default: {
 				throw new Error(`Unsupported Stream Info manifest mime type: ${playbackInfo.manifestMimeType}`);
