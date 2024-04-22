@@ -17,11 +17,11 @@ export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType 
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
 			const codec = manifest.codecs !== "flac" ? `.${manifest.codecs}` : "";
-			return `${base}${codec}.flac`;
+			return `${base}${codec.toLowerCase()}.flac`;
 		}
 		case ManifestMimeType.Dash: {
 			const trackManifest = manifest.tracks.audios[0];
-			return `${base}.${trackManifest.codec}.mp4`;
+			return `${base}.${trackManifest.codec.toLowerCase()}.mp4`;
 		}
 	}
 };
