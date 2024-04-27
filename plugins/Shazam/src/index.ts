@@ -44,7 +44,8 @@ const handleDrop = async (event: DragEvent) => {
 
 		try {
 			await using(recognizeBytes(new Uint8Array(bytes), 0, Number.MAX_SAFE_INTEGER), async (signatures) => {
-				for (let i = 0; i < signatures.length; i += 4) {
+				let i = storage.startInMiddle ? Math.floor(signatures.length / 2) : 1;
+				for (; i < signatures.length; i += 4) {
 					messageInfo(`Matching ${file.name}...`);
 					const sig = signatures[i];
 					const shazamData = await fetchShazamData({ samplems: sig.samplems, uri: sig.uri });
