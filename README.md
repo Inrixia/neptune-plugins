@@ -13,7 +13,7 @@ You can see a list of all plugins including unreleased ones under the [**plugins
 
 ## Always Exclusive
 
-**Install Url: https://inrixia.github.io/neptune-plugins/AlwaysExlusive/**  
+**Install Url: https://inrixia.github.io/neptune-plugins/AlwaysExclusive/**  
 While enabled will ensure that audio output is set to exclusive mode  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/32ff8e55-728c-4a77-9e9e-50b53e90541c)
 
