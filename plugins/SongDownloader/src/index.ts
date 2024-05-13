@@ -14,7 +14,6 @@ import { ExtendedPlayackInfo, ManifestMimeType } from "../../../lib/getPlaybackI
 import { saveFile } from "./saveFile";
 
 import { interceptPromise } from "../../../lib/interceptPromise";
-import { getHeaders } from "../../../lib/fetchy";
 
 import { createFlacTagsBuffer, PictureType, type FlacTagMap } from "./flac-tagger/index.js";
 import { messageError } from "../../../lib/messageLogging";
@@ -223,6 +222,5 @@ export const bufferTrack = async (track: TrackItem, trackOptions: TrackOptions, 
 			trackInfo.buffer
 		);
 	}
-
 	saveFile(new Blob([bufferWithTags ?? trackInfo.buffer], { type: "application/octet-stream" }), fileName);
 };

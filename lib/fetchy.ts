@@ -3,6 +3,7 @@ const { request } = <typeof https>require("https");
 
 import { modules } from "@neptune";
 import { RequestOptions } from "https";
+import type { Decipher } from "crypto";
 
 const findModuleFunction = (functionName: string) => {
 	for (const module of modules) {
@@ -27,6 +28,7 @@ export type OnProgress = (info: { total: number; downloaded: number; percent: nu
 export interface FetchyOptions {
 	onProgress?: OnProgress;
 	bytesWanted?: number;
+	decipher?: Decipher;
 }
 
 export const requestBuffer = async (url: string, options: RequestOptions = {}) =>
@@ -45,7 +47,7 @@ export const requestBuffer = async (url: string, options: RequestOptions = {}) =
 
 export const fetchy = async (url: string, options?: FetchyOptions): Promise<Buffer> =>
 	new Promise((resolve, reject) => {
-		const { onProgress, bytesWanted } = options ?? {};
+		const { onProgress, bytesWanted, decipher } = options ?? {};
 		const reqOptions = bytesWanted ? { headers: { Range: `bytes=0-${bytesWanted}` } } : {};
 		const req = request(url, reqOptions, (res) => {
 			const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
@@ -64,13 +66,14 @@ export const fetchy = async (url: string, options?: FetchyOptions): Promise<Buff
 			const chunks: Buffer[] = [];
 
 			res.on("data", (chunk: Buffer) => {
-				chunks.push(chunk);
+				chunks.push(decipher ? decipher.update(chunk) : chunk);
 				downloaded += chunk.length;
 				if (onProgress !== undefined) onProgress({ total, downloaded, percent: (downloaded / total) * 100 });
 			});
 			res.on("end", () => {
 				if (onProgress !== undefined) onProgress({ total, downloaded: total, percent: 100 });
 				// Chunks is an array of Buffer objects.
+				if (decipher) chunks.push(decipher.final());
 				resolve(Buffer.concat(chunks));
 			});
 		});

@@ -1,5 +1,5 @@
 import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType } from "./getPlaybackInfo";
-import { decryptBuffer } from "./decryptBuffer";
+import { makeDecipheriv } from "./decryptBuffer";
 import { FetchyOptions, fetchy } from "./fetchy";
 import { AudioQualityEnum } from "./AudioQuality";
 import { decryptKeyId } from "./decryptKeyId";
@@ -20,9 +20,8 @@ export const downloadTrack = async ({ songId, desiredQuality }: TrackOptions, op
 
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
-			const encryptedBuffer = await fetchy(manifest.urls[0], options);
 			const decryptedKey = await decryptKeyId(manifest.keyId);
-			const buffer = await decryptBuffer(encryptedBuffer, decryptedKey);
+			const buffer = await fetchy(manifest.urls[0], { ...options, decipher: await makeDecipheriv(decryptedKey) });
 			return { playbackInfo, manifest, manifestMimeType, buffer };
 		}
 		case ManifestMimeType.Dash: {
