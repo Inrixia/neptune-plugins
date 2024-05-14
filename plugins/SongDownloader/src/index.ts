@@ -102,7 +102,7 @@ const downloadItems = (items: (TrackItem | VideoItem)[]) =>
 		const downloadButton = document.createElement("button");
 		downloadButton.type = "button";
 		downloadButton.role = "menuitem";
-		downloadButton.textContent = "Download";
+		downloadButton.textContent = `Download ${trackItems.length}`;
 		downloadButton.className = "download-button"; // Set class name for styling
 
 		const context = JSON.stringify(trackItems.map((trackItem) => trackItem.id));
