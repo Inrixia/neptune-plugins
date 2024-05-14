@@ -20,8 +20,7 @@ export const downloadTrack = async ({ songId, desiredQuality }: TrackOptions, op
 
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
-			const decryptedKey = await decryptKeyId(manifest.keyId);
-			const buffer = await fetchy(manifest.urls[0], { ...options, decipher: await makeDecipheriv(decryptedKey) });
+			const buffer = await fetchy(manifest.urls[0], { ...options, getDecipher: () => makeDecipheriv(decryptKeyId(manifest.keyId)) });
 			return { playbackInfo, manifest, manifestMimeType, buffer };
 		}
 		case ManifestMimeType.Dash: {
