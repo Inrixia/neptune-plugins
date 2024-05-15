@@ -42,41 +42,41 @@ Supports selecting multiple songs.
 Embeds full metadata including Lyrics & AlbumArtwork!
 ```
 General
-Complete name                            : Pink Floyd - Wish You Were Here - Shine On You Crazy Diamond (Pts. 1-5).flac
-Format                                   : FLAC
-Format/Info                              : Free Lossless Audio Codec
-File size                                : 525 MiB
-Duration                                 : 13 min 32 s
-Overall bit rate mode                    : Variable
-Overall bit rate                         : 5 416 kb/s
-Album                                    : Wish You Were Here
-Album/Performer                          : Pink Floyd
-Track name                               : Shine On You Crazy Diamond (Pts. 1-5)
-Track name/Position                      : 1
-Track name/Total                         : 5
-Performer                                : Pink Floyd
-Recorded date                            : 1975-09-15
-ISRC                                     : GBN9Y1100085
-Copyright                                : (P) 2016 The copyright in this sound recording is owned by Pink Floyd Music Ltd., marketed and distributed by Sony Music Entertainment
-Cover                                    : Yes
-Cover type                               : Cover (front)
-Cover MIME                               : image/jpeg
-Lyrics                                   : Remember when you were young? (Ha-ha-ha-ha) / You shone like the sun /  / Shine on, you crazy diamond /  / Now there's a look in your eyes / Like black holes in the sky /  / Shine on, you crazy diamond /  / You were caught in the crossfire / Of childhood and stardom / Blown on the steel breeze / Come on, you target for faraway laughter / Come on, you stranger / You legend, you martyr, and shine /  / You reached for the secret too soon / You cried for the moon /  / Shine on, you crazy diamond /  / Threatened by shadows at night / And exposed in the light /  / Shine on, you crazy diamond /  / Well, you wore out your welcome / With random precision / Rode on the steel breeze / Come on, you raver, you seer of visions / Come on, you painter / You piper, you prisoner, and shine
-Comment                                  : http://www.tidal.com/track/55391798
+Complete name          : Pink Floyd - Wish You Were Here - Shine On You Crazy Diamond (Pts. 1-5).flac
+Format                 : FLAC
+Format/Info            : Free Lossless Audio Codec
+File size              : 525 MiB
+Duration               : 13 min 32 s
+Overall bit rate mode  : Variable
+Overall bit rate       : 5 416 kb/s
+Album                  : Wish You Were Here
+Album/Performer        : Pink Floyd
+Track name             : Shine On You Crazy Diamond (Pts. 1-5)
+Track name/Position    : 1
+Track name/Total       : 5
+Performer              : Pink Floyd
+Recorded date          : 1975-09-15
+ISRC                   : GBN9Y1100085
+Copyright              : (P) 2016 The copyright in this sound recording is owned by Pink Floyd Music Ltd., marketed and distributed by Sony Music Entertainment
+Cover                  : Yes
+Cover type             : Cover (front)
+Cover MIME             : image/jpeg
+Lyrics                 : Remember when you were young? (Ha-ha-ha-ha) / You shone like the sun /  / Shine on, you crazy diamond /  / Now there's a look in your eyes / Like black holes in the sky /  / Shine on, you crazy diamond /  / You were caught in the crossfire / Of childhood and stardom / Blown on the steel breeze / Come on, you target for faraway laughter / Come on, you stranger / You legend, you martyr, and shine /  / You reached for the secret too soon / You cried for the moon /  / Shine on, you crazy diamond /  / Threatened by shadows at night / And exposed in the light /  / Shine on, you crazy diamond /  / Well, you wore out your welcome / With random precision / Rode on the steel breeze / Come on, you raver, you seer of visions / Come on, you painter / You piper, you prisoner, and shine
+Comment                : http://www.tidal.com/track/55391798
 
 Audio
-Format                                   : FLAC
-Format/Info                              : Free Lossless Audio Codec
-Duration                                 : 13 min 32 s
-Bit rate mode                            : Variable
-Bit rate                                 : 5 414 kb/s
-Channel(s)                               : 2 channels
-Channel layout                           : L R
-Sampling rate                            : 192 kHz
-Bit depth                                : 24 bits
-Compression mode                         : Lossless
-Replay gain                              : -2.90 dB
-Replay gain peak                         : 0.710358
-Stream size                              : 525 MiB (100%)
-MD5 of the unencoded content             : 1401A5C520F16BADDEA6670EFF08200B
+Format                 : FLAC
+Format/Info            : Free Lossless Audio Codec
+Duration               : 13 min 32 s
+Bit rate mode          : Variable
+Bit rate               : 5 414 kb/s
+Channel(s)             : 2 channels
+Channel layout         : L R
+Sampling rate          : 192 kHz
+Bit depth              : 24 bits
+Compression mode       : Lossless
+Replay gain            : -2.90 dB
+Replay gain peak       : 0.710358
+Stream size            : 525 MiB (100%)
+MD5 of the unencoded content: 1401A5C520F16BADDEA6670EFF08200B
 ```
