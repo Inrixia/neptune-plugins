@@ -1,12 +1,12 @@
 ## My [Tidal Neptune](https://github.com/uwu/neptune) Plugins
 
 This is a repository containing plugins I have made for the [Tidal Neptune](https://github.com/uwu/neptune) app.  
+
+Want to chat? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**  
+
+You can find some **more plugins** such as **Discord RPC** at  [twnlink/neptune-plugins](https://github.com/twnlink/neptune-plugins)  
+
 To install any of these plugins you need to have the [Neptune](https://github.com/uwu/neptune) app installed, then just paste the **Install Url** into the plugins page and hit enter.
-
-Want to chat? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**
-
-You can find some **more plugins** such as **Discord RPC** at  [twnlink/neptune-plugins](https://github.com/twnlink/neptune-plugins) 
-
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/a997156c-a281-46ec-992a-397a742dd146)
 
 # My Public Plugins
