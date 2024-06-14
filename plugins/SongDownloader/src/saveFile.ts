@@ -5,7 +5,7 @@ const { writeFile } = <typeof fs>require("fs/promises");
 import { storage } from "@plugin";
 
 export const saveFile = async (blob: Blob, fileName: string) => {
-	if (storage.defaultDownloadPath !== undefined) {
+	if (storage.defaultDownloadPath !== undefined && storage.defaultDownloadPath !== "") {
 		return await writeFile(storage.defaultDownloadPath + "/" + fileName, Buffer.from(await blob.arrayBuffer()));
 	}
 	// Create a new Object URL for the Blob
