@@ -4,7 +4,7 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "node ./build.js",
-		"serve": "npx http-server --cors -S --port 443 -C .\\cert.pem -K .\\key.pem"
+		"serve": "npx http-server --cors -S -p 443"
 	},
 	"devDependencies": {
 		"@types/node": "^20.12.7",
