@@ -222,5 +222,5 @@ export const bufferTrack = async (track: TrackItem, trackOptions: TrackOptions, 
 			trackInfo.buffer
 		);
 	}
-	saveFile(new Blob([bufferWithTags ?? trackInfo.buffer], { type: "application/octet-stream" }), fileName);
+	return saveFile(new Blob([bufferWithTags ?? trackInfo.buffer], { type: "application/octet-stream" }), fileName);
 };

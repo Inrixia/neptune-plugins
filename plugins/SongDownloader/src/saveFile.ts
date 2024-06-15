@@ -4,7 +4,11 @@ const { writeFile } = <typeof fs>require("fs/promises");
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 
+const unsafeCharacters = /[\/:*?"<>|]/g;
+const sanitizeFilename = (filename: string): string => filename.replace(unsafeCharacters, "_");
+
 export const saveFile = async (blob: Blob, fileName: string) => {
+	fileName = sanitizeFilename(fileName);
 	if (storage.defaultDownloadPath !== undefined && storage.defaultDownloadPath !== "") {
 		return await writeFile(storage.defaultDownloadPath + "/" + fileName, Buffer.from(await blob.arrayBuffer()));
 	}
