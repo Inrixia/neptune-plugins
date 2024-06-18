@@ -23,7 +23,7 @@ Adds
  - **Sample Rate/Bit Depth/Bitrate** information for currently playing track in the bottom right.
  - **Sample Rate/Bit Depth/Bitrate** information for previously played tracks in library.
 
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/86a15609-d68b-4e50-b6ac-31176b2f79a7)  
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/3883d3f5-c340-4653-beda-ac5971237ee3)  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/2b30406c-d2e0-4268-92f2-5ae4cc3262af)
 
 ## Shazam Files
