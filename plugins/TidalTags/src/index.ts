@@ -3,34 +3,27 @@ import { intercept } from "@neptune";
 import { setFLACInfo } from "./setFLACInfo";
 
 import "./style";
-import { updateTrackLists } from "./updateTrackElements";
+import { updateTrackRow as updateTrackRows } from "./updateTrackElements";
 
 export { Settings } from "./Settings";
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
 
 // @ts-expect-error intercept callback does not have types filled
 const unloadIntercept = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", setFLACInfo);
 
-const processItems = () => {
-	observer.disconnect();
-	updateTrackLists();
-	observer.observe(document.body, { childList: true, subtree: true });
-};
+const isElement = (node: Node): node is Element => node.nodeType === Node.ELEMENT_NODE;
 
-let timeoutId: NodeJS.Timeout | null;
-const debouncedProcessItems = () => {
-	if (storage.showTags) {
-		if (timeoutId === null) processItems();
-		else clearTimeout(timeoutId);
-		timeoutId = setTimeout(() => {
-			processItems();
-			timeoutId = null;
-		}, 5);
+const observer = new MutationObserver((mutationsList) => {
+	for (const mutation of mutationsList) {
+		if (mutation.type === "childList") {
+			for (const node of mutation.addedNodes) {
+				if (isElement(node)) {
+					const trackRows = node.querySelectorAll('div[data-test="tracklist-row"]');
+					if (trackRows.length !== 0) updateTrackRows(trackRows);
+				}
+			}
+		}
 	}
-};
-
-const observer = new MutationObserver(debouncedProcessItems);
+});
 // Start observing the document with the configured parameters
 observer.observe(document.body, { childList: true, subtree: true });
 

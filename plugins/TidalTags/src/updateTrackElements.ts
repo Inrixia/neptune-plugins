@@ -2,7 +2,7 @@ import { store } from "@neptune";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 import { AudioQuality, QualityMeta, QualityTag } from "../../../lib/AudioQualityTypes";
-import type { MediaItem } from "neptune-types/tidal";
+import type { MediaItem, TrackItem, VideoItem } from "neptune-types/tidal";
 
 const queryAllAndAttribute = (selector: string) => {
 	const results = [];
@@ -13,27 +13,38 @@ const queryAllAndAttribute = (selector: string) => {
 	return results;
 };
 
-export const updateTrackLists = () => {
-	const trackElements = [...queryAllAndAttribute("data-track-id"), ...queryAllAndAttribute("data-track--content-id")];
-	if (trackElements.length === 0) return;
-	const mediaItems: Record<number, MediaItem> = store.getState().content.mediaItems;
+class MediaItemCache {
+	private static readonly _cache: Map<string, TrackItem | VideoItem> = new Map<string, TrackItem | VideoItem>();
+	public static get(trackId: string) {
+		let mediaItem = MediaItemCache._cache.get(trackId);
+		if (mediaItem !== undefined) return mediaItem;
+		const mediaItems: Record<number, MediaItem> = store.getState().content.mediaItems;
+		for (const itemId in mediaItems) {
+			MediaItemCache._cache.set(itemId, mediaItems[itemId]?.item);
+		}
+		mediaItem = MediaItemCache._cache.get(trackId);
+		if (mediaItem !== undefined) return mediaItem;
+	}
+}
 
-	for (const { elem: trackElem, attr: trackId } of trackElements) {
-		if (trackId == null) continue;
+export const updateTrackRow = (trackRows: NodeListOf<Element>) => {
+	for (const trackRow of trackRows) {
+		const trackId = trackRow.getAttribute("data-track-id");
+		if (trackId == null) return;
 
-		const mediaItem = mediaItems[+trackId]?.item;
+		const mediaItem = MediaItemCache.get(trackId);
 		if (mediaItem?.contentType !== "track") continue;
-
-		const isLowQuality = mediaItem.audioQuality === AudioQuality.Low || mediaItem.audioQuality === AudioQuality.Lowest;
 
 		let trackTags = mediaItem.mediaMetadata?.tags;
 		if (trackTags === undefined) continue;
+
+		const isLowQuality = mediaItem.audioQuality === AudioQuality.Low || mediaItem.audioQuality === AudioQuality.Lowest;
 		if (trackTags.length === 1 && trackTags[0] === QualityTag.High && !isLowQuality) continue;
 
-		const trackList = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"]`);
-		if (trackList === null) continue;
+		const trackTitle = trackRow.querySelector(`[data-test="table-row-title"]`);
+		if (trackTitle === null) continue;
 
-		let span = trackElem.querySelector(".quality-tag-container") ?? document.createElement("span");
+		let span = trackTitle.querySelector(".quality-tag-container") ?? document.createElement("span");
 		if (span.getAttribute("track-id") === trackId) continue;
 
 		span.innerHTML = "";
@@ -42,16 +53,13 @@ export const updateTrackLists = () => {
 
 		if (isLowQuality) {
 			const tagElement = document.createElement("span");
-
 			tagElement.className = "quality-tag";
 			tagElement.textContent = "Low";
 			tagElement.style.color = "#b9b9b9";
-
 			span.appendChild(tagElement);
 		}
 
 		if (trackTags.includes(QualityTag.HiRes) && !storage.showAllQualities) trackTags = trackTags.filter((tag) => tag !== QualityTag.MQA);
-
 		for (const tag of trackTags) {
 			if (tag === QualityTag.High) continue;
 			if (!storage.showAtmosQuality && tag === QualityTag.DolbyAtmos) continue;
@@ -60,14 +68,12 @@ export const updateTrackLists = () => {
 			if (data === undefined) continue;
 
 			const tagElement = document.createElement("span");
-
 			tagElement.className = "quality-tag";
 			tagElement.textContent = data.textContent;
 			tagElement.style.color = data.color;
-
 			span.appendChild(tagElement);
 		}
 
-		trackList.appendChild(span);
+		trackTitle.appendChild(span);
 	}
 };

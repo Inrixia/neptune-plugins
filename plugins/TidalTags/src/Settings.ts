@@ -2,8 +2,6 @@ import { html } from "@neptune/voby";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 
-import { updateTrackLists } from "./updateTrackElements";
-
 storage.showTags ??= true;
 storage.showAllQualities ??= true;
 storage.showAtmosQuality ??= true;
@@ -25,7 +23,6 @@ export const Settings = () => {
 
 	const onChange = (key: string) => (e: { target: { checked: boolean } }) => {
 		storage[key] = e.target.checked;
-		updateTrackLists();
 	};
 	return html`<div class="settings-section">
 		<h3 class="settings-header">Display Tags</h3>
