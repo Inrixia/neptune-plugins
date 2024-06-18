@@ -5,6 +5,7 @@ import { AudioQualityEnum, PlaybackContext } from "../../../lib/AudioQualityType
 import { storage } from "@plugin";
 
 import { getTrackBytes } from "./getTrackBytes";
+import { store } from "@neptune";
 
 const flacInfoElem = document.createElement("span");
 flacInfoElem.className = "bitInfo";
@@ -17,20 +18,50 @@ flacInfoElem.style.borderRadius = "8px";
 flacInfoElem.textContent = "";
 flacInfoElem.style.border = "";
 
-const qualitySelector = document.querySelector<HTMLElement>(`[data-test-media-state-indicator-streaming-quality]`);
-if (qualitySelector == null) throw new Error("Invalid tidal media-state-indicator element!");
-const tidalQualityElement = <HTMLElement | null>qualitySelector.firstChild;
-const qualityElementContainer = qualitySelector.parentElement;
-if (qualityElementContainer == null || tidalQualityElement == null) throw new Error("Invalid tidal media-state-indicator element children!");
+const retryPromise = <T>(getValue: () => T | Promise<T>, options: { interval?: number; maxRetries?: number } = {}) => {
+	options.maxRetries ??= 40;
+	options.interval ??= 250;
+	let selectorInterval: NodeJS.Timeout;
+	let retries = 0;
+	return new Promise<T>((res, rej) => {
+		selectorInterval = setInterval(async () => {
+			try {
+				res(await getValue());
+			} catch (err) {
+				if (retries >= (options.maxRetries ?? 40)) return rej(err);
+				retries++;
+			}
+		}, options.interval ?? 250);
+	}).finally(() => clearTimeout(selectorInterval));
+};
 
-// Ensure no duplicate/leftover elements
-qualityElementContainer.querySelectorAll(".bitInfo").forEach((elem) => elem.remove());
+const qualitySelectorP = retryPromise(() => {
+	const qualitySelector = document.querySelector<HTMLElement>(`[data-test-media-state-indicator-streaming-quality]`);
+	if (qualitySelector == null) throw new Error("Failed to find tidal media-state-indicator element!");
+	return qualitySelector;
+});
+const tidalQualityElementP = retryPromise(async () => {
+	const tidalQualityElement = <HTMLElement>(await qualitySelectorP).firstChild;
+	if (tidalQualityElement === null) throw new Error("Failed to find tidal media-state-indicator element children!");
+	return tidalQualityElement;
+});
+const setupQualityElementContainer = retryPromise(async () => {
+	const qualityElementContainer = (await qualitySelectorP).parentElement;
+	if (qualityElementContainer == null) throw new Error("Failed to find tidal media-state-indicator element parent!");
 
-qualityElementContainer.prepend(flacInfoElem);
-// Fix for grid spacing issues
-qualityElementContainer.style.setProperty("grid-auto-columns", "auto");
+	// Ensure no duplicate/leftover elements before prepending
+	qualityElementContainer.querySelectorAll(".bitInfo").forEach((elem) => elem.remove());
+	qualityElementContainer.prepend(flacInfoElem);
+	// Fix for grid spacing issues
+	qualityElementContainer.style.setProperty("grid-auto-columns", "auto");
 
-const progressBar = <HTMLElement>document.getElementById("progressBar");
+	return qualityElementContainer;
+});
+const progressBarP = retryPromise(() => {
+	const progressBar = <HTMLElement>document.getElementById("progressBar");
+	if (progressBar === null) throw new Error("Failed to find tidal progressBar element!");
+	return progressBar;
+});
 
 function hexToRgba(hex: string, alpha: number) {
 	// Remove the hash at the start if it's there
@@ -46,7 +77,11 @@ function hexToRgba(hex: string, alpha: number) {
 const Loading_Bitrate = `Loading Bitrate...`;
 const setBitrateText = (bitrateText: string) => (flacInfoElem.textContent = flacInfoElem.textContent?.replace(Loading_Bitrate, bitrateText) ?? "");
 
-export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext: PlaybackContext }]) => {
+export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: PlaybackContext }]) => {
+	if (!playbackContext) return;
+	const [progressBar, tidalQualityElement] = await Promise.all([progressBarP, tidalQualityElementP]);
+	await setupQualityElementContainer;
+
 	const { actualAudioQuality, actualProductId, bitDepth, sampleRate, actualDuration } = playbackContext;
 	switch (actualAudioQuality) {
 		case AudioQualityEnum.MQA: {
@@ -87,3 +122,5 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext: Pla
 
 	if (flacInfoElem.textContent.length === 0) flacInfoElem.textContent = "Unknown";
 };
+
+setFLACInfo([{ playbackContext: <PlaybackContext>store.getState().playbackControls.playbackContext }]);
