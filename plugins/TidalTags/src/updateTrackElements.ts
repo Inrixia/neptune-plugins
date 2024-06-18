@@ -5,7 +5,6 @@ import { AudioQuality, lookupItemQuality, QualityMeta, QualityTag, sortQualityTa
 import type { MediaItem, TrackItem } from "neptune-types/tidal";
 import { isElement } from ".";
 import { TrackInfoCache } from "./lib/TrackInfoCache";
-import { hexToRgba } from "./lib/hexToRgba";
 
 class TrackItemCache {
 	private static readonly _cache: Map<string, TrackItem> = new Map<string, TrackItem>();
@@ -115,25 +114,31 @@ export const updateTrackRow = async (trackRows: NodeListOf<Element>) => {
 		setQualityTag(trackRow, trackId, trackItem);
 
 		const qualityTag = sortQualityTags(<QualityTag[]>trackItem.mediaMetadata?.tags)[0] ?? "LOW";
-		const qualityColor = QualityMeta[qualityTag]?.color ?? "";
 
 		const audioQuality = lookupItemQuality(qualityTag, trackItem.audioQuality);
 		if (audioQuality === undefined) continue;
 
 		const bitDepthContent = document.createElement("span");
-		// bitDepthContent.style.color = qualityColor;
+
 		const bitDepthColumn = setColumn(trackRow, "Depth", `div[data-test="duration"]`, bitDepthContent, `div[data-test="track-row-date-added"]`);
 		bitDepthColumn?.style.setProperty("min-width", "auto");
 
 		const sampleRateContent = document.createElement("span");
-		// sampleRateContent.style.color = qualityColor;
+
 		const sampleRateColumn = setColumn(trackRow, "Sample Rate", `div[data-test="track-row-date-added"]`, sampleRateContent, bitDepthColumn);
 		sampleRateColumn?.style.setProperty("min-width", "auto");
 
 		const bitrateContent = document.createElement("span");
-		// bitrateContent.style.color = qualityColor;
+
 		const bitrateColumn = setColumn(trackRow, "Bitrate", `div[data-test="track-row-date-added"]`, bitrateContent, sampleRateColumn);
 		bitrateColumn?.style.setProperty("min-width", "auto");
+
+		if (storage.infoColumnColors) {
+			const qualityColor = QualityMeta[qualityTag]?.color ?? "";
+			bitDepthContent.style.color = qualityColor;
+			sampleRateContent.style.color = qualityColor;
+			bitrateContent.style.color = qualityColor;
+		}
 
 		TrackInfoCache.register(trackId, audioQuality, async (trackInfoP) => {
 			const trackInfo = await trackInfoP;
