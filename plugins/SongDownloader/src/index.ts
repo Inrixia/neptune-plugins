@@ -8,7 +8,7 @@ import { storage } from "@plugin";
 import "./styles";
 export { Settings } from "./Settings";
 
-import { downloadTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/download";
+import { fetchTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/download";
 import { ItemId, MediaItem, MediaItems, Track, TrackItem, Video, VideoItem } from "neptune-types/tidal";
 import { ExtendedPlayackInfo, ManifestMimeType } from "../../../lib/getPlaybackInfo";
 import { saveFile } from "./saveFile";
@@ -169,7 +169,7 @@ export const bufferTrack = async (track: TrackItem, trackOptions: TrackOptions, 
 	}
 
 	// Download the bytes
-	const trackInfo = await downloadTrack(trackOptions, options);
+	const trackInfo = await fetchTrack(trackOptions, options);
 
 	const fileName = fileNameFromInfo(track, trackInfo);
 

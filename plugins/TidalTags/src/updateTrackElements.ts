@@ -1,7 +1,7 @@
 import { store } from "@neptune";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
-import { AudioQualityEnum, QualityMeta, QualityTagEnum } from "../../../lib/AudioQuality";
+import { AudioQualityEnum, QualityMeta, QualityTagEnum } from "../../../lib/AudioQualityTypes";
 import type { MediaItem } from "neptune-types/tidal";
 
 const queryAllAndAttribute = (selector: string) => {

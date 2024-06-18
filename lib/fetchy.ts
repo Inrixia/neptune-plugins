@@ -29,6 +29,7 @@ export interface FetchyOptions {
 	onProgress?: OnProgress;
 	bytesWanted?: number;
 	getDecipher?: () => Promise<Decipher>;
+	requestOptions?: RequestOptions;
 }
 
 export const requestBuffer = async (url: string, options: RequestOptions = {}) =>
@@ -45,10 +46,14 @@ export const requestBuffer = async (url: string, options: RequestOptions = {}) =
 		req.end();
 	});
 
-export const fetchy = async (url: string, options?: FetchyOptions): Promise<Buffer> =>
+export const requestDecodedBuffer = async (url: string, options?: FetchyOptions): Promise<Buffer> =>
 	new Promise((resolve, reject) => {
 		const { onProgress, bytesWanted, getDecipher } = options ?? {};
-		const reqOptions = bytesWanted ? { headers: { Range: `bytes=0-${bytesWanted}` } } : {};
+		const reqOptions = { ...(options?.requestOptions ?? {}) };
+		if (bytesWanted !== undefined) {
+			reqOptions.headers ??= {};
+			reqOptions.headers.Range = `bytes=0-${bytesWanted}`;
+		}
 		const req = request(url, reqOptions, (res) => {
 			const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
 			if (!OK) reject(new Error(`Status code is ${res.statusCode}`));
@@ -68,23 +73,18 @@ export const fetchy = async (url: string, options?: FetchyOptions): Promise<Buff
 			const decipherP = getDecipher?.();
 
 			res.on("data", async (chunk: Buffer) => {
-				const decipher = await decipherP;
-				chunks.push(decipher ? decipher.update(chunk) : chunk);
+				chunks.push((await decipherP)?.update(chunk) ?? chunk);
 				downloaded += chunk.length;
-
 				if (onProgress) onProgress({ total, downloaded, percent: (downloaded / total) * 100 });
 			});
 
 			res.on("end", async () => {
 				if (onProgress) onProgress({ total, downloaded: total, percent: 100 });
-
-				if (decipherP) {
-					const decipher = await decipherP;
-					chunks.push(decipher.final());
-				}
-
+				if (decipherP) chunks.push((await decipherP).final());
 				resolve(Buffer.concat(chunks));
 			});
+
+			if (total !== -1 && onProgress) onProgress({ total, downloaded, percent: (downloaded / total) * 100 });
 		});
 		req.on("error", reject);
 		req.end();

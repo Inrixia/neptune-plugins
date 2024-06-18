@@ -13,17 +13,38 @@ export enum QualityTagEnum {
 	Sony630 = "SONY_360RA",
 }
 
-export type PlaybackContext = {
+export interface ISRCData {
+	mediaProduct: MediaProduct;
+	playbackContext: PlaybackContext;
+}
+export interface MediaProduct {
+	productId: string;
+	productType: string;
+	referenceId: string;
+	sourceId: string;
+	sourceType: string;
+}
+export interface PlaybackContext {
+	actualAssetPresentation: string;
+	actualAudioMode: string;
 	actualAudioQuality: AudioQualityEnum;
-	actualProductId: number;
-};
+	actualDuration: number;
+	actualProductId: string;
+	actualStreamType: null;
+	actualVideoQuality: null;
+	assetPosition: number;
+	bitDepth: number;
+	codec: string;
+	playbackSessionId: string;
+	sampleRate: number;
+}
 
 export const QualityMeta = {
 	[QualityTagEnum.MQA]: { textContent: "MQA", color: "#F9BA7A" },
 	[QualityTagEnum.HiRes]: { textContent: "HiRes", color: "#ffd432" },
 	[QualityTagEnum.DolbyAtmos]: { textContent: "Atmos", color: "#0052a3" },
 	[QualityTagEnum.Sony630]: undefined,
-	[QualityTagEnum.High]: undefined,
+	[QualityTagEnum.High]: { textContent: "High", color: "#33FFEE" },
 } as const;
 
 export const audioQualities = Object.values(AudioQualityEnum);

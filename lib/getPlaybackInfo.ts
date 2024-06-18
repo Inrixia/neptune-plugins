@@ -1,5 +1,5 @@
 import { getHeaders } from "./fetchy";
-import { audioQualities, AudioQualityEnum } from "./AudioQuality";
+import { audioQualities, AudioQualityEnum } from "./AudioQualityTypes";
 import { TrackItem } from "neptune-types/tidal";
 import type { Manifest as DashManifest } from "dasha";
 import type dasha from "dasha";

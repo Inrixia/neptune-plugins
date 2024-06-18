@@ -2,7 +2,7 @@ import { html } from "@neptune/voby";
 
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
-import { AudioQualityInverse, AudioQualityEnum, validQualitiesSettings } from "../../../lib/AudioQuality";
+import { AudioQualityInverse, AudioQualityEnum, validQualitiesSettings } from "../../../lib/AudioQualityTypes";
 
 storage.desiredDownloadQuality ??= AudioQualityEnum.HiRes;
 storage.defaultDownloadPath ??= "";

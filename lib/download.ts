@@ -1,7 +1,7 @@
 import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType } from "./getPlaybackInfo";
 import { makeDecipheriv } from "./decryptBuffer";
-import { FetchyOptions, fetchy } from "./fetchy";
-import { AudioQualityEnum } from "./AudioQuality";
+import { FetchyOptions, requestDecodedBuffer } from "./fetchy";
+import { AudioQualityEnum } from "./AudioQualityTypes";
 import { decryptKeyId } from "./decryptKeyId";
 
 export type TrackOptions = {
@@ -15,12 +15,12 @@ export interface DownloadTrackOptions extends FetchyOptions {
 	playbackInfo?: ExtendedPlayackInfo;
 }
 
-export const downloadTrack = async ({ songId, desiredQuality }: TrackOptions, options?: DownloadTrackOptions): Promise<ExtendedPlaybackInfoWithBytes> => {
+export const fetchTrack = async ({ songId, desiredQuality }: TrackOptions, options?: DownloadTrackOptions): Promise<ExtendedPlaybackInfoWithBytes> => {
 	const { playbackInfo, manifest, manifestMimeType } = options?.playbackInfo ?? (await getPlaybackInfo(songId, desiredQuality));
 
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
-			const buffer = await fetchy(manifest.urls[0], { ...options, getDecipher: () => makeDecipheriv(decryptKeyId(manifest.keyId)) });
+			const buffer = await requestDecodedBuffer(manifest.urls[0], { ...options, getDecipher: () => makeDecipheriv(decryptKeyId(manifest.keyId)) });
 			return { playbackInfo, manifest, manifestMimeType, buffer };
 		}
 		case ManifestMimeType.Dash: {
@@ -33,14 +33,14 @@ export const downloadTrack = async ({ songId, desiredQuality }: TrackOptions, op
 				let buffers: Buffer[] = [];
 				let bytes = 0;
 				for (const { url } of trackManifest.segments) {
-					const segmentBuffer = await fetchy(url, options);
+					const segmentBuffer = await requestDecodedBuffer(url, options);
 					bytes += segmentBuffer.length;
 					buffers.push(segmentBuffer);
 					if (bytes >= bytesWanted) break;
 				}
 				buffer = Buffer.concat(buffers);
 			} else {
-				buffer = Buffer.concat(await Promise.all(trackManifest.segments.map(({ url }) => fetchy(url, options))));
+				buffer = Buffer.concat(await Promise.all(trackManifest.segments.map(({ url }) => requestDecodedBuffer(url, options))));
 			}
 			return { playbackInfo, manifest, manifestMimeType, buffer };
 		}

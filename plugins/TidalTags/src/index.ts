@@ -1,6 +1,6 @@
 import { intercept } from "@neptune";
 
-import { setStreamQualityIndicator } from "./streamQualitySelector";
+import { setFLACInfo } from "./setFLACInfo";
 
 import "./style";
 import { updateTrackLists } from "./updateTrackElements";
@@ -9,9 +9,8 @@ export { Settings } from "./Settings";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 
-const unloadIntercept = intercept(["playbackControls/SET_PLAYBACK_STATE", "playbackControls/MEDIA_PRODUCT_TRANSITION"], () => {
-	setTimeout(setStreamQualityIndicator);
-});
+// @ts-expect-error intercept callback does not have types filled
+const unloadIntercept = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", setFLACInfo);
 
 const processItems = () => {
 	observer.disconnect();
