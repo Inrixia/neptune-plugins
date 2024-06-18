@@ -1,3 +1,5 @@
+import type { TrackItem } from "neptune-types/tidal";
+
 export enum AudioQuality {
 	HiRes = "HI_RES_LOSSLESS",
 	MQA = "HI_RES",
@@ -12,6 +14,22 @@ export enum QualityTag {
 	DolbyAtmos = "DOLBY_ATMOS",
 	Sony630 = "SONY_360RA",
 }
+export const lookupItemQuality = (qualityTag: QualityTag, audioQuality: TrackItem["audioQuality"]) => {
+	switch (qualityTag) {
+		case QualityTag.HiRes:
+			return AudioQuality.HiRes;
+		case QualityTag.High:
+			return AudioQuality.High;
+		case QualityTag.MQA:
+			return AudioQuality.MQA;
+	}
+	switch (audioQuality) {
+		case "HIGH":
+			return AudioQuality.Low;
+		case "LOW":
+			return AudioQuality.Lowest;
+	}
+};
 
 export interface ISRCData {
 	mediaProduct: MediaProduct;
@@ -40,12 +58,16 @@ export interface PlaybackContext {
 }
 
 export const QualityMeta = {
-	[QualityTag.MQA]: { textContent: "MQA", color: "#F9BA7A" },
 	[QualityTag.HiRes]: { textContent: "HiRes", color: "#ffd432" },
+	[QualityTag.MQA]: { textContent: "MQA", color: "#F9BA7A" },
+	[QualityTag.High]: { textContent: "High", color: "#33FFEE" },
 	[QualityTag.DolbyAtmos]: { textContent: "Atmos", color: "#0052a3" },
 	[QualityTag.Sony630]: undefined,
-	[QualityTag.High]: { textContent: "High", color: "#33FFEE" },
+	["LOW"]: { textContent: "Low", color: "#b9b9b9" },
 } as const;
+
+const qualityOrder = [QualityTag.HiRes, QualityTag.MQA, QualityTag.High, QualityTag.DolbyAtmos, QualityTag.Sony630, "LOW"];
+export const sortQualityTags = (array?: QualityTag[]): QualityTag[] => (array ?? []).sort((a, b) => qualityOrder.indexOf(a) - qualityOrder.indexOf(b));
 
 export const audioQualities = Object.values(AudioQuality);
 // Dont show MQA as a option as if HiRes is avalible itl always be served even if MQA is requested.

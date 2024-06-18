@@ -4,7 +4,7 @@ import { AudioQuality, PlaybackContext } from "../../../lib/AudioQualityTypes";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 
-import { getTrackInfo } from "./getTrackInfo";
+import { TrackInfoCache } from "./TrackInfoCache";
 import { store } from "@neptune";
 import { getPlaybackInfo, ManifestMimeType } from "../../../lib/getPlaybackInfo";
 import { messageError } from "../../../lib/messageLogging";
@@ -115,7 +115,7 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: Pl
 	}
 
 	try {
-		const { bitDepth, sampleRate, bitrate } = await getTrackInfo(playbackContext);
+		const { bitDepth, sampleRate, bitrate } = await TrackInfoCache.ensure(playbackContext);
 		flacInfoElem.textContent = "";
 		if (!!sampleRate) flacInfoElem.textContent += `${sampleRate / 1000}kHz `;
 		if (!!bitDepth) flacInfoElem.textContent += `${bitDepth}bit `;

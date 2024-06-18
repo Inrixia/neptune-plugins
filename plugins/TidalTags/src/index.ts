@@ -10,7 +10,7 @@ export { Settings } from "./Settings";
 // @ts-expect-error intercept callback does not have types filled
 const unloadIntercept = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", setFLACInfo);
 
-const isElement = (node: Node): node is Element => node.nodeType === Node.ELEMENT_NODE;
+export const isElement = (node: Node | undefined): node is Element => node?.nodeType === Node.ELEMENT_NODE;
 
 const observer = new MutationObserver((mutationsList) => {
 	for (const mutation of mutationsList) {
