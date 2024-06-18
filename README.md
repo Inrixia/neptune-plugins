@@ -18,15 +18,19 @@ You can see a list of all plugins including unreleased ones under the [**plugins
 
 **Install Url: https://inrixia.github.io/neptune-plugins/TidalTags/**  
 Desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags).  
-Adds **Track Quality Tags** next to song titles and **Sample Rate/Bit Depth/Bitrate** information for currently playing track.  
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/b71da686-ae05-4f43-b70e-063e77c8fda8)
+Adds 
+ - **Track Quality Tags** next to song titles
+ - **Sample Rate/Bit Depth/Bitrate** information for currently playing track in the bottom right.
+ - **Sample Rate/Bit Depth/Bitrate** information for previously played tracks in library.
 
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/86a15609-d68b-4e50-b6ac-31176b2f79a7)  
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/2b30406c-d2e0-4268-92f2-5ae4cc3262af)
 
 ## Shazam Files
 
 **Install Url: https://inrixia.github.io/neptune-plugins/Shazam/**  
 When enabled any files you drag onto your client will be run through [**Shazam**](https://www.shazam.com/) and added to the current playlist!
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/f637d5a0-fea0-4ba4-984e-ccddb81341b9)
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/f637d5a0-fea0-4ba4-984e-ccddb81341b9)  
 
 ## Always Exclusive
 
