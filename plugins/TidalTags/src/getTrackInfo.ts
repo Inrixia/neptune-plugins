@@ -33,7 +33,7 @@ export const getTrackInfo = (playbackContext: PlaybackContext): Promise<TrackInf
 			// note that you cannot trust bytes to be populated until the stream is finished. parseStream will read the entire stream ensuring this
 			const { format } = await parseStream(stream, { mimeType: manifestMimeType === ManifestMimeType.Tidal ? manifest.mimeType : "audio/mp4" });
 
-			bitDepth ??= format.bitsPerSample!;
+			bitDepth ??= format.bitsPerSample! ?? 16;
 			sampleRate ??= format.sampleRate!;
 			codec ??= format.codec?.toLowerCase()!;
 			duration ??= format.duration!;
