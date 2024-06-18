@@ -22,8 +22,8 @@ import { storage } from "@plugin";
 
 storage._trackInfoCache ??= {};
 export class TrackInfoCache {
-	private static readonly _cache: Record<string, Promise<TrackInfo> | TrackInfo> = storage._trackInfoCache;
-	private static readonly _listeners: Record<string, ((trackInfoP: Promise<TrackInfo>) => void)[]> = {};
+	private static readonly _cache: Record<string, TrackInfo> = storage._trackInfoCache;
+	private static readonly _listeners: Record<string, ((trackInfo: TrackInfo) => void)[]> = {};
 
 	private static makeKey(trackId: string, audioQuality: AudioQuality): string {
 		return `${trackId}-${audioQuality}`;
@@ -42,16 +42,15 @@ export class TrackInfoCache {
 		if (trackInfo !== undefined) onTrackInfo(TrackInfoCache._cache[key]!);
 	}
 
-	private static set(key: string, trackInfoP: Promise<TrackInfo>): void {
-		TrackInfoCache._cache[key] = trackInfoP;
-		trackInfoP.then((trackInfo) => (TrackInfoCache._cache[key] = trackInfo));
-		for (const listener of TrackInfoCache._listeners[key] || []) listener(trackInfoP);
+	private static set(key: string, trackInfo: TrackInfo): void {
+		TrackInfoCache._cache[key] = trackInfo;
+		for (const listener of TrackInfoCache._listeners[key] || []) listener(trackInfo);
 	}
 	private static _get(key: string): Promise<TrackInfo> | TrackInfo | undefined {
 		return TrackInfoCache._cache[key];
 	}
 
-	public static ensure(playbackContext: PlaybackContext): Promise<TrackInfo> | TrackInfo {
+	public static async ensure(playbackContext: PlaybackContext): Promise<TrackInfo> {
 		let { actualProductId: trackId, actualAudioQuality: audioQuality, bitDepth, sampleRate, codec, actualDuration: duration } = playbackContext;
 
 		const key = TrackInfoCache.makeKey(trackId, audioQuality);
@@ -62,66 +61,59 @@ export class TrackInfoCache {
 
 		// Fallback to parsing metadata if info is not in context
 		if (bitDepth === null || sampleRate === null || duration === null) {
-			const getTrackInfo = async (): Promise<TrackInfo> => {
-				let bytes;
-				const { stream, playbackInfo, manifestMimeType, manifest } = await fetchTrack(
-					{ trackId: +trackId, desiredQuality: audioQuality },
-					{ bytesWanted: 256, onProgress: ({ total }) => (bytes = total) }
-				);
-				// note that you cannot trust bytes to be populated until the stream is finished. parseStream will read the entire stream ensuring this
-				const { format } = await parseStream(stream, { mimeType: manifestMimeType === ManifestMimeType.Tidal ? manifest.mimeType : "audio/mp4" });
+			let bytes;
+			const { stream, playbackInfo, manifestMimeType, manifest } = await fetchTrack({ trackId: +trackId, desiredQuality: audioQuality }, { bytesWanted: 256, onProgress: ({ total }) => (bytes = total) });
+			// note that you cannot trust bytes to be populated until the stream is finished. parseStream will read the entire stream ensuring this
+			const { format } = await parseStream(stream, { mimeType: manifestMimeType === ManifestMimeType.Tidal ? manifest.mimeType : "audio/mp4" });
 
-				bitDepth ??= format.bitsPerSample! ?? 16;
-				sampleRate ??= format.sampleRate!;
-				codec ??= format.codec?.toLowerCase()!;
-				duration ??= format.duration!;
-				audioQuality = <AudioQuality>playbackInfo.audioQuality;
+			bitDepth ??= format.bitsPerSample! ?? 16;
+			sampleRate ??= format.sampleRate!;
+			codec ??= format.codec?.toLowerCase()!;
+			duration ??= format.duration!;
+			audioQuality = <AudioQuality>playbackInfo.audioQuality;
 
-				let bitrate;
-				switch (manifestMimeType) {
-					case ManifestMimeType.Tidal: {
-						bitrate = !!bytes ? (bytes / duration) * 8 : undefined;
-						break;
-					}
-					case ManifestMimeType.Dash: {
-						bitrate = manifest.tracks.audios[0].bitrate.bps;
-						bytes = manifest.tracks.audios[0].size?.b;
-						break;
-					}
-					default:
-						throw new Error("Unknown manifest type");
+			let bitrate;
+			switch (manifestMimeType) {
+				case ManifestMimeType.Tidal: {
+					bitrate = !!bytes ? (bytes / duration) * 8 : undefined;
+					break;
 				}
+				case ManifestMimeType.Dash: {
+					bitrate = manifest.tracks.audios[0].bitrate.bps;
+					bytes = manifest.tracks.audios[0].size?.b;
+					break;
+				}
+				default:
+					throw new Error("Unknown manifest type");
+			}
 
-				return {
-					trackId,
-					audioQuality,
-					bitDepth,
-					sampleRate,
-					codec,
-					duration,
-					bytes,
-					bitrate,
-				};
+			const trackInfo = {
+				trackId,
+				audioQuality,
+				bitDepth,
+				sampleRate,
+				codec,
+				duration,
+				bytes,
+				bitrate,
 			};
-			TrackInfoCache.set(key, getTrackInfo());
+			TrackInfoCache.set(key, trackInfo);
+			return trackInfo;
 		} else {
-			const getTrackInfo = async (): Promise<TrackInfo> => {
-				let bytes;
-				const { playbackInfo } = await fetchTrack({ trackId: +trackId, desiredQuality: audioQuality }, { requestOptions: { method: "HEAD" }, onProgress: ({ total }) => (bytes = total) });
-				return {
-					trackId,
-					audioQuality: <AudioQuality>playbackInfo.audioQuality ?? audioQuality,
-					bitDepth,
-					sampleRate,
-					codec,
-					duration,
-					bytes,
-					bitrate: !!bytes ? (bytes / duration) * 8 : undefined,
-				};
+			let bytes;
+			const { playbackInfo } = await fetchTrack({ trackId: +trackId, desiredQuality: audioQuality }, { requestOptions: { method: "HEAD" }, onProgress: ({ total }) => (bytes = total) });
+			const trackInfo = {
+				trackId,
+				audioQuality: <AudioQuality>playbackInfo.audioQuality ?? audioQuality,
+				bitDepth,
+				sampleRate,
+				codec,
+				duration,
+				bytes,
+				bitrate: !!bytes ? (bytes / duration) * 8 : undefined,
 			};
-			TrackInfoCache.set(key, getTrackInfo());
+			TrackInfoCache.set(key, trackInfo);
+			return trackInfo;
 		}
-
-		return TrackInfoCache._get(key)!;
 	}
 }
