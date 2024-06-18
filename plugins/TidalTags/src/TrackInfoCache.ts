@@ -17,19 +17,23 @@ export type TrackInfo = {
 	bitrate?: number;
 };
 
+// @ts-expect-error Remove this when types are available
+import { storage } from "@plugin";
+
+storage._trackInfoCache ??= {};
 export class TrackInfoCache {
-	private static readonly _cache: Record<string, Promise<TrackInfo>> = {};
+	private static readonly _cache: Record<string, Promise<TrackInfo> | TrackInfo> = storage._trackInfoCache;
 	private static readonly _listeners: Record<string, ((trackInfoP: Promise<TrackInfo>) => void)[]> = {};
 
 	private static makeKey(trackId: string, audioQuality: AudioQuality): string {
 		return `${trackId}-${audioQuality}`;
 	}
 
-	public static get(trackId: string, audioQuality: AudioQuality): Promise<TrackInfo> | undefined {
+	public static get(trackId: string, audioQuality: AudioQuality): Promise<TrackInfo> | TrackInfo | undefined {
 		return TrackInfoCache._get(TrackInfoCache.makeKey(trackId, audioQuality));
 	}
 
-	public static register(trackId: string, audioQuality: AudioQuality, onTrackInfo: (trackInfoP: Promise<TrackInfo>) => void): void {
+	public static register(trackId: string, audioQuality: AudioQuality, onTrackInfo: (trackInfoP: Promise<TrackInfo> | TrackInfo) => void): void {
 		const key = TrackInfoCache.makeKey(trackId, audioQuality);
 		const listeners = TrackInfoCache._listeners[key];
 		if (listeners !== undefined) listeners.push(onTrackInfo);
@@ -38,15 +42,16 @@ export class TrackInfoCache {
 		if (trackInfo !== undefined) onTrackInfo(TrackInfoCache._cache[key]!);
 	}
 
-	private static set(key: string, trackInfo: Promise<TrackInfo>): void {
-		TrackInfoCache._cache[key] = trackInfo;
-		for (const listener of TrackInfoCache._listeners[key] || []) listener(trackInfo);
+	private static set(key: string, trackInfoP: Promise<TrackInfo>): void {
+		TrackInfoCache._cache[key] = trackInfoP;
+		trackInfoP.then((trackInfo) => (TrackInfoCache._cache[key] = trackInfo));
+		for (const listener of TrackInfoCache._listeners[key] || []) listener(trackInfoP);
 	}
-	private static _get(key: string): Promise<TrackInfo> | undefined {
+	private static _get(key: string): Promise<TrackInfo> | TrackInfo | undefined {
 		return TrackInfoCache._cache[key];
 	}
 
-	public static ensure(playbackContext: PlaybackContext): Promise<TrackInfo> {
+	public static ensure(playbackContext: PlaybackContext): Promise<TrackInfo> | TrackInfo {
 		let { actualProductId: trackId, actualAudioQuality: audioQuality, bitDepth, sampleRate, codec, actualDuration: duration } = playbackContext;
 
 		const key = TrackInfoCache.makeKey(trackId, audioQuality);
