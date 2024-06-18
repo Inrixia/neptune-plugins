@@ -4,10 +4,11 @@ import { AudioQuality, PlaybackContext } from "../../../lib/AudioQualityTypes";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 
-import { TrackInfoCache } from "./TrackInfoCache";
+import { TrackInfoCache } from "./lib/TrackInfoCache";
 import { store } from "@neptune";
 import { getPlaybackInfo, ManifestMimeType } from "../../../lib/getPlaybackInfo";
 import { messageError } from "../../../lib/messageLogging";
+import { hexToRgba } from "./lib/hexToRgba";
 
 const flacInfoElem = document.createElement("span");
 flacInfoElem.className = "bitInfo";
@@ -65,16 +66,6 @@ const progressBarP = retryPromise(() => {
 	return progressBar;
 });
 
-function hexToRgba(hex: string, alpha: number) {
-	// Remove the hash at the start if it's there
-	hex = hex.replace(/^#/, "");
-	// Parse the r, g, b values
-	const r = parseInt(hex.substring(0, 2), 16);
-	const g = parseInt(hex.substring(2, 4), 16);
-	const b = parseInt(hex.substring(4, 6), 16);
-	// Return the RGBA string
-	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
 const Loading_Bitrate = `Loading Bitrate...`;
 
 export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: PlaybackContext }]) => {

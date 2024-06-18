@@ -2,18 +2,10 @@ import { store } from "@neptune";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 import { AudioQuality, lookupItemQuality, QualityMeta, QualityTag, sortQualityTags } from "../../../lib/AudioQualityTypes";
-import type { MediaItem, TrackItem, VideoItem } from "neptune-types/tidal";
+import type { MediaItem, TrackItem } from "neptune-types/tidal";
 import { isElement } from ".";
-import { TrackInfoCache } from "./TrackInfoCache";
-
-const queryAllAndAttribute = (selector: string) => {
-	const results = [];
-	const elements = document.querySelectorAll(`[${selector}]`);
-	for (const elem of elements) {
-		results.push({ elem, attr: elem.getAttribute(selector) });
-	}
-	return results;
-};
+import { TrackInfoCache } from "./lib/TrackInfoCache";
+import { hexToRgba } from "./lib/hexToRgba";
 
 class TrackItemCache {
 	private static readonly _cache: Map<string, TrackItem> = new Map<string, TrackItem>();
@@ -73,7 +65,7 @@ const setQualityTag = (trackRow: Element, trackId: string, mediaItem: TrackItem)
 	trackTitle.appendChild(span);
 };
 
-const setColumn = (trackRow: Element, name: string, sourceSelector: string, content: HTMLElement) => {
+const setColumn = (trackRow: Element, name: string, sourceSelector: string, content: HTMLElement, beforeSelector?: string | Element) => {
 	let column = trackRow.querySelector<HTMLElement>(`div[data-test="${name}"]`);
 	if (column !== null) return;
 
@@ -85,11 +77,11 @@ const setColumn = (trackRow: Element, name: string, sourceSelector: string, cont
 		column.setAttribute("data-test", name);
 		column.innerHTML = "";
 		column.appendChild(content);
-		return sourceColumn.parentElement!.insertBefore(column, sourceColumn);
+		return sourceColumn.parentElement!.insertBefore(column, beforeSelector instanceof Element ? beforeSelector : beforeSelector ? trackRow.querySelector(beforeSelector) : sourceColumn);
 	}
 };
 
-const ensureColumnHeader = (trackList: Element, name: string, sourceSelector: string) => {
+const ensureColumnHeader = (trackList: Element, name: string, sourceSelector: string, beforeSelector?: string | Element) => {
 	let columnHeader = trackList.querySelector<HTMLElement>(`span[data-test="${name}"][role="columnheader"]`);
 	if (columnHeader !== null) return;
 
@@ -97,17 +89,21 @@ const ensureColumnHeader = (trackList: Element, name: string, sourceSelector: st
 	if (!(sourceColumn instanceof HTMLElement)) return;
 
 	columnHeader = sourceColumn.cloneNode(true);
+	if ((columnHeader.firstChild?.childNodes?.length ?? -1) > 1) columnHeader.firstChild?.lastChild?.remove();
 	columnHeader.setAttribute("data-test", name);
 	columnHeader.firstChild!.firstChild!.textContent = name;
 
-	return sourceColumn.parentElement!.insertBefore(columnHeader, sourceColumn);
+	return sourceColumn.parentElement!.insertBefore(columnHeader, beforeSelector instanceof Element ? beforeSelector : beforeSelector ? trackList.querySelector(beforeSelector) : sourceColumn);
 };
 
 export const updateTrackRow = async (trackRows: NodeListOf<Element>) => {
 	for (const trackList of document.querySelectorAll(`div[aria-label="Tracklist"]`)) {
-		ensureColumnHeader(trackList, "Sample Rate", `span[class^="dateAddedColumn--"][role="columnheader"]`);
-		const bitrateColumn = ensureColumnHeader(trackList, "Bitrate", `span[class^="dateAddedColumn--"][role="columnheader"]`);
-		bitrateColumn?.style.setProperty("min-width", "100px");
+		const bitDepthColumn = ensureColumnHeader(trackList, "Depth", `span[class^="timeColumn--"][role="columnheader"]`, `span[class^="dateAddedColumn--"][role="columnheader"]`);
+		bitDepthColumn?.style.setProperty("min-width", "auto");
+		const sampleRateColumn = ensureColumnHeader(trackList, "Sample Rate", `span[class^="dateAddedColumn--"][role="columnheader"]`, bitDepthColumn);
+		sampleRateColumn?.style.setProperty("min-width", "auto");
+		const bitrateColumn = ensureColumnHeader(trackList, "Bitrate", `span[class^="dateAddedColumn--"][role="columnheader"]`, sampleRateColumn);
+		bitrateColumn?.style.setProperty("min-width", "auto");
 	}
 	for (const trackRow of trackRows) {
 		const trackId = trackRow.getAttribute("data-track-id");
@@ -124,18 +120,25 @@ export const updateTrackRow = async (trackRows: NodeListOf<Element>) => {
 		const audioQuality = lookupItemQuality(qualityTag, trackItem.audioQuality);
 		if (audioQuality === undefined) continue;
 
-		const bitrateContent = document.createElement("span");
-		bitrateContent.style.color = qualityColor;
-		const bitrateColumn = setColumn(trackRow, "Bitrate", `div[data-test="track-row-date-added"]`, bitrateContent);
-		bitrateColumn?.style.setProperty("min-width", "100px");
+		const bitDepthContent = document.createElement("span");
+		// bitDepthContent.style.color = qualityColor;
+		const bitDepthColumn = setColumn(trackRow, "Depth", `div[data-test="duration"]`, bitDepthContent, `div[data-test="track-row-date-added"]`);
+		bitDepthColumn?.style.setProperty("min-width", "auto");
 
 		const sampleRateContent = document.createElement("span");
-		sampleRateContent.style.color = qualityColor;
-		setColumn(trackRow, "Sample Rate", `div[data-test="track-row-date-added"]`, sampleRateContent);
+		// sampleRateContent.style.color = qualityColor;
+		const sampleRateColumn = setColumn(trackRow, "Sample Rate", `div[data-test="track-row-date-added"]`, sampleRateContent, bitDepthColumn);
+		sampleRateColumn?.style.setProperty("min-width", "auto");
+
+		const bitrateContent = document.createElement("span");
+		// bitrateContent.style.color = qualityColor;
+		const bitrateColumn = setColumn(trackRow, "Bitrate", `div[data-test="track-row-date-added"]`, bitrateContent, sampleRateColumn);
+		bitrateColumn?.style.setProperty("min-width", "auto");
 
 		TrackInfoCache.register(trackId, audioQuality, async (trackInfoP) => {
 			const trackInfo = await trackInfoP;
-			if (!!trackInfo?.sampleRate) sampleRateContent.textContent = `${trackInfo.sampleRate / 1000}kHz ${trackInfo.bitDepth}bit`;
+			if (!!trackInfo?.sampleRate) sampleRateContent.textContent = `${trackInfo.sampleRate / 1000}kHz`;
+			if (!!trackInfo?.bitDepth) bitDepthContent.textContent = `${trackInfo.bitDepth}bit`;
 			if (!!trackInfo?.bitrate) bitrateContent.textContent = `${Math.floor(trackInfo.bitrate / 1000)}kbps`;
 		});
 	}
