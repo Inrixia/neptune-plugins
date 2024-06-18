@@ -61,7 +61,7 @@ export const QualityMeta = {
 	[QualityTag.HiRes]: { textContent: "HiRes", color: "#ffd432" },
 	[QualityTag.MQA]: { textContent: "MQA", color: "#F9BA7A" },
 	[QualityTag.High]: { textContent: "High", color: "#33FFEE" },
-	[QualityTag.DolbyAtmos]: { textContent: "Atmos", color: "#0052a3" },
+	[QualityTag.DolbyAtmos]: { textContent: "Atmos", color: "#6ab5ff" },
 	[QualityTag.Sony630]: undefined,
 	["LOW"]: { textContent: "Low", color: "#b9b9b9" },
 } as const;
