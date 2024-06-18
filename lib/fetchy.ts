@@ -36,7 +36,7 @@ export interface FetchyOptions {
 	requestOptions?: RequestOptions;
 }
 
-const requestStream = (url: string, options: RequestOptions = {}) =>
+export const requestStream = (url: string, options: RequestOptions = {}) =>
 	new Promise<IncomingMessage>((resolve, reject) => {
 		const req = request(url, options, (res) => {
 			const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
@@ -52,24 +52,39 @@ export const requestSegmentsStream = async (segments: string[], options: FetchyO
 		const combinedStream = new PassThrough();
 
 		let { onProgress, bytesWanted } = options ?? {};
-		bytesWanted ??= Number.MAX_VALUE;
-
 		let downloaded = 0;
 		let total = 0;
-		const responses = [];
-		for (const url of segments) {
-			const res = await requestStream(url);
-			res.pipe(combinedStream, { end: false });
-			total += parseTotal(res.headers);
-			res.on("data", (chunk) => {
-				downloaded += chunk.length;
-				onProgress?.({ total, downloaded, percent: (downloaded / total) * 100 });
-			});
-			res.on("error", reject);
-			responses.push(new Promise((resolve) => res.on("end", resolve)));
-			if (downloaded >= bytesWanted) break;
+		if (bytesWanted === undefined) {
+			const buffers = await Promise.all(
+				segments.map(async (url) => {
+					const res = await requestStream(url);
+					total += parseTotal(res.headers);
+					const chunks: Buffer[] = [];
+					res.on("data", (chunk) => {
+						chunks.push(chunk);
+						downloaded += chunk.length;
+						onProgress?.({ total, downloaded, percent: (downloaded / total) * 100 });
+					});
+					res.on("error", reject);
+					return new Promise<Buffer>((resolve) => res.on("end", () => resolve(Buffer.concat(chunks))));
+				})
+			);
+			combinedStream.write(Buffer.concat(buffers));
+		} else {
+			for (const url of segments) {
+				const res = await requestStream(url);
+				total += parseTotal(res.headers);
+				res.on("data", (chunk) => {
+					combinedStream.write(chunk);
+					downloaded += chunk.length;
+					onProgress?.({ total, downloaded, percent: (downloaded / total) * 100 });
+				});
+				res.on("error", reject);
+				await new Promise((resolve) => res.on("end", resolve));
+				if (downloaded >= bytesWanted) break;
+			}
 		}
-		Promise.all(responses).then(() => combinedStream.end());
+		combinedStream.end();
 		resolve(combinedStream);
 	});
 
