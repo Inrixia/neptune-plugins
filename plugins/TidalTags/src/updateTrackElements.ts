@@ -29,7 +29,7 @@ const setQualityTag = (trackRow: Element, trackId: string, mediaItem: TrackItem)
 	const isLowQuality = mediaItem.audioQuality === AudioQuality.Low || mediaItem.audioQuality === AudioQuality.Lowest;
 	if (trackTags.length === 1 && trackTags[0] === QualityTag.High && !isLowQuality) return;
 
-	const trackTitle = trackRow.querySelector(`[data-test="table-row-title"]`);
+	const trackTitle = trackRow.querySelector<HTMLElement>(`[data-test="table-row-title"]`);
 	if (trackTitle === null) return;
 
 	const span = trackTitle.querySelector(".quality-tag-container") ?? document.createElement("span");
@@ -97,12 +97,12 @@ const ensureColumnHeader = (trackList: Element, name: string, sourceSelector: st
 
 export const updateTrackRow = async (trackRows: NodeListOf<Element>) => {
 	for (const trackList of document.querySelectorAll(`div[aria-label="Tracklist"]`)) {
-		const bitDepthColumn = ensureColumnHeader(trackList, "Depth", `span[class^="timeColumn--"][role="columnheader"]`, `span[class^="dateAddedColumn--"][role="columnheader"]`);
-		bitDepthColumn?.style.setProperty("min-width", "auto");
-		const sampleRateColumn = ensureColumnHeader(trackList, "Sample Rate", `span[class^="dateAddedColumn--"][role="columnheader"]`, bitDepthColumn);
-		sampleRateColumn?.style.setProperty("min-width", "auto");
-		const bitrateColumn = ensureColumnHeader(trackList, "Bitrate", `span[class^="dateAddedColumn--"][role="columnheader"]`, sampleRateColumn);
-		bitrateColumn?.style.setProperty("min-width", "auto");
+		const bitDepthColumn = ensureColumnHeader(trackList, "Depth", `span[class^="timeColumn--"][role="columnheader"]`, `span[class^="timeColumn--"][role="columnheader"]`);
+		bitDepthColumn?.style.setProperty("min-width", "40px");
+		const sampleRateColumn = ensureColumnHeader(trackList, "Sample Rate", `span[class^="timeColumn--"][role="columnheader"]`, bitDepthColumn);
+		sampleRateColumn?.style.setProperty("min-width", "110px");
+		const bitrateColumn = ensureColumnHeader(trackList, "Bitrate", `span[class^="timeColumn--"][role="columnheader"]`, sampleRateColumn);
+		bitrateColumn?.style.setProperty("min-width", "100px");
 	}
 	for (const trackRow of trackRows) {
 		const trackId = trackRow.getAttribute("data-track-id");
@@ -120,18 +120,18 @@ export const updateTrackRow = async (trackRows: NodeListOf<Element>) => {
 
 		const bitDepthContent = document.createElement("span");
 
-		const bitDepthColumn = setColumn(trackRow, "Depth", `div[data-test="duration"]`, bitDepthContent, `div[data-test="track-row-date-added"]`);
-		bitDepthColumn?.style.setProperty("min-width", "auto");
+		const bitDepthColumn = setColumn(trackRow, "Depth", `div[data-test="duration"]`, bitDepthContent, `div[data-test="duration"]`);
+		bitDepthColumn?.style.setProperty("min-width", "40px");
 
 		const sampleRateContent = document.createElement("span");
 
-		const sampleRateColumn = setColumn(trackRow, "Sample Rate", `div[data-test="track-row-date-added"]`, sampleRateContent, bitDepthColumn);
-		sampleRateColumn?.style.setProperty("min-width", "auto");
+		const sampleRateColumn = setColumn(trackRow, "Sample Rate", `div[data-test="duration"]`, sampleRateContent, bitDepthColumn);
+		sampleRateColumn?.style.setProperty("min-width", "110px");
 
 		const bitrateContent = document.createElement("span");
 
-		const bitrateColumn = setColumn(trackRow, "Bitrate", `div[data-test="track-row-date-added"]`, bitrateContent, sampleRateColumn);
-		bitrateColumn?.style.setProperty("min-width", "auto");
+		const bitrateColumn = setColumn(trackRow, "Bitrate", `div[data-test="duration"]`, bitrateContent, sampleRateColumn);
+		bitrateColumn?.style.setProperty("min-width", "100px");
 
 		if (storage.infoColumnColors) {
 			const qualityColor = QualityMeta[qualityTag]?.color ?? "";
