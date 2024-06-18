@@ -1,48 +1,50 @@
-import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType } from "./getPlaybackInfo";
+import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType, TidalManifest } from "./getPlaybackInfo";
 import { makeDecipheriv } from "./decryptBuffer";
-import { FetchyOptions, requestDecodedBuffer } from "./fetchy";
-import { AudioQualityEnum } from "./AudioQualityTypes";
+import { FetchyOptions, requestDecodedStream, requestSegmentsStream } from "./fetchy";
+import { AudioQuality } from "./AudioQualityTypes";
 import { decryptKeyId } from "./decryptKeyId";
+import type { Readable } from "stream";
 
 export type TrackOptions = {
-	songId: number;
-	desiredQuality: AudioQualityEnum;
+	trackId: number;
+	desiredQuality: AudioQuality;
 };
 
-export type ExtendedPlaybackInfoWithBytes = ExtendedPlayackInfo & { buffer: Buffer };
+export type ExtendedPlaybackInfoWithBytes = ExtendedPlayackInfo & { stream: Readable };
 
 export interface DownloadTrackOptions extends FetchyOptions {
 	playbackInfo?: ExtendedPlayackInfo;
 }
 
-export const fetchTrack = async ({ songId, desiredQuality }: TrackOptions, options?: DownloadTrackOptions): Promise<ExtendedPlaybackInfoWithBytes> => {
-	const { playbackInfo, manifest, manifestMimeType } = options?.playbackInfo ?? (await getPlaybackInfo(songId, desiredQuality));
+const makeGetDeciper = (manifest: TidalManifest) => {
+	switch (manifest.encryptionType) {
+		case "OLD_AES": {
+			return () => makeDecipheriv(decryptKeyId(manifest.keyId));
+		}
+		case "NONE": {
+			return undefined;
+		}
+		default: {
+			throw new Error(`Unexpected manifest encryption type ${manifest.encryptionType}`);
+		}
+	}
+};
+
+export const fetchTrack = async ({ trackId, desiredQuality }: TrackOptions, options?: DownloadTrackOptions): Promise<ExtendedPlaybackInfoWithBytes> => {
+	const { playbackInfo, manifest, manifestMimeType } = options?.playbackInfo ?? (await getPlaybackInfo(trackId, desiredQuality));
 
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
-			const buffer = await requestDecodedBuffer(manifest.urls[0], { ...options, getDecipher: () => makeDecipheriv(decryptKeyId(manifest.keyId)) });
-			return { playbackInfo, manifest, manifestMimeType, buffer };
+			const stream = await requestDecodedStream(manifest.urls[0], { ...options, getDecipher: makeGetDeciper(manifest) });
+			return { playbackInfo, manifest, manifestMimeType, stream };
 		}
 		case ManifestMimeType.Dash: {
 			const trackManifest = manifest.tracks.audios[0];
-
-			let buffer: Buffer;
-			const { bytesWanted } = options ?? {};
-			if (bytesWanted !== undefined) {
-				delete options?.bytesWanted;
-				let buffers: Buffer[] = [];
-				let bytes = 0;
-				for (const { url } of trackManifest.segments) {
-					const segmentBuffer = await requestDecodedBuffer(url, options);
-					bytes += segmentBuffer.length;
-					buffers.push(segmentBuffer);
-					if (bytes >= bytesWanted) break;
-				}
-				buffer = Buffer.concat(buffers);
-			} else {
-				buffer = Buffer.concat(await Promise.all(trackManifest.segments.map(({ url }) => requestDecodedBuffer(url, options))));
-			}
-			return { playbackInfo, manifest, manifestMimeType, buffer };
+			const stream = await requestSegmentsStream(
+				trackManifest.segments.map((segment) => segment.url),
+				options
+			);
+			return { playbackInfo, manifest, manifestMimeType, stream };
 		}
 	}
 };

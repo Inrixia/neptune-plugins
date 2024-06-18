@@ -2,9 +2,9 @@ import { html } from "@neptune/voby";
 
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
-import { AudioQualityInverse, AudioQualityEnum, validQualitiesSettings } from "../../../lib/AudioQualityTypes";
+import { AudioQualityInverse, AudioQuality, validQualitiesSettings } from "../../../lib/AudioQualityTypes";
 
-storage.desiredDownloadQuality ??= AudioQualityEnum.HiRes;
+storage.desiredDownloadQuality ??= AudioQuality.HiRes;
 storage.defaultDownloadPath ??= "";
 export const Settings = () => html`<div class="settings-section">
 	<h3 class="settings-header">Download Quality</h3>

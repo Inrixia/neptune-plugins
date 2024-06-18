@@ -1,7 +1,7 @@
 import { store } from "@neptune";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
-import { AudioQualityEnum, QualityMeta, QualityTagEnum } from "../../../lib/AudioQualityTypes";
+import { AudioQuality, QualityMeta, QualityTag } from "../../../lib/AudioQualityTypes";
 import type { MediaItem } from "neptune-types/tidal";
 
 const queryAllAndAttribute = (selector: string) => {
@@ -24,11 +24,11 @@ export const updateTrackLists = () => {
 		const mediaItem = mediaItems[+trackId]?.item;
 		if (mediaItem?.contentType !== "track") continue;
 
-		const isLowQuality = mediaItem.audioQuality === AudioQualityEnum.Low || mediaItem.audioQuality === AudioQualityEnum.Lowest;
+		const isLowQuality = mediaItem.audioQuality === AudioQuality.Low || mediaItem.audioQuality === AudioQuality.Lowest;
 
 		let trackTags = mediaItem.mediaMetadata?.tags;
 		if (trackTags === undefined) continue;
-		if (trackTags.length === 1 && trackTags[0] === QualityTagEnum.High && !isLowQuality) continue;
+		if (trackTags.length === 1 && trackTags[0] === QualityTag.High && !isLowQuality) continue;
 
 		const trackList = trackElem.querySelector(`[data-test="table-row-title"], [data-test="list-item-track"]`);
 		if (trackList === null) continue;
@@ -50,11 +50,11 @@ export const updateTrackLists = () => {
 			span.appendChild(tagElement);
 		}
 
-		if (trackTags.includes(QualityTagEnum.HiRes) && !storage.showAllQualities) trackTags = trackTags.filter((tag) => tag !== QualityTagEnum.MQA);
+		if (trackTags.includes(QualityTag.HiRes) && !storage.showAllQualities) trackTags = trackTags.filter((tag) => tag !== QualityTag.MQA);
 
 		for (const tag of trackTags) {
-			if (tag === QualityTagEnum.High) continue;
-			if (!storage.showAtmosQuality && tag === QualityTagEnum.DolbyAtmos) continue;
+			if (tag === QualityTag.High) continue;
+			if (!storage.showAtmosQuality && tag === QualityTag.DolbyAtmos) continue;
 
 			const data = QualityMeta[tag];
 			if (data === undefined) continue;

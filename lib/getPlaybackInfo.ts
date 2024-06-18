@@ -1,5 +1,5 @@
 import { getHeaders } from "./fetchy";
-import { audioQualities, AudioQualityEnum } from "./AudioQualityTypes";
+import { audioQualities, AudioQuality } from "./AudioQualityTypes";
 import { TrackItem } from "neptune-types/tidal";
 import type { Manifest as DashManifest } from "dasha";
 import type dasha from "dasha";
@@ -36,7 +36,7 @@ export type ExtendedPlayackInfo =
 	| { playbackInfo: PlaybackInfo; manifestMimeType: ManifestMimeType.Dash; manifest: DashManifest }
 	| { playbackInfo: PlaybackInfo; manifestMimeType: ManifestMimeType.Tidal; manifest: TidalManifest };
 
-export const getPlaybackInfo = async (trackId: number, audioQuality: AudioQualityEnum): Promise<ExtendedPlayackInfo> => {
+export const getPlaybackInfo = async (trackId: number, audioQuality: AudioQuality): Promise<ExtendedPlayackInfo> => {
 	if (!audioQualities.includes(audioQuality)) throw new Error(`Cannot get Stream Info! Invalid audio quality: ${audioQuality}, should be one of ${audioQualities.join(", ")}`);
 	if (trackId === undefined) throw new Error("Cannot get Stream Info! trackId is missing");
 
@@ -56,11 +56,11 @@ export const getPlaybackInfo = async (trackId: number, audioQuality: AudioQualit
 		switch (playbackInfo.manifestMimeType) {
 			case ManifestMimeType.Tidal: {
 				const manifest: TidalManifest = JSON.parse(atob(playbackInfo.manifest));
-				if (manifest.encryptionType !== "OLD_AES") throw new Error(`Unexpected manifest encryption type ${manifest.encryptionType}`);
 				return { playbackInfo, manifestMimeType: playbackInfo.manifestMimeType, manifest };
 			}
 			case ManifestMimeType.Dash: {
-				return { playbackInfo, manifestMimeType: playbackInfo.manifestMimeType, manifest: await parse(atob(playbackInfo.manifest), "https://sp-ad-cf.audio.tidal.com") };
+				const manifest = await parse(atob(playbackInfo.manifest), "https://sp-ad-cf.audio.tidal.com");
+				return { playbackInfo, manifestMimeType: playbackInfo.manifestMimeType, manifest };
 			}
 			default: {
 				throw new Error(`Unsupported Stream Info manifest mime type: ${playbackInfo.manifestMimeType}`);

@@ -1,9 +1,13 @@
 import type https from "https";
 const { request } = <typeof https>require("https");
+import type stream from "stream";
+const { Transform, PassThrough } = <typeof stream>require("stream");
 
 import { modules } from "@neptune";
 import { RequestOptions } from "https";
 import type { Decipher } from "crypto";
+import type { IncomingHttpHeaders, IncomingMessage } from "http";
+import { type Readable } from "stream";
 
 const findModuleFunction = (functionName: string) => {
 	for (const module of modules) {
@@ -32,60 +36,94 @@ export interface FetchyOptions {
 	requestOptions?: RequestOptions;
 }
 
-export const requestBuffer = async (url: string, options: RequestOptions = {}) =>
-	new Promise<Buffer>((resolve, reject) => {
+const requestStream = (url: string, options: RequestOptions = {}) =>
+	new Promise<IncomingMessage>((resolve, reject) => {
 		const req = request(url, options, (res) => {
 			const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
 			if (!OK) reject(new Error(`Status code is ${res.statusCode}`));
-
-			const chunks: Buffer[] = [];
-			res.on("data", (data) => chunks.push(data));
-			res.on("end", () => resolve(Buffer.concat(chunks)));
+			resolve(res);
 		});
 		req.on("error", reject);
 		req.end();
 	});
 
-export const requestDecodedBuffer = async (url: string, options?: FetchyOptions): Promise<Buffer> =>
-	new Promise((resolve, reject) => {
+export const requestSegmentsStream = async (segments: string[], options: FetchyOptions = {}) =>
+	new Promise<Readable>(async (resolve, reject) => {
+		const combinedStream = new PassThrough();
+
+		let { onProgress, bytesWanted } = options ?? {};
+		bytesWanted ??= Number.MAX_VALUE;
+
+		let downloaded = 0;
+		let total = 0;
+		const responses = [];
+		for (const url of segments) {
+			const res = await requestStream(url);
+			res.pipe(combinedStream, { end: false });
+			total += parseTotal(res.headers);
+			res.on("data", (chunk) => {
+				downloaded += chunk.length;
+				onProgress?.({ total, downloaded, percent: (downloaded / total) * 100 });
+			});
+			res.on("error", reject);
+			responses.push(new Promise((resolve) => res.on("end", resolve)));
+			if (downloaded >= bytesWanted) break;
+		}
+		Promise.all(responses).then(() => combinedStream.end());
+		resolve(combinedStream);
+	});
+
+const parseTotal = (headers: IncomingHttpHeaders) => {
+	if (headers["content-range"]) {
+		// Server supports byte range, parse total file size from header
+		const match = /\/(\d+)$/.exec(headers["content-range"]);
+		if (match) return parseInt(match[1], 10);
+	} else {
+		if (headers["content-length"] !== undefined) return parseInt(headers["content-length"], 10);
+	}
+	return -1;
+};
+
+export const requestDecodedStream = async (url: string, options?: FetchyOptions): Promise<Readable> =>
+	new Promise(async (resolve, reject) => {
 		const { onProgress, bytesWanted, getDecipher } = options ?? {};
 		const reqOptions = { ...(options?.requestOptions ?? {}) };
 		if (bytesWanted !== undefined) {
 			reqOptions.headers ??= {};
 			reqOptions.headers.Range = `bytes=0-${bytesWanted}`;
 		}
-		const req = request(url, reqOptions, (res) => {
-			const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
-			if (!OK) reject(new Error(`Status code is ${res.statusCode}`));
-			let total = -1;
 
-			if (res.headers["content-range"]) {
-				// Server supports byte range, parse total file size from header
-				const match = /\/(\d+)$/.exec(res.headers["content-range"]);
-				if (match) total = parseInt(match[1], 10);
-			} else {
-				if (res.headers["content-length"] !== undefined) total = parseInt(res.headers["content-length"], 10);
-			}
+		const res = await requestStream(url, reqOptions);
+		res.on("error", reject);
 
-			let downloaded = 0;
-			const chunks: Buffer[] = [];
+		let downloaded = 0;
+		const total = parseTotal(res.headers);
+		if (total !== -1) onProgress?.({ total, downloaded, percent: (downloaded / total) * 100 });
 
-			const decipherP = getDecipher?.();
-
-			res.on("data", async (chunk: Buffer) => {
-				chunks.push((await decipherP)?.update(chunk) ?? chunk);
-				downloaded += chunk.length;
-				if (onProgress) onProgress({ total, downloaded, percent: (downloaded / total) * 100 });
-			});
-
-			res.on("end", async () => {
-				if (onProgress) onProgress({ total, downloaded: total, percent: 100 });
-				if (decipherP) chunks.push((await decipherP).final());
-				resolve(Buffer.concat(chunks));
-			});
-
-			if (total !== -1 && onProgress) onProgress({ total, downloaded, percent: (downloaded / total) * 100 });
-		});
-		req.on("error", reject);
-		req.end();
+		if (getDecipher !== undefined) {
+			const decipher = await getDecipher();
+			resolve(
+				res.pipe(
+					new Transform({
+						async transform(chunk, encoding, callback) {
+							try {
+								downloaded += chunk.length;
+								onProgress?.({ total, downloaded, percent: (downloaded / total) * 100 });
+								callback(null, decipher.update(chunk));
+							} catch (err) {
+								callback(<Error>err);
+							}
+						},
+						async flush(callback) {
+							try {
+								callback(null, decipher.final());
+							} catch (err) {
+								callback(<Error>err);
+							}
+						},
+					})
+				)
+			);
+		}
+		resolve(res);
 	});

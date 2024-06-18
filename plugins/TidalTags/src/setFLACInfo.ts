@@ -1,11 +1,13 @@
-import { QualityMeta, QualityTagEnum } from "../../../lib/AudioQualityTypes";
-import { AudioQualityEnum, PlaybackContext } from "../../../lib/AudioQualityTypes";
+import { QualityMeta, QualityTag } from "../../../lib/AudioQualityTypes";
+import { AudioQuality, PlaybackContext } from "../../../lib/AudioQualityTypes";
 
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 
-import { getTrackBytes } from "./getTrackBytes";
+import { getTrackInfo } from "./getTrackInfo";
 import { store } from "@neptune";
+import { getPlaybackInfo, ManifestMimeType } from "../../../lib/getPlaybackInfo";
+import { messageError } from "../../../lib/messageLogging";
 
 const flacInfoElem = document.createElement("span");
 flacInfoElem.className = "bitInfo";
@@ -73,29 +75,29 @@ function hexToRgba(hex: string, alpha: number) {
 	// Return the RGBA string
 	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
-
 const Loading_Bitrate = `Loading Bitrate...`;
-const setBitrateText = (bitrateText: string) => (flacInfoElem.textContent = flacInfoElem.textContent?.replace(Loading_Bitrate, bitrateText) ?? "");
 
 export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: PlaybackContext }]) => {
 	if (!playbackContext) return;
+	flacInfoElem.textContent = `Loading...`;
+	flacInfoElem.style.maxWidth = "100px";
 	const [progressBar, tidalQualityElement] = await Promise.all([progressBarP, tidalQualityElementP]);
 	await setupQualityElementContainer;
 
-	const { actualAudioQuality, actualProductId, bitDepth, sampleRate, actualDuration } = playbackContext;
+	let { actualAudioQuality, bitDepth, sampleRate, actualDuration } = playbackContext;
 	switch (actualAudioQuality) {
-		case AudioQualityEnum.MQA: {
-			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTagEnum.MQA].color);
+		case AudioQuality.MQA: {
+			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTag.MQA].color);
 			if (storage.showFLACInfoBorder) flacInfoElem.style.border = `solid 1px ${hexToRgba(color, 0.3)}`;
 			break;
 		}
-		case AudioQualityEnum.High: {
-			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTagEnum.High].color);
+		case AudioQuality.High: {
+			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTag.High].color);
 			if (storage.showFLACInfoBorder) flacInfoElem.style.border = `solid 1px ${hexToRgba(color, 0.3)}`;
 			break;
 		}
-		case AudioQualityEnum.HiRes: {
-			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTagEnum.HiRes].color);
+		case AudioQuality.HiRes: {
+			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTag.HiRes].color);
 			if (storage.showFLACInfoBorder) flacInfoElem.style.border = `solid 1px ${hexToRgba(color, 0.3)}`;
 			break;
 		}
@@ -105,19 +107,32 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: Pl
 			break;
 	}
 
-	flacInfoElem.textContent = "";
-	if (sampleRate !== undefined) flacInfoElem.textContent += `${sampleRate / 1000}kHz `;
-	if (bitDepth !== undefined) flacInfoElem.textContent += `${bitDepth}bit `;
-	flacInfoElem.textContent += Loading_Bitrate;
+	if (sampleRate !== null && bitDepth !== null) {
+		flacInfoElem.textContent = "";
+		if (!!sampleRate) flacInfoElem.textContent += `${sampleRate / 1000}kHz `;
+		if (!!bitDepth) flacInfoElem.textContent += `${bitDepth}bit `;
+		flacInfoElem.textContent += Loading_Bitrate;
+	}
 
 	try {
-		const trackBytes = await getTrackBytes({ songId: +actualProductId, desiredQuality: actualAudioQuality });
-		if (trackBytes !== undefined) setBitrateText(`${Math.floor(trackBytes / actualDuration / 1000)}kb/s`);
-		else setBitrateText("Unknown Bitrate");
+		const { bitDepth, sampleRate, bitrate } = await getTrackInfo(playbackContext);
+		flacInfoElem.textContent = "";
+		if (!!sampleRate) flacInfoElem.textContent += `${sampleRate / 1000}kHz `;
+		if (!!bitDepth) flacInfoElem.textContent += `${bitDepth}bit `;
+		if (!!bitrate) flacInfoElem.textContent += `${Math.floor(bitrate / 1000)}kb/s`;
 	} catch (err) {
 		flacInfoElem.style.maxWidth = "256px";
 		flacInfoElem.style.border = "solid 1px red";
-		setBitrateText(`Loading Bitrate Failed - ${(<Error>err).message.substring(0, 64)}`);
+		const errorText = (<Error>err).message.substring(0, 64);
+		if (flacInfoElem.textContent.includes(Loading_Bitrate)) {
+			const errMsg = `Error Loading Bitrate - ${errorText}`;
+			flacInfoElem.textContent = flacInfoElem.textContent?.replace(Loading_Bitrate, errMsg) ?? "";
+			messageError(errMsg);
+		} else {
+			const errMsg = `Error Loading TrackInfo - ${errorText}`;
+			flacInfoElem.textContent = errMsg;
+			messageError(errMsg);
+		}
 	}
 
 	if (flacInfoElem.textContent.length === 0) flacInfoElem.textContent = "Unknown";
