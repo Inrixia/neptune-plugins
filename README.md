@@ -3,6 +3,8 @@ This is a repository containing plugins I have made for the [Tidal Neptune](http
 
 Want to chat? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**  
 
+If you like the project, and want to support me can to throw some bits at my [Sponsor Page](https://github.com/sponsors/Inrixia) ❤️  
+
 You can find some **more plugins** such as **Discord RPC** at  [twnlink/neptune-plugins](https://github.com/twnlink/neptune-plugins)  
 
 To install any of these plugins you need to have the [Neptune](https://github.com/uwu/neptune) app installed, then just paste the **Install Url** into the plugins page and hit enter.
