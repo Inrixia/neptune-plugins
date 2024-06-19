@@ -23,12 +23,19 @@ const MIN_SCROBBLE_DURATION = 240000; // 4 minutes in milliseconds
 const MIN_SCROBBLE_PERCENTAGE = 0.5; // Minimum percentage of song duration required to scrobble
 
 let currentTrack: CurrentTrack;
+const updateNowPlaying = (playbackContext?: PlaybackContext) => {
+	getCurrentTrack(playbackContext).then((_currentTrack) => {
+		// console.log(_currentTrack);
+		LastFM.updateNowPlaying(getTrackParams((currentTrack = _currentTrack))).catch((err) => messageError(`last.fm - Failed to updateNowPlaying! ${err}`));
+	});
+};
 
 const intercepters = [
 	intercept("playbackControls/SET_PLAYBACK_STATE", ([state]) => {
 		switch (state) {
 			case "PLAYING": {
 				lastPlayStart = Date.now();
+				updateNowPlaying();
 				break;
 			}
 			default: {
@@ -47,9 +54,7 @@ const intercepters = [
 
 		// reset totalPlayTime & currentTrack as we started playing a new one
 		totalPlayTime = 0;
-		getCurrentTrack(<PlaybackContext>playbackContext).then((_currentTrack) => {
-			LastFM.updateNowPlaying(getTrackParams((currentTrack = _currentTrack))).catch((err) => messageError(`last.fm - Failed to updateNowPlaying! ${err}`));
-		});
+		updateNowPlaying(<PlaybackContext>playbackContext);
 	}),
 ];
 
@@ -81,16 +86,16 @@ const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<Curre
 	return { trackItem: trackItem.item, playbackContext, playbackStart: Date.now(), recording, album, releaseAlbum };
 };
 
-getCurrentTrack().then((_currentTrack) => {
-	LastFM.updateNowPlaying(getTrackParams((currentTrack = _currentTrack))).catch((err) => messageError(`last.fm - Failed to updateNowPlaying! ${err}`));
-});
-
 const getTrackParams = ({ trackItem, playbackContext, playbackStart, album, recording, releaseAlbum }: CurrentTrack) => {
-	const artist = formatArtists(trackItem.artists ?? [{ name: trackItem.artist?.name }])!;
+	let artist;
+	const sharedAlbumArtist = trackItem.artists?.find((artist) => artist?.id === album?.artist?.id);
+	if (sharedAlbumArtist?.name !== undefined) artist = formatArtists([sharedAlbumArtist?.name]);
+	else if ((trackItem.artists?.length ?? -1) > 0) artist = formatArtists(trackItem.artists?.map(({ name }) => name).filter((name) => name !== undefined));
+	else if (trackItem.artist?.name !== undefined) artist = formatArtists([trackItem.artist?.name]);
 
 	const params: ScrobbleOpts = {
 		track: recording?.title ?? fullTitle(<TrackItem>trackItem),
-		artist,
+		artist: artist!,
 		timestamp: (playbackStart / 1000).toFixed(0),
 	};
 
@@ -107,14 +112,17 @@ const getTrackParams = ({ trackItem, playbackContext, playbackStart, album, reco
 
 	return params;
 };
-const formatArtists = (artists?: MediaItem["item"]["artists"]) => {
-	const artist = artists?.map(({ name }) => name)?.filter((name) => name !== undefined)?.[0] ?? "";
+const formatArtists = (artists?: string[]) => {
+	const artist = artists?.filter((name) => name !== undefined)?.[0] ?? "";
 	return artist.split(", ")[0];
 };
 
+const _jsonCache: Record<string, unknown> = {};
 const fetchJson = async <T>(url: string): Promise<T> => {
+	const jsonData = _jsonCache[url];
+	if (jsonData !== undefined) return jsonData as T;
 	const res = await requestStream(url).then(rejectNotOk);
-	return JSON.parse((await toBuffer(res)).toString());
+	return (_jsonCache[url] = JSON.parse((await toBuffer(res)).toString()));
 };
 const mbidFromIsrc = async (isrc?: string) => {
 	if (isrc !== undefined) return undefined;
@@ -134,3 +142,4 @@ const recordingFromAlbum = async (releaseAlbum: Release, trackItem: MediaItem["i
 };
 
 export const onUnload = () => intercepters.forEach((unload) => unload());
+updateNowPlaying();
