@@ -46,7 +46,6 @@ const setQualityTag = (trackRow: Element, trackId: string, mediaItem: TrackItem)
 		span.appendChild(tagElement);
 	}
 
-	if (trackTags.includes(QualityTag.HiRes) && !storage.showAllQualities) trackTags = trackTags.filter((tag) => tag !== QualityTag.MQA);
 	for (const tag of trackTags) {
 		if (tag === QualityTag.High) continue;
 		if (!storage.showAtmosQuality && tag === QualityTag.DolbyAtmos) continue;

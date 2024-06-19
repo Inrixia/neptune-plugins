@@ -3,7 +3,6 @@ import { html } from "@neptune/voby";
 import { storage } from "@plugin";
 
 storage.showTags ??= true;
-storage.showAllQualities ??= true;
 storage.showAtmosQuality ??= true;
 storage.showFLACInfoBorder ??= true;
 storage.InfoColumnColors ??= false;
@@ -14,9 +13,6 @@ export const Settings = () => {
 
 		const showFLACInfoBorder = document.getElementById("showFLACInfoBorder");
 		if (showFLACInfoBorder instanceof HTMLInputElement && showFLACInfoBorder.checked !== storage.showFLACInfoBorder) showFLACInfoBorder.checked = storage.showFLACInfoBorder;
-
-		const showAllQualities = document.getElementById("showAllQualities");
-		if (showAllQualities instanceof HTMLInputElement && showAllQualities.checked !== storage.showAllQualities) showAllQualities.checked = storage.showAllQualities;
 
 		const showAtmosQuality = document.getElementById("showAtmosQuality");
 		if (showAtmosQuality instanceof HTMLInputElement && showAtmosQuality.checked !== storage.showAtmosQuality) showAtmosQuality.checked = storage.showAtmosQuality;
@@ -33,13 +29,6 @@ export const Settings = () => {
 		<p class="settings-explainer">Display Quality Tags.</p>
 		<label class="switch">
 			<input type="checkbox" id="showTags" onChange=${onChange("showTags")} />
-			<span class="slider" />
-		</label>
-
-		<h3 class="settings-header">Display all Qualities</h3>
-		<p class="settings-explainer">Display MQA if HiRes is avalible.</p>
-		<label class="switch">
-			<input type="checkbox" id="showAllQualities" onChange=${onChange("showAllQualities")} />
 			<span class="slider" />
 		</label>
 
