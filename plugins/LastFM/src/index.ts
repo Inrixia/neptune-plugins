@@ -5,7 +5,7 @@ import { rejectNotOk, requestStream } from "../../../lib/fetchy";
 import { LastFM, ScrobbleOpts } from "./LastFM";
 
 import type { Album, MediaItem, TrackItem } from "neptune-types/tidal";
-import { messageError } from "../../../lib/messageLogging";
+import { messageError, messageInfo } from "../../../lib/messageLogging";
 import { interceptPromise } from "../../../lib/interceptPromise";
 
 import { toBuffer } from "../../SongDownloader/src/lib/toBuffer";
@@ -15,6 +15,11 @@ import type { ISRCData } from "./types/ISRCData";
 import type { ReleaseData } from "./types/ReleaseData";
 import { fullTitle } from "../../../lib/fullTitle";
 import { Recording } from "./types/Recording";
+
+export { Settings } from "./Settings";
+
+// @ts-expect-error Remove this when types are available
+import { storage } from "@plugin";
 
 let totalPlayTime = 0;
 let lastPlayStart: number | null = null;
@@ -51,12 +56,19 @@ const intercepters = [
 	intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", ([{ playbackContext }]) => {
 		if (currentTrack !== undefined) {
 			if (lastPlayStart !== null) totalPlayTime += Date.now() - lastPlayStart;
-			if (totalPlayTime >= MIN_SCROBBLE_DURATION || totalPlayTime >= +currentTrack.playbackContext.actualDuration * MIN_SCROBBLE_PERCENTAGE * 1000) {
+			const longerThan4min = totalPlayTime >= MIN_SCROBBLE_DURATION;
+			const minPlayTime = +currentTrack.playbackContext.actualDuration * MIN_SCROBBLE_PERCENTAGE * 1000;
+			const moreThan50Percent = totalPlayTime >= minPlayTime;
+			if (longerThan4min || moreThan50Percent) {
 				const scrobbleParams = getTrackParams(currentTrack);
 				console.log("[last.fm] scrobbling", scrobbleParams);
 				LastFM.scrobble(scrobbleParams)
 					.catch((err) => messageError(`last.fm - Failed to scrobble! ${err}`))
 					.then((res) => console.log("[last.fm] scrobbled", res));
+			} else {
+				const noScrobbleMessage = `skipped scrobbling ${currentTrack.trackItem.title} - Listened for ${(totalPlayTime / 1000).toFixed(0)}s, need ${(minPlayTime / 1000).toFixed(0)}s`;
+				console.log(`[last.fm] ${noScrobbleMessage}`);
+				if (storage.displaySkippedScrobbles) messageInfo(`last.fm - ${noScrobbleMessage}`);
 			}
 		}
 
