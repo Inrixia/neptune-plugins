@@ -27,8 +27,8 @@ Char: `+a[t])}return t+1&&(t+=1),q}else if(a.charCodeAt(t+1)===m){if(a.charCodeA
 }
 `;gf(`
 ${Iu}
-div[class^="titleText--"] {
-	max-width: 210px;
+span[class^="titleText--"] {
+	max-width: 190px;
 }
 .quality-tag-container {
 	display: inline-flex;
