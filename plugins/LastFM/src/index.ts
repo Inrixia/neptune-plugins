@@ -23,12 +23,11 @@ const MIN_SCROBBLE_DURATION = 240000; // 4 minutes in milliseconds
 const MIN_SCROBBLE_PERCENTAGE = 0.5; // Minimum percentage of song duration required to scrobble
 
 let currentTrack: CurrentTrack;
-const updateNowPlaying = (playbackContext?: PlaybackContext) => {
-	getCurrentTrack(playbackContext).then((_currentTrack) => {
-		// console.log(_currentTrack);
-		LastFM.updateNowPlaying(getTrackParams((currentTrack = _currentTrack))).catch((err) => messageError(`last.fm - Failed to updateNowPlaying! ${err}`));
-	});
-};
+const updateNowPlaying = (playbackContext?: PlaybackContext) =>
+	getCurrentTrack(playbackContext)
+		.then((_currentTrack) => LastFM.updateNowPlaying(getTrackParams((currentTrack = _currentTrack))).catch((err) => messageError(`last.fm - Failed to updateNowPlaying! ${err}`)))
+		.catch(undefinedError);
+actions.lastFm.disconnect();
 
 const intercepters = [
 	intercept("playbackControls/SET_PLAYBACK_STATE", ([state]) => {
@@ -57,6 +56,10 @@ const intercepters = [
 	}),
 ];
 
+const undefinedError = (err: Error) => {
+	console.error(err);
+	return undefined;
+};
 type CurrentTrack = {
 	trackItem: MediaItem["item"];
 	playbackContext: PlaybackContext;
@@ -66,31 +69,33 @@ type CurrentTrack = {
 	releaseAlbum?: Release;
 };
 const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<CurrentTrack> => {
+	const playbackStart = Date.now();
 	const state = store.getState();
 	playbackContext ??= <PlaybackContext>state.playbackControls.playbackContext;
+	if (!playbackContext) throw new Error("No playbackContext found");
 	const mediaItems: Record<number, MediaItem> = state.content.mediaItems;
 	const trackItem = mediaItems[+playbackContext.actualProductId];
 	actions.content.loadAlbum({ albumId: trackItem?.item?.album?.id! });
 	let [album, recording] = await Promise.all([
 		await interceptPromise(["content/LOAD_ALBUM_SUCCESS"], [])
-			.catch(() => undefined)
+			.catch(undefinedError)
 			.then((res) => res?.[0].album),
-		await mbidFromIsrc(trackItem?.item?.isrc).catch(() => undefined),
+		await mbidFromIsrc(trackItem?.item?.isrc).catch(undefinedError),
 	]);
 	let releaseAlbum;
 	if (recording?.id === undefined && album?.upc !== undefined) {
-		releaseAlbum = await releaseAlbumFromUpc(album.upc);
-		if (releaseAlbum !== undefined) recording = await recordingFromAlbum(releaseAlbum, trackItem.item);
+		releaseAlbum = await releaseAlbumFromUpc(album.upc).catch(undefinedError);
+		if (releaseAlbum !== undefined) recording = await recordingFromAlbum(releaseAlbum, trackItem.item).catch(undefinedError);
 	}
-	return { trackItem: trackItem.item, playbackContext, playbackStart: Date.now(), recording, album, releaseAlbum };
+	return { trackItem: trackItem.item, playbackContext, playbackStart, recording, album, releaseAlbum };
 };
 
 const getTrackParams = ({ trackItem, playbackContext, playbackStart, album, recording, releaseAlbum }: CurrentTrack) => {
 	let artist;
 	const sharedAlbumArtist = trackItem.artists?.find((artist) => artist?.id === album?.artist?.id);
 	if (sharedAlbumArtist?.name !== undefined) artist = formatArtists([sharedAlbumArtist?.name]);
-	else if ((trackItem.artists?.length ?? -1) > 0) artist = formatArtists(trackItem.artists?.map(({ name }) => name).filter((name) => name !== undefined));
 	else if (trackItem.artist?.name !== undefined) artist = formatArtists([trackItem.artist?.name]);
+	else if ((trackItem.artists?.length ?? -1) > 0) artist = formatArtists(trackItem.artists?.map(({ name }) => name));
 
 	const params: ScrobbleOpts = {
 		track: recording?.title ?? fullTitle(<TrackItem>trackItem),
@@ -100,8 +105,8 @@ const getTrackParams = ({ trackItem, playbackContext, playbackStart, album, reco
 
 	if (!!recording?.id) params.mbid = recording.id;
 
-	const albumArtist = album?.artists?.map(({ name }) => name).join(",");
-	if (!!albumArtist) params.albumArtist = albumArtist;
+	if (!!album?.artist?.name) params.albumArtist = album?.artist?.name;
+	else if ((album?.artists?.length ?? -1) > 0) params.albumArtist = formatArtists(album?.artists?.map(({ name }) => name));
 
 	if (!!releaseAlbum?.title) params.album = releaseAlbum?.title;
 	else if (!!trackItem.album?.title) params.album = trackItem.album.title;
@@ -111,7 +116,7 @@ const getTrackParams = ({ trackItem, playbackContext, playbackStart, album, reco
 
 	return params;
 };
-const formatArtists = (artists?: string[]) => {
+const formatArtists = (artists?: (string | undefined)[]) => {
 	const artist = artists?.filter((name) => name !== undefined)?.[0] ?? "";
 	return artist.split(", ")[0];
 };
