@@ -25,7 +25,13 @@ const MIN_SCROBBLE_PERCENTAGE = 0.5; // Minimum percentage of song duration requ
 let currentTrack: CurrentTrack;
 const updateNowPlaying = (playbackContext?: PlaybackContext) =>
 	getCurrentTrack(playbackContext)
-		.then((_currentTrack) => LastFM.updateNowPlaying(getTrackParams((currentTrack = _currentTrack))).catch((err) => messageError(`last.fm - Failed to updateNowPlaying! ${err}`)))
+		.then((_currentTrack) => {
+			const nowPlayingParams = getTrackParams((currentTrack = _currentTrack));
+			console.log("[last.fm] updatingNowPlaying", nowPlayingParams);
+			LastFM.updateNowPlaying(nowPlayingParams)
+				.catch((err) => messageError(`last.fm - Failed to updateNowPlaying! ${err}`))
+				.then((res) => console.log("[last.fm] updatedNowPlaying", res));
+		})
 		.catch(undefinedError);
 actions.lastFm.disconnect();
 
@@ -46,7 +52,11 @@ const intercepters = [
 		if (currentTrack !== undefined) {
 			if (lastPlayStart !== null) totalPlayTime += Date.now() - lastPlayStart;
 			if (totalPlayTime >= MIN_SCROBBLE_DURATION || totalPlayTime >= +currentTrack.playbackContext.actualDuration * MIN_SCROBBLE_PERCENTAGE * 1000) {
-				LastFM.scrobble(getTrackParams(currentTrack)).catch((err) => messageError(`last.fm - Failed to scrobble! ${err}`));
+				const scrobbleParams = getTrackParams(currentTrack);
+				console.log("[last.fm] scrobbling", scrobbleParams);
+				LastFM.scrobble(scrobbleParams)
+					.catch((err) => messageError(`last.fm - Failed to scrobble! ${err}`))
+					.then((res) => console.log("[last.fm] scrobbled", res));
 			}
 		}
 
@@ -87,7 +97,9 @@ const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<Curre
 		releaseAlbum = await releaseAlbumFromUpc(album.upc).catch(undefinedError);
 		if (releaseAlbum !== undefined) recording = await recordingFromAlbum(releaseAlbum, trackItem.item).catch(undefinedError);
 	}
-	return { trackItem: trackItem.item, playbackContext, playbackStart, recording, album, releaseAlbum };
+	const currentTrack = { trackItem: trackItem.item, playbackContext, playbackStart, recording, album, releaseAlbum };
+	console.log("[last.fm] getCurrentTrack", currentTrack);
+	return currentTrack;
 };
 
 const getTrackParams = ({ trackItem, playbackContext, playbackStart, album, recording, releaseAlbum }: CurrentTrack) => {
@@ -140,7 +152,7 @@ const releaseAlbumFromUpc = async (upc: string) => {
 const recordingFromAlbum = async (releaseAlbum: Release, trackItem: MediaItem["item"]) => {
 	if (releaseAlbum?.id === undefined) return undefined;
 	const albumReleaseData = await fetchJson<ReleaseData>(`https://musicbrainz.org/ws/2/release/${releaseAlbum.id}?inc=recordings&fmt=json`);
-	const albumTracks = albumReleaseData.media?.[0].tracks;
+	const albumTracks = albumReleaseData.media?.[(trackItem.volumeNumber ?? 1) - 1].tracks;
 	const albumTrackRelease = albumTracks?.[trackItem.trackNumber! - 1];
 	return albumTrackRelease?.recording;
 };
