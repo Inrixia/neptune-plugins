@@ -6,7 +6,6 @@ import { storage } from "@plugin";
 
 import { TrackInfoCache } from "./lib/TrackInfoCache";
 import { store } from "@neptune";
-import { getPlaybackInfo, ManifestMimeType } from "../../../lib/getPlaybackInfo";
 import { messageError } from "../../../lib/messageLogging";
 import { hexToRgba } from "./lib/hexToRgba";
 

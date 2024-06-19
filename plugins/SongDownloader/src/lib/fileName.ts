@@ -1,10 +1,6 @@
 import { TrackItem } from "neptune-types/tidal";
 import { ExtendedPlayackInfo, ManifestMimeType } from "../../../../lib/getPlaybackInfo";
-
-export const fullTitle = (track: TrackItem) => {
-	const versionPostfix = track.version ? ` (${track.version})` : "";
-	return `${track.title}${versionPostfix}`;
-};
+import { fullTitle } from "../../../../lib/fullTitle";
 
 export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
 	const artistName = track.artists?.[0].name ?? "Unknown Artist";

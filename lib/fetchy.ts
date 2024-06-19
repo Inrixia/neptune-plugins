@@ -8,17 +8,10 @@ import { RequestOptions } from "https";
 import type { Decipher } from "crypto";
 import type { IncomingHttpHeaders, IncomingMessage } from "http";
 import { type Readable } from "stream";
+import { findModuleFunction } from "./findModuleFunction";
 
-const findModuleFunction = (functionName: string) => {
-	for (const module of modules) {
-		if (typeof module?.exports !== "object") continue;
-		for (const _key in module.exports) {
-			const func = module.exports[_key]?.[functionName];
-			if (typeof func === "function") return func;
-		}
-	}
-};
-const getCredentials: () => Promise<{ token: string; clientId: string }> = findModuleFunction("getCredentials");
+const getCredentials = findModuleFunction<() => Promise<{ token: string; clientId: string }>>("getCredentials", "function");
+if (getCredentials === undefined) throw new Error("getCredentials method not found");
 
 export const getHeaders = async (): Promise<Record<string, string>> => {
 	const { clientId, token } = await getCredentials();
@@ -36,13 +29,18 @@ export interface FetchyOptions {
 	requestOptions?: RequestOptions;
 }
 
+export const rejectNotOk = async (resP: IncomingMessage | Promise<IncomingMessage>) => {
+	const res = await resP;
+	const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
+	if (!OK) throw new Error(`Status code is ${res.statusCode}`);
+	return res;
+};
+
 export const requestStream = (url: string, options: RequestOptions = {}) =>
 	new Promise<IncomingMessage>((resolve, reject) => {
-		const req = request(url, options, (res) => {
-			const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
-			if (!OK) reject(new Error(`Status code is ${res.statusCode}`));
-			resolve(res);
-		});
+		options.headers ??= {};
+		options.headers["user-agent"] = navigator.userAgent;
+		const req = request(url, options, resolve);
 		req.on("error", reject);
 		req.end();
 	});
@@ -57,7 +55,7 @@ export const requestSegmentsStream = async (segments: string[], options: FetchyO
 		if (bytesWanted === undefined) {
 			const buffers = await Promise.all(
 				segments.map(async (url) => {
-					const res = await requestStream(url);
+					const res = await requestStream(url).then(rejectNotOk);
 					total += parseTotal(res.headers);
 					const chunks: Buffer[] = [];
 					res.on("data", (chunk) => {
@@ -72,7 +70,7 @@ export const requestSegmentsStream = async (segments: string[], options: FetchyO
 			combinedStream.write(Buffer.concat(buffers));
 		} else {
 			for (const url of segments) {
-				const res = await requestStream(url);
+				const res = await requestStream(url).then(rejectNotOk);
 				total += parseTotal(res.headers);
 				res.on("data", (chunk) => {
 					combinedStream.write(chunk);
@@ -108,7 +106,7 @@ export const requestDecodedStream = async (url: string, options?: FetchyOptions)
 			reqOptions.headers.Range = `bytes=0-${bytesWanted}`;
 		}
 
-		const res = await requestStream(url, reqOptions);
+		const res = await requestStream(url, reqOptions).then(rejectNotOk);
 		res.on("error", reject);
 
 		let downloaded = 0;
