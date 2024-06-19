@@ -3,6 +3,9 @@ import { settingsCSS } from "../../../lib/css/settings";
 
 appendStyle(`
 ${settingsCSS}
+div[class^="titleText--"] {
+	max-width: 210px;
+}
 .quality-tag-container {
 	display: inline-flex;
 	height: 24px;
