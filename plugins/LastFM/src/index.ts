@@ -35,7 +35,6 @@ const intercepters = [
 		switch (state) {
 			case "PLAYING": {
 				lastPlayStart = Date.now();
-				updateNowPlaying();
 				break;
 			}
 			default: {
