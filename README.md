@@ -1,5 +1,4 @@
 ## My [Tidal Neptune](https://github.com/uwu/neptune) Plugins
-
 This is a repository containing plugins I have made for the [Tidal Neptune](https://github.com/uwu/neptune) app.  
 
 Want to chat? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**  
@@ -10,12 +9,10 @@ To install any of these plugins you need to have the [Neptune](https://github.co
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/a997156c-a281-46ec-992a-397a742dd146)
 
 # My Public Plugins
-
 You can see a list of all plugins including unreleased ones under the [**plugins directory**](https://github.com/Inrixia/neptune-plugins/tree/master/plugins)
 
 
 ## Tidal Tags
-
 **Install Url: https://inrixia.github.io/neptune-plugins/TidalTags/**  
 Desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags).  
 Adds 
@@ -26,20 +23,23 @@ Adds
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/3883d3f5-c340-4653-beda-ac5971237ee3)  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/2b30406c-d2e0-4268-92f2-5ae4cc3262af)
 
-## Shazam Files
+## Last.fm
+**Install Url: https://inrixia.github.io/neptune-plugins/LastFM/**  
+Scrobbles and sets currently playing for [**last.fm**](https://www.last.fm/).  
+Tidals default last.fm implementation can be very inaccurate, this tries to fix that with a focus on accuracy.  
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/7e4ff7ad-422f-4836-b187-45217c5dd4e3)
 
+## Shazam Files
 **Install Url: https://inrixia.github.io/neptune-plugins/Shazam/**  
-When enabled any files you drag onto your client will be run through [**Shazam**](https://www.shazam.com/) and added to the current playlist!
+When enabled any files you drag onto your client will be run through [**Shazam**](https://www.shazam.com/) and added to the current playlist!  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/f637d5a0-fea0-4ba4-984e-ccddb81341b9)  
 
 ## Always Exclusive
-
 **Install Url: https://inrixia.github.io/neptune-plugins/AlwaysExclusive/**  
 While enabled will ensure that audio output is set to exclusive mode  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/32ff8e55-728c-4a77-9e9e-50b53e90541c)
 
 ## Downloader
-
 **Install Url: https://inrixia.github.io/neptune-plugins/SongDownloader/**  
 Adds a Download button to **Songs**, **Playlists** & **Albums** context menus.  
 Supports selecting multiple songs.  
