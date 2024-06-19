@@ -27,6 +27,9 @@ Char: `+a[t])}return t+1&&(t+=1),q}else if(a.charCodeAt(t+1)===m){if(a.charCodeA
 }
 `;gf(`
 ${yu}
+div[class^="titleText--"] {
+	max-width: 210px;
+}
 .quality-tag-container {
 	display: inline-flex;
 	height: 24px;
