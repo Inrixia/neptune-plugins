@@ -3,7 +3,7 @@ import { audioQualities, AudioQuality } from "../AudioQualityTypes";
 import { TrackItem } from "neptune-types/tidal";
 import type { Manifest as DashManifest } from "dasha";
 import type dasha from "dasha";
-import { Mutex } from "../mutex";
+import { Semaphore } from "../Semaphore";
 const { parse } = <typeof dasha>require("dasha");
 
 export enum ManifestMimeType {
@@ -37,12 +37,12 @@ export type ExtendedPlayackInfo =
 	| { playbackInfo: PlaybackInfo; manifestMimeType: ManifestMimeType.Dash; manifest: DashManifest }
 	| { playbackInfo: PlaybackInfo; manifestMimeType: ManifestMimeType.Tidal; manifest: TidalManifest };
 
-const playbackInfoMutex = new Mutex();
+const playbackInfoSema = new Semaphore(1);
 export const getPlaybackInfo = async (trackId: number, audioQuality: AudioQuality): Promise<ExtendedPlayackInfo> => {
 	if (!audioQualities.includes(audioQuality)) throw new Error(`Cannot get Stream Info! Invalid audio quality: ${audioQuality}, should be one of ${audioQualities.join(", ")}`);
 	if (trackId === undefined) throw new Error("Cannot get Stream Info! trackId is missing");
 
-	await playbackInfoMutex.lock();
+	await playbackInfoSema.obtain();
 	try {
 		const url = `https://desktop.tidal.com/v1/tracks/${trackId}/playbackinfo?audioquality=${audioQuality}&playbackmode=STREAM&assetpresentation=FULL`;
 
@@ -72,6 +72,6 @@ export const getPlaybackInfo = async (trackId: number, audioQuality: AudioQualit
 	} catch (e) {
 		throw new Error(`Failed to decode Stream Info! ${(<Error>e)?.message}`);
 	} finally {
-		await playbackInfoMutex.unlock();
+		await playbackInfoSema.release();
 	}
 };

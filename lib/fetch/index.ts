@@ -47,8 +47,12 @@ export const requestStream = (url: string, options: RequestOptionsWithBody = {})
 		const body = options.body;
 		delete options.body;
 		options.headers ??= {};
-		options.headers["user-agent"] = navigator.userAgent;
-		const req = request(url, options, resolve);
+		options.headers["user-agent"] ??= navigator.userAgent;
+		const req = request(url, options, (res) => {
+			const statusMsg = res.statusMessage !== "" ? ` - ${res.statusMessage}` : "";
+			console.debug(`[${res.statusCode}${statusMsg}] (${req.method})`, url, res);
+			resolve(res);
+		});
 		req.on("error", reject);
 		if (body !== undefined) req.write(body);
 		req.end();

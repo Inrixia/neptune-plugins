@@ -16,6 +16,7 @@ import { messageError } from "../../../lib/messageLogging";
 import { addMetadata } from "./addMetadata";
 import { fileNameFromInfo } from "./lib/fileName";
 import { toBuffer } from "../../../lib/fetch";
+import { TrackItemCache } from "../../../lib/TrackItemCache";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};
@@ -78,11 +79,8 @@ const onPlaylist = async (playlistUUID: ItemId) => {
 	downloadItems(Object.values(items).map((mediaItem) => mediaItem?.item));
 };
 
-type MediaId = string | number | undefined;
-const queueMediaIds = (mediaIds: MediaId[]) => {
-	const mediaItemsLookup: Record<number, MediaItem> = store.getState().content.mediaItems;
-	const mediaItems = mediaIds.map((mediaId) => mediaItemsLookup[+(mediaId ?? -1)]?.item).filter((item) => item !== undefined);
-	downloadItems(mediaItems);
+const queueMediaIds = (mediaIds: ItemId[]) => {
+	downloadItems(mediaIds.map((mediaId) => TrackItemCache.get(mediaId)).filter((item) => item !== undefined));
 };
 
 const downloadItems = (items: (TrackItem | VideoItem)[]) =>

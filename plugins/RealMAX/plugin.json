@@ -1,0 +1,6 @@
+{
+  "name": "RealMAX",
+  "description": "Always ensure that the highest quality available of a track  is played",
+  "author": "Inrixia",
+  "main": "./src/index.js"
+}

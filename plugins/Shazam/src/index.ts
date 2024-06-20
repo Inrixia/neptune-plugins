@@ -60,7 +60,7 @@ const handleDrop = async (event: DragEvent) => {
 						messageInfo(`Adding ${trackName} to playlist`);
 						await addToPlaylist(playlistUUID, ids);
 					} else {
-						console.log("SHAZ", shazamData);
+						console.log("[SHAZAM!]", shazamData);
 						messageWarn(`Track ${trackName} is not avalible in Tidal`);
 					}
 					if (storage.exitOnFirstMatch) return;

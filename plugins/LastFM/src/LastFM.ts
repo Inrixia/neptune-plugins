@@ -65,7 +65,6 @@ export class LastFM {
 			headers: {
 				"Content-type": "application/x-www-form-urlencoded",
 				"Accept-Charset": "utf-8",
-				"User-Agent": navigator.userAgent,
 			},
 			method: "POST",
 			body: new URLSearchParams(params).toString(),

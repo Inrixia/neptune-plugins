@@ -136,8 +136,8 @@ const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<Curre
 		await mbidFromIsrc(trackItem?.item?.isrc).catch(undefinedError),
 	]);
 	let releaseAlbum;
-	if (recording?.id === undefined && album?.upc !== undefined) {
-		releaseAlbum = await releaseAlbumFromUpc(album.upc).catch(undefinedError);
+	if (recording?.id === undefined) {
+		releaseAlbum = await releaseAlbumFromUpc(album?.upc).catch(undefinedError);
 		if (releaseAlbum !== undefined) recording = await recordingFromAlbum(releaseAlbum, trackItem.item).catch(undefinedError);
 	}
 	const currentTrack = { trackItem: trackItem.item, playbackContext, playbackStart, recording, album, releaseAlbum };
@@ -153,12 +153,13 @@ const fetchJson = async <T>(url: string): Promise<T> => {
 		.then(rejectNotOk)
 		.then(toJson<T>));
 };
-const mbidFromIsrc = async (isrc?: string) => {
-	if (isrc !== undefined) return undefined;
+const mbidFromIsrc = async (isrc: string | undefined) => {
+	if (isrc === undefined) return undefined;
 	const isrcData = await fetchJson<ISRCData>(`https://musicbrainz.org/ws/2/isrc/${isrc}?fmt=json`);
 	return isrcData?.recordings?.[0];
 };
-const releaseAlbumFromUpc = async (upc: string) => {
+const releaseAlbumFromUpc = async (upc: string | undefined) => {
+	if (upc === undefined) return undefined;
 	const upcData = await fetchJson<UPCData>(`https://musicbrainz.org/ws/2/release/?query=barcode:${upc}&fmt=json`);
 	return upcData.releases?.[0];
 };
