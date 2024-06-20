@@ -1,9 +1,9 @@
-import { fetchTrack } from "../../../../lib/download";
+import { fetchTrack } from "../../../../lib/trackBytes/download";
 
 import { AudioQuality, PlaybackContext } from "../../../../lib/AudioQualityTypes";
 
 import type { parseStream as ParseStreamType } from "music-metadata";
-import { ManifestMimeType } from "../../../../lib/getPlaybackInfo";
+import { ManifestMimeType } from "../../../../lib/trackBytes/getPlaybackInfo";
 const { parseStream } = <{ parseStream: typeof ParseStreamType }>require("music-metadata/lib/core");
 
 export type TrackInfo = {

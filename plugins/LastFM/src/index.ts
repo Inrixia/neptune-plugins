@@ -1,6 +1,6 @@
 import { actions, intercept, store } from "@neptune";
 import { PlaybackContext } from "../../../lib/AudioQualityTypes";
-import { rejectNotOk, requestStream } from "../../../lib/fetchy";
+import { rejectNotOk, requestStream, toJson } from "../../../lib/fetch";
 
 import { LastFM, ScrobbleOpts } from "./LastFM";
 
@@ -8,13 +8,11 @@ import type { Album, MediaItem, TrackItem } from "neptune-types/tidal";
 import { messageError, messageInfo } from "../../../lib/messageLogging";
 import { interceptPromise } from "../../../lib/interceptPromise";
 
-import { toBuffer } from "../../SongDownloader/src/lib/toBuffer";
-
-import type { Release, UPCData } from "./types/UPCData";
-import type { ISRCData } from "./types/ISRCData";
-import type { ReleaseData } from "./types/ReleaseData";
+import type { Release, UPCData } from "./types/musicbrainz/UPCData";
+import type { ISRCData } from "./types/musicbrainz/ISRCData";
+import type { ReleaseData } from "./types/musicbrainz/ReleaseData";
 import { fullTitle } from "../../../lib/fullTitle";
-import { Recording } from "./types/Recording";
+import { Recording } from "./types/musicbrainz/Recording";
 
 export { Settings } from "./Settings";
 
@@ -151,8 +149,9 @@ const _jsonCache: Record<string, unknown> = {};
 const fetchJson = async <T>(url: string): Promise<T> => {
 	const jsonData = _jsonCache[url];
 	if (jsonData !== undefined) return jsonData as T;
-	const res = await requestStream(url).then(rejectNotOk);
-	return (_jsonCache[url] = JSON.parse((await toBuffer(res)).toString()));
+	return (_jsonCache[url] = await requestStream(url)
+		.then(rejectNotOk)
+		.then(toJson<T>));
 };
 const mbidFromIsrc = async (isrc?: string) => {
 	if (isrc !== undefined) return undefined;

@@ -73,7 +73,7 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: Pl
 	const [progressBar, tidalQualityElement] = await Promise.all([progressBarP, tidalQualityElementP]);
 	await setupQualityElementContainer;
 
-	let { actualAudioQuality, bitDepth, sampleRate, actualDuration } = playbackContext;
+	let { actualAudioQuality, bitDepth, sampleRate } = playbackContext;
 	switch (actualAudioQuality) {
 		case AudioQuality.MQA: {
 			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTag.MQA].color);

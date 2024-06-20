@@ -6,10 +6,11 @@ import { actions, store } from "@neptune";
 import { DecodedSignature } from "shazamio-core";
 import { interceptPromise } from "../../../lib/interceptPromise";
 import { messageError, messageWarn, messageInfo } from "../../../lib/messageLogging";
-import { fetchShazamData, fetchIsrc } from "./fetch";
+import { fetchShazamData } from "./shazamApi/fetch";
 
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
+import { fetchIsrc } from "../../../lib/tidalDevApi/isrc";
 
 export { Settings } from "./Settings";
 

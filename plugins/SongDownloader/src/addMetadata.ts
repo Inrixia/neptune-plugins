@@ -1,10 +1,9 @@
 import { utils } from "@neptune";
 import { TrackItem } from "neptune-types/tidal";
 import { fullTitle } from "../../../lib/fullTitle";
-import { toBuffer } from "./lib/toBuffer";
-import { ExtendedPlaybackInfoWithBytes } from "../../../lib/download";
-import { rejectNotOk, requestStream } from "../../../lib/fetchy";
-import { ManifestMimeType } from "../../../lib/getPlaybackInfo";
+import { ExtendedPlaybackInfoWithBytes } from "../../../lib/trackBytes/download";
+import { rejectNotOk, requestStream, toBuffer } from "../../../lib/fetch";
+import { ManifestMimeType } from "../../../lib/trackBytes/getPlaybackInfo";
 import { actions } from "@neptune";
 import { interceptPromise } from "../../../lib/interceptPromise";
 
@@ -64,7 +63,7 @@ async function makeTags(track: TrackItem) {
 		try {
 			picture = {
 				pictureType: PictureType.FrontCover,
-				buffer: await toBuffer(await requestStream(utils.getMediaURLFromID(cover)).then(rejectNotOk)),
+				buffer: await requestStream(utils.getMediaURLFromID(cover)).then(rejectNotOk).then(toBuffer),
 			};
 		} catch {}
 	}

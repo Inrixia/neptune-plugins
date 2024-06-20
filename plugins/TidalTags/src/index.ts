@@ -1,4 +1,4 @@
-import { intercept, store } from "@neptune";
+import { intercept, store, actions } from "@neptune";
 
 import { setFLACInfo } from "./setFLACInfo";
 
@@ -13,6 +13,9 @@ import { isElement } from "./lib/isElement";
 import { setInfoColumnHeaders, setInfoColumns } from "./setInfoColumns";
 import { TrackItemCache } from "./lib/TrackItemCache";
 import { PlaybackContext } from "../../../lib/AudioQualityTypes";
+import { getHeaders } from "../../../lib/fetch";
+
+getHeaders().then(console.log);
 
 /**
  * Flac Info

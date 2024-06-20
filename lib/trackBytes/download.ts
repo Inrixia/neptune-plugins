@@ -1,7 +1,9 @@
 import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType, TidalManifest } from "./getPlaybackInfo";
 import { makeDecipheriv } from "./decryptBuffer";
-import { FetchyOptions, requestDecodedStream, requestSegmentsStream } from "./fetchy";
-import { AudioQuality } from "./AudioQualityTypes";
+import { FetchyOptions } from "../fetch";
+import { requestDecodedStream } from "../fetch/requestDecodedStream";
+import { requestSegmentsStream } from "../fetch/requestSegmentsStream";
+import { AudioQuality } from "../AudioQualityTypes";
 import { decryptKeyId } from "./decryptKeyId";
 import type { Readable } from "stream";
 

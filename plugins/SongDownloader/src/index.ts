@@ -6,7 +6,7 @@ import { storage } from "@plugin";
 import "./styles";
 export { Settings } from "./Settings";
 
-import { fetchTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/download";
+import { fetchTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/trackBytes/download";
 import { ItemId, MediaItem, TrackItem, VideoItem } from "neptune-types/tidal";
 import { saveFile } from "./lib/saveFile";
 
@@ -14,8 +14,8 @@ import { interceptPromise } from "../../../lib/interceptPromise";
 
 import { messageError } from "../../../lib/messageLogging";
 import { addMetadata } from "./addMetadata";
-import { toBuffer } from "./lib/toBuffer";
 import { fileNameFromInfo } from "./lib/fileName";
+import { toBuffer } from "../../../lib/fetch";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};

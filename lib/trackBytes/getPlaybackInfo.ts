@@ -1,9 +1,9 @@
-import { getHeaders } from "./fetchy";
-import { audioQualities, AudioQuality } from "./AudioQualityTypes";
+import { getHeaders } from "../fetch";
+import { audioQualities, AudioQuality } from "../AudioQualityTypes";
 import { TrackItem } from "neptune-types/tidal";
 import type { Manifest as DashManifest } from "dasha";
 import type dasha from "dasha";
-import { Mutex } from "./mutex";
+import { Mutex } from "../mutex";
 const { parse } = <typeof dasha>require("dasha");
 
 export enum ManifestMimeType {
