@@ -5,7 +5,6 @@ import { AudioQuality, PlaybackContext } from "../../../lib/AudioQualityTypes";
 import { storage } from "@plugin";
 
 import { TrackInfoCache } from "./lib/TrackInfoCache";
-import { store } from "@neptune";
 import { messageError } from "../../../lib/messageLogging";
 import { hexToRgba } from "./lib/hexToRgba";
 
@@ -127,5 +126,3 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: Pl
 
 	if (flacInfoElem.textContent.length === 0) flacInfoElem.textContent = "Unknown";
 };
-
-setFLACInfo([{ playbackContext: <PlaybackContext>store.getState().playbackControls.playbackContext }]);
