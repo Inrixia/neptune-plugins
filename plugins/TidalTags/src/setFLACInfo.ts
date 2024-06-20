@@ -108,7 +108,7 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: Pl
 		flacInfoElem.textContent = "";
 		if (!!sampleRate) flacInfoElem.textContent += `${sampleRate / 1000}kHz `;
 		if (!!bitDepth) flacInfoElem.textContent += `${bitDepth}bit `;
-		if (!!bitrate) flacInfoElem.textContent += `${Math.floor(bitrate / 1000)}kb/s`;
+		if (!!bitrate) flacInfoElem.textContent += `${Math.floor(bitrate / 1000).toLocaleString()}kb/s`;
 	} catch (err) {
 		flacInfoElem.style.maxWidth = "256px";
 		flacInfoElem.style.border = "solid 1px red";

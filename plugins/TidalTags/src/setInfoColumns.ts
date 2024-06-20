@@ -80,6 +80,6 @@ export const setInfoColumns = (trackRow: Element, trackId: string, trackItem: Tr
 		const trackInfo = await trackInfoP;
 		if (!!trackInfo?.sampleRate) sampleRateContent.textContent = `${trackInfo.sampleRate / 1000}kHz`;
 		if (!!trackInfo?.bitDepth) bitDepthContent.textContent = `${trackInfo.bitDepth}bit`;
-		if (!!trackInfo?.bitrate) bitrateContent.textContent = `${Math.floor(trackInfo.bitrate / 1000)}kbps`;
+		if (!!trackInfo?.bitrate) bitrateContent.textContent = `${Math.floor(trackInfo.bitrate / 1000).toLocaleString()}kbps`;
 	});
 };
