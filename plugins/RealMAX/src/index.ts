@@ -1,5 +1,5 @@
 import { ItemId, TrackItem } from "neptune-types/tidal";
-import { TrackItemCache } from "../../../lib/TrackItemCache";
+import { TrackItemCache } from "../../../lib/TrackCache/TrackItemCache";
 import { fetchIsrcIterable } from "../../../lib/tidalDevApi/isrc";
 import { actions, intercept, store } from "@neptune";
 import { PlaybackContext } from "../../../lib/AudioQualityTypes";
@@ -10,12 +10,12 @@ const hasHiRes = (trackItem: TrackItem) => {
 	return tags.findIndex((tag) => tag === "HIRES_LOSSLESS") !== -1;
 };
 
-class QueueCleaner {
+class MaxTrack {
 	private static readonly _idMap: Record<ItemId, Promise<ItemId | false>> = {};
 	public static async getMaxId(itemId: ItemId | undefined): Promise<ItemId | false> {
 		if (itemId === undefined) return false;
 
-		const idMapping = QueueCleaner._idMap[itemId];
+		const idMapping = MaxTrack._idMap[itemId];
 		if (idMapping !== undefined) return idMapping;
 
 		const trackItem = TrackItemCache.get(itemId);
@@ -37,7 +37,7 @@ const unloadPlay = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", async 
 	for (let index = currentIndex; index < Math.min(elements.length - 1, currentIndex + 5); index++) {
 		const mediaItemId = elements[index]?.mediaItemId;
 		if (mediaItemId === undefined) return;
-		const maxId = await QueueCleaner.getMaxId(mediaItemId);
+		const maxId = await MaxTrack.getMaxId(mediaItemId);
 		const maxInjected = elements[index + 1]?.mediaItemId === maxId;
 		if (maxInjected) {
 			actions.playQueue.removeAtIndex({ index: index + 1 });

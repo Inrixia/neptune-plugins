@@ -5,4 +5,5 @@ export interface Recording {
 	id?: string;
 	disambiguation?: string;
 	video?: boolean;
+	isrcs?: string[];
 }

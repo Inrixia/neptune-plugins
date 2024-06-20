@@ -16,7 +16,7 @@ import { messageError } from "../../../lib/messageLogging";
 import { addMetadata } from "./addMetadata";
 import { fileNameFromInfo } from "./lib/fileName";
 import { toBuffer } from "../../../lib/fetch";
-import { TrackItemCache } from "../../../lib/TrackItemCache";
+import { TrackItemCache } from "../../../lib/TrackCache/TrackItemCache";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};

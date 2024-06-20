@@ -11,7 +11,7 @@ export { Settings } from "./Settings";
 import { storage } from "@plugin";
 import { isElement } from "./lib/isElement";
 import { setInfoColumnHeaders, setInfoColumns } from "./setInfoColumns";
-import { TrackItemCache } from "../../../lib/TrackItemCache";
+import { TrackItemCache } from "../../../lib/TrackCache/TrackItemCache";
 import { PlaybackContext } from "../../../lib/AudioQualityTypes";
 import { getHeaders } from "../../../lib/fetch";
 

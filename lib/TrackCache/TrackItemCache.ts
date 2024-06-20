@@ -1,20 +1,22 @@
 import { store } from "@neptune";
-import { TrackItem, MediaItem } from "neptune-types/tidal";
-
+import { TrackItem, MediaItem, ItemId } from "neptune-types/tidal";
+import { undefinedError } from "../undefinedError";
 export class TrackItemCache {
-	private static readonly _cache: Map<string, TrackItem> = new Map<string, TrackItem>();
-	public static get(trackId: number | string | undefined) {
+	private static readonly _cache: Record<ItemId, TrackItem> = {};
+	public static get(trackId?: ItemId) {
 		if (trackId === undefined) return undefined;
-		trackId = trackId.toString();
-		let mediaItem = TrackItemCache._cache.get(trackId);
+
+		let mediaItem = this._cache[trackId];
 		if (mediaItem !== undefined) return mediaItem;
+
 		const mediaItems: Record<number, MediaItem> = store.getState().content.mediaItems;
 		for (const itemId in mediaItems) {
 			const item = mediaItems[itemId]?.item;
 			if (item?.contentType !== "track") continue;
-			TrackItemCache._cache.set(itemId, item);
+			this._cache[itemId] = item;
 		}
-		mediaItem = TrackItemCache._cache.get(trackId);
+
+		mediaItem = this._cache[trackId];
 		if (mediaItem !== undefined) return mediaItem;
 	}
 }
