@@ -78,6 +78,39 @@ const intercepters = [
 	}),
 ];
 
+const getTrackParams = ({ trackItem, playbackContext, playbackStart, album, recording, releaseAlbum }: CurrentTrack) => {
+	let artist;
+	const sharedAlbumArtist = trackItem.artists?.find((artist) => artist?.id === album?.artist?.id);
+	if (sharedAlbumArtist?.name !== undefined) artist = formatArtists([sharedAlbumArtist?.name]);
+	else if (trackItem.artist?.name !== undefined) artist = formatArtists([trackItem.artist?.name]);
+	else if ((trackItem.artists?.length ?? -1) > 0) artist = formatArtists(trackItem.artists?.map(({ name }) => name));
+
+	const params: ScrobbleOpts = {
+		track: recording?.title ?? fullTitle(<TrackItem>trackItem),
+		artist: artist!,
+		timestamp: (playbackStart / 1000).toFixed(0),
+	};
+
+	if (!!recording?.id) params.mbid = recording.id;
+
+	if (!!album?.artist?.name) params.albumArtist = album?.artist?.name;
+	else if ((album?.artists?.length ?? -1) > 0) params.albumArtist = formatArtists(album?.artists?.map(({ name }) => name));
+
+	if (!!releaseAlbum?.title) {
+		params.album = releaseAlbum?.title;
+		if (!!releaseAlbum.disambiguation) params.album += ` (${releaseAlbum.disambiguation})`;
+	} else if (!!trackItem.album?.title) params.album = trackItem.album.title;
+
+	if (!!trackItem.trackNumber) params.trackNumber = trackItem.trackNumber.toString();
+	if (!!playbackContext.actualDuration) params.duration = playbackContext.actualDuration.toFixed(0);
+
+	return params;
+};
+const formatArtists = (artists?: (string | undefined)[]) => {
+	const artist = artists?.filter((name) => name !== undefined)?.[0] ?? "";
+	return artist.split(", ")[0];
+};
+
 const undefinedError = (err: Error) => {
 	console.error(err);
 	return undefined;
@@ -112,37 +145,6 @@ const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<Curre
 	const currentTrack = { trackItem: trackItem.item, playbackContext, playbackStart, recording, album, releaseAlbum };
 	console.log("[last.fm] getCurrentTrack", currentTrack);
 	return currentTrack;
-};
-
-const getTrackParams = ({ trackItem, playbackContext, playbackStart, album, recording, releaseAlbum }: CurrentTrack) => {
-	let artist;
-	const sharedAlbumArtist = trackItem.artists?.find((artist) => artist?.id === album?.artist?.id);
-	if (sharedAlbumArtist?.name !== undefined) artist = formatArtists([sharedAlbumArtist?.name]);
-	else if (trackItem.artist?.name !== undefined) artist = formatArtists([trackItem.artist?.name]);
-	else if ((trackItem.artists?.length ?? -1) > 0) artist = formatArtists(trackItem.artists?.map(({ name }) => name));
-
-	const params: ScrobbleOpts = {
-		track: recording?.title ?? fullTitle(<TrackItem>trackItem),
-		artist: artist!,
-		timestamp: (playbackStart / 1000).toFixed(0),
-	};
-
-	if (!!recording?.id) params.mbid = recording.id;
-
-	if (!!album?.artist?.name) params.albumArtist = album?.artist?.name;
-	else if ((album?.artists?.length ?? -1) > 0) params.albumArtist = formatArtists(album?.artists?.map(({ name }) => name));
-
-	if (!!releaseAlbum?.title) params.album = releaseAlbum?.title;
-	else if (!!trackItem.album?.title) params.album = trackItem.album.title;
-
-	if (!!trackItem.trackNumber) params.trackNumber = trackItem.trackNumber.toString();
-	if (!!playbackContext.actualDuration) params.duration = playbackContext.actualDuration.toFixed(0);
-
-	return params;
-};
-const formatArtists = (artists?: (string | undefined)[]) => {
-	const artist = artists?.filter((name) => name !== undefined)?.[0] ?? "";
-	return artist.split(", ")[0];
 };
 
 const _jsonCache: Record<string, unknown> = {};

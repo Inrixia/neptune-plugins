@@ -6,6 +6,7 @@ export interface UPCData {
 }
 
 export interface Release {
+	disambiguation?: string;
 	id?: string;
 	score?: number;
 	"status-id"?: string;
