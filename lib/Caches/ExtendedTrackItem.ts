@@ -25,12 +25,16 @@ export class ExtendedTrackItem {
 		if (trackId === undefined) return undefined;
 		return this._cache[trackId] ?? (this._cache[trackId] = new this(trackId));
 	}
-	public async isrcs(): Promise<string[] | undefined> {
-		const trackItem = this.trackItem();
-		if (trackItem?.isrc !== undefined) return [trackItem.isrc];
+	public async isrcs(): Promise<Set<string> | undefined> {
+		let isrcs = [];
 
 		const recording = await this.recording();
-		if (recording?.isrcs !== undefined) return recording.isrcs;
+		if (recording?.isrcs) isrcs.push(...recording.isrcs);
+
+		const trackItem = this.trackItem();
+		if (trackItem?.isrc) isrcs.push(trackItem.isrc);
+
+		return new Set(isrcs);
 	}
 	public trackItem(): TrackItem | undefined {
 		if (this._trackItem !== undefined) return this._trackItem;
