@@ -21,7 +21,7 @@ export class MusicBrainz {
 		if (upc === undefined) return undefined;
 		return fetchCachedJson<UPCData>(`https://musicbrainz.org/ws/2/release/?query=barcode:${upc}&fmt=json`);
 	}
-	public static async getAlbumRelease(albumId?: number) {
+	public static async getAlbumRelease(albumId?: string) {
 		if (albumId === undefined) return undefined;
 		return fetchCachedJson<ReleaseData>(`https://musicbrainz.org/ws/2/release/${albumId}?inc=recordings+isrcs&fmt=json`);
 	}

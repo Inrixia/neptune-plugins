@@ -5,7 +5,7 @@ import { MusicBrainz } from "../musicbrainzApi";
 import { Recording } from "../musicbrainzApi/types/Recording";
 import { Release } from "../musicbrainzApi/types/UPCData";
 import { TrackItemCache } from "./TrackItemCache";
-import { undefinedError } from "../undefinedError";
+import { undefinedWarn } from "../undefinedError";
 
 export class ExtendedTrackItem {
 	public readonly trackId: ItemId;
@@ -24,7 +24,13 @@ export class ExtendedTrackItem {
 		if (trackId === undefined) return undefined;
 		return this._cache[trackId] ?? (this._cache[trackId] = new this(trackId));
 	}
+	public async isrcs(): Promise<string[] | undefined> {
+		const trackItem = this.trackItem();
+		if (trackItem?.isrc !== undefined) return [trackItem.isrc];
 
+		const recording = await this.recording();
+		if (recording?.isrcs !== undefined) return recording.isrcs;
+	}
 	public trackItem(): TrackItem | undefined {
 		if (this._trackItem !== undefined) return this._trackItem;
 
@@ -39,14 +45,14 @@ export class ExtendedTrackItem {
 	public async recording(): Promise<Recording | undefined> {
 		if (this._recording !== undefined) return this._recording;
 
-		this._recording = await MusicBrainz.getRecording(this.trackItem()?.isrc).catch(undefinedError);
+		this._recording = await MusicBrainz.getRecording(this.trackItem()?.isrc).catch(undefinedWarn("MusicBrainz.getRecording"));
 		if (this._recording !== undefined) return this._recording;
 
 		const trackItem = this.trackItem();
 		if (trackItem === undefined) return undefined;
 
-		const album = await this.album();
-		const albumRelease = await MusicBrainz.getAlbumRelease(album?.id).catch(undefinedError);
+		const releaseAlbum = await this.releaseAlbum();
+		const albumRelease = await MusicBrainz.getAlbumRelease(releaseAlbum?.id).catch(undefinedWarn("MusicBrainz.getAlbumRelease"));
 
 		const volumeNumber = (trackItem.volumeNumber ?? 1) - 1;
 		const trackNumber = (trackItem.trackNumber ?? 1) - 1;
@@ -57,7 +63,7 @@ export class ExtendedTrackItem {
 		if (this._releaseAlbum !== undefined) return this._releaseAlbum;
 
 		const album = await this.album();
-		const upcData = await MusicBrainz.getUPCData(album?.upc).catch(undefinedError);
+		const upcData = await MusicBrainz.getUPCData(album?.upc).catch(undefinedWarn("MusicBrainz.getUPCData"));
 
 		return (this._releaseAlbum = upcData?.releases?.[0]);
 	}

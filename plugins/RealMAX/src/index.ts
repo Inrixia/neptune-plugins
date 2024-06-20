@@ -3,6 +3,7 @@ import { TrackItemCache } from "../../../lib/TrackCache/TrackItemCache";
 import { fetchIsrcIterable } from "../../../lib/tidalDevApi/isrc";
 import { actions, intercept, store } from "@neptune";
 import { PlaybackContext } from "../../../lib/AudioQualityTypes";
+import { ExtendedTrackItem } from "../../../lib/TrackCache/ExtendedTrackItem";
 
 const hasHiRes = (trackItem: TrackItem) => {
 	const tags = trackItem.mediaMetadata?.tags;
@@ -18,14 +19,18 @@ class MaxTrack {
 		const idMapping = MaxTrack._idMap[itemId];
 		if (idMapping !== undefined) return idMapping;
 
-		const trackItem = TrackItemCache.get(itemId);
-		if (trackItem === undefined || trackItem.isrc === undefined || hasHiRes(trackItem)) {
-			return (this._idMap[itemId] = Promise.resolve(false));
-		}
+		const extTrackItem = await ExtendedTrackItem.get(itemId);
+		const trackItem = extTrackItem?.trackItem();
+		if (trackItem !== undefined && hasHiRes(trackItem)) return false;
+
+		const isrcs = await extTrackItem?.isrcs();
+		if (isrcs === undefined) return (this._idMap[itemId] = Promise.resolve(false));
 
 		return (this._idMap[itemId] = (async () => {
-			for await (const { resource } of fetchIsrcIterable(trackItem.isrc!)) {
-				if (resource?.id !== undefined && hasHiRes(resource)) return resource.id;
+			for (const isrc of isrcs) {
+				for await (const { resource } of fetchIsrcIterable(isrc)) {
+					if (resource?.id !== undefined && hasHiRes(resource)) return resource.id;
+				}
 			}
 			return false;
 		})());
