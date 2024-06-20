@@ -1,6 +1,6 @@
 import { store } from "@neptune";
-import { TrackItem, MediaItem, ItemId } from "neptune-types/tidal";
-import { undefinedWarn } from "../undefinedError";
+import type { TrackItem, MediaItem, ItemId } from "neptune-types/tidal";
+
 export class TrackItemCache {
 	private static readonly _cache: Record<ItemId, TrackItem> = {};
 	public static get(trackId?: ItemId) {
@@ -16,7 +16,6 @@ export class TrackItemCache {
 			this._cache[itemId] = item;
 		}
 
-		mediaItem = this._cache[trackId];
-		if (mediaItem !== undefined) return mediaItem;
+		return this._cache[trackId];
 	}
 }

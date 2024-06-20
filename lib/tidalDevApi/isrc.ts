@@ -1,4 +1,4 @@
-import { ISRCResponse, TrackData } from "./types/ISRC";
+import { Datum, ISRCResponse, Resource } from "./types/ISRC";
 import { requestStream, rejectNotOk, toJson } from "../fetch";
 import { getToken } from "./auth";
 
@@ -18,7 +18,7 @@ export const fetchIsrc = async (isrc: string, options?: ISRCOptions) => {
 		.then(toJson<ISRCResponse>);
 };
 
-export async function* fetchIsrcIterable(isrc: string): AsyncIterable<TrackData> {
+export async function* fetchIsrcIterable(isrc: string): AsyncIterable<Datum> {
 	let offset = 0;
 	const limit = 100;
 	while (true) {

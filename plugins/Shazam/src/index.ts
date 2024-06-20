@@ -4,7 +4,7 @@ init();
 
 import { actions, store } from "@neptune";
 import { DecodedSignature } from "shazamio-core";
-import { interceptPromise } from "../../../lib/interceptPromise";
+import { interceptPromise } from "../../../lib/intercept/interceptPromise";
 import { messageError, messageWarn, messageInfo } from "../../../lib/messageLogging";
 import { fetchShazamData } from "./shazamApi/fetch";
 
@@ -15,8 +15,11 @@ import { fetchIsrc } from "../../../lib/tidalDevApi/isrc";
 export { Settings } from "./Settings";
 
 const addToPlaylist = async (playlistUUID: string, mediaItemIdsToAdd: string[]) => {
-	actions.content.addMediaItemsToPlaylist({ mediaItemIdsToAdd, onDupes: "SKIP", playlistUUID });
-	await interceptPromise(["etag/SET_PLAYLIST_ETAG", "content/ADD_MEDIA_ITEMS_TO_PLAYLIST_SUCCESS"], ["content/ADD_MEDIA_ITEMS_TO_PLAYLIST_FAIL"]);
+	await interceptPromise(
+		() => actions.content.addMediaItemsToPlaylist({ mediaItemIdsToAdd, onDupes: "SKIP", playlistUUID }),
+		["etag/SET_PLAYLIST_ETAG", "content/ADD_MEDIA_ITEMS_TO_PLAYLIST_SUCCESS"],
+		["content/ADD_MEDIA_ITEMS_TO_PLAYLIST_FAIL"]
+	);
 	actions.content.loadListItemsPage({ listName: `playlists/${playlistUUID}`, listType: "mediaItems", reset: false });
 	setTimeout(() => actions.content.loadListItemsPage({ listName: `playlists/${playlistUUID}`, listType: "mediaItems", reset: true }), 1000);
 };
@@ -58,7 +61,10 @@ const handleDrop = async (event: DragEvent) => {
 					const ids = (isrcData?.data ?? []).map((track) => track.id);
 					if (ids.length > 0) {
 						messageInfo(`Adding ${trackName} to playlist`);
-						await addToPlaylist(playlistUUID, ids);
+						await addToPlaylist(
+							playlistUUID,
+							ids.filter((id) => id !== undefined)
+						);
 					} else {
 						console.log("[SHAZAM!]", shazamData);
 						messageWarn(`Track ${trackName} is not avalible in Tidal`);

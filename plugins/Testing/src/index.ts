@@ -1,3 +1,3 @@
-import { interceptActions } from "../../../lib/interceptActions";
+import { interceptActions } from "../../../lib/intercept/interceptActions";
 
 export const onUnload = interceptActions(/.*/, console.log);

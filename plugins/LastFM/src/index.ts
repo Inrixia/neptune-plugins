@@ -13,7 +13,7 @@ export { Settings } from "./Settings";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 import { undefinedWarn } from "../../../lib/undefinedError";
-import { ExtendedTrackItem } from "../../../lib/TrackCache/ExtendedTrackItem";
+import { ExtendedTrackItem } from "../../../lib/Caches/ExtendedTrackItem";
 
 let totalPlayTime = 0;
 let lastPlayStart: number | null = null;

@@ -5,9 +5,10 @@ import { ExtendedPlaybackInfoWithBytes } from "../../../lib/trackBytes/download"
 import { rejectNotOk, requestStream, toBuffer } from "../../../lib/fetch";
 import { ManifestMimeType } from "../../../lib/trackBytes/getPlaybackInfo";
 import { actions } from "@neptune";
-import { interceptPromise } from "../../../lib/interceptPromise";
+import { interceptPromise } from "../../../lib/intercept/interceptPromise";
 
 import { type FlacTagMap, PictureType, createFlacTagsBuffer } from "./flac-tagger";
+import { AlbumCache } from "../../../lib/Caches/AlbumCache";
 
 export async function addMetadata(trackInfo: ExtendedPlaybackInfoWithBytes, track: TrackItem) {
 	if (trackInfo.manifestMimeType === ManifestMimeType.Tidal) {
@@ -32,9 +33,8 @@ async function makeTags(track: TrackItem) {
 	if (track.artist?.name) tagMap.artist = track.artist.name;
 	tagMap.performer = (track.artists ?? []).map(({ name }) => name).filter((name) => name !== undefined);
 
-	if (track.id) {
-		actions.content.loadItemLyrics({ itemId: track.id, itemType: "track" });
-		const lyrics = await interceptPromise(["content/LOAD_ITEM_LYRICS_SUCCESS"], ["content/LOAD_ITEM_LYRICS_FAIL"])
+	if (track.id !== undefined) {
+		const lyrics = await interceptPromise(() => actions.content.loadItemLyrics({ itemId: track.id!, itemType: "track" }), ["content/LOAD_ITEM_LYRICS_SUCCESS"], ["content/LOAD_ITEM_LYRICS_FAIL"])
 			.catch(() => undefined)
 			.then((res) => res?.[0]);
 		if (lyrics?.lyrics !== undefined) tagMap.lyrics = lyrics.lyrics;
@@ -43,10 +43,7 @@ async function makeTags(track: TrackItem) {
 	const albumId = track.album?.id;
 	let cover = track.album?.cover;
 	if (albumId !== undefined) {
-		actions.content.loadAlbum({ albumId });
-		const album = await interceptPromise(["content/LOAD_ALBUM_SUCCESS"], [])
-			.catch(() => undefined)
-			.then((res) => res?.[0].album);
+		const album = await AlbumCache.get(albumId);
 		if (album !== undefined) {
 			tagMap.albumArtist = (album.artists ?? []).map(({ name }) => name).filter((name) => name !== undefined);
 			if (album.genre) tagMap.genres = album.genre;

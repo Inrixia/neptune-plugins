@@ -10,13 +10,13 @@ import { fetchTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/tra
 import { ItemId, MediaItem, TrackItem, VideoItem } from "neptune-types/tidal";
 import { saveFile } from "./lib/saveFile";
 
-import { interceptPromise } from "../../../lib/interceptPromise";
+import { interceptPromise } from "../../../lib/intercept/interceptPromise";
 
 import { messageError } from "../../../lib/messageLogging";
 import { addMetadata } from "./addMetadata";
 import { fileNameFromInfo } from "./lib/fileName";
 import { toBuffer } from "../../../lib/fetch";
-import { TrackItemCache } from "../../../lib/TrackCache/TrackItemCache";
+import { TrackItemCache } from "../../../lib/Caches/TrackItemCache";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};
@@ -69,13 +69,19 @@ const intercepts = [
 export const onUnload = () => intercepts.forEach((unload) => unload());
 
 const onAlbum = async (albumId: ItemId) => {
-	await actions.content.loadAllAlbumMediaItems({ albumId });
-	const [{ mediaItems }] = await interceptPromise(["content/LOAD_ALL_ALBUM_MEDIA_ITEMS_SUCCESS"], ["content/LOAD_ALL_ALBUM_MEDIA_ITEMS_FAIL"]);
+	const [{ mediaItems }] = await interceptPromise(
+		() => actions.content.loadAllAlbumMediaItems({ albumId }),
+		["content/LOAD_ALL_ALBUM_MEDIA_ITEMS_SUCCESS"],
+		["content/LOAD_ALL_ALBUM_MEDIA_ITEMS_FAIL"]
+	);
 	downloadItems(Object.values<MediaItem>(<any>mediaItems).map((mediaItem) => mediaItem.item));
 };
 const onPlaylist = async (playlistUUID: ItemId) => {
-	await actions.content.loadListItemsPage({ loadAll: true, listName: `playlists/${playlistUUID}`, listType: "mediaItems" });
-	const [{ items }] = await interceptPromise(["content/LOAD_LIST_ITEMS_PAGE_SUCCESS"], ["content/LOAD_LIST_ITEMS_PAGE_FAIL"]);
+	const [{ items }] = await interceptPromise(
+		() => actions.content.loadListItemsPage({ loadAll: true, listName: `playlists/${playlistUUID}`, listType: "mediaItems" }),
+		["content/LOAD_LIST_ITEMS_PAGE_SUCCESS"],
+		["content/LOAD_LIST_ITEMS_PAGE_FAIL"]
+	);
 	downloadItems(Object.values(items).map((mediaItem) => mediaItem?.item));
 };
 

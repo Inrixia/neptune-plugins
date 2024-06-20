@@ -20,7 +20,7 @@ flacInfoElem.textContent = "";
 flacInfoElem.style.border = "";
 
 const retryPromise = <T>(getValue: () => T | Promise<T>, options: { interval?: number; maxRetries?: number } = {}) => {
-	options.maxRetries ??= 40;
+	options.maxRetries ??= 200;
 	options.interval ??= 250;
 	let selectorInterval: NodeJS.Timeout;
 	let retries = 0;

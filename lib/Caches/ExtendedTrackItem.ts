@@ -1,11 +1,12 @@
 import { actions } from "@neptune";
 import { ItemId, TrackItem, Album } from "neptune-types/tidal";
-import { interceptPromise } from "../interceptPromise";
+import { interceptPromise } from "../intercept/interceptPromise";
 import { MusicBrainz } from "../musicbrainzApi";
 import { Recording } from "../musicbrainzApi/types/Recording";
 import { Release } from "../musicbrainzApi/types/UPCData";
 import { TrackItemCache } from "./TrackItemCache";
 import { undefinedWarn } from "../undefinedError";
+import { AlbumCache } from "./AlbumCache";
 
 export class ExtendedTrackItem {
 	public readonly trackId: ItemId;
@@ -38,9 +39,7 @@ export class ExtendedTrackItem {
 	}
 	public async album(): Promise<Album | undefined> {
 		if (this._album !== undefined) return this._album;
-
-		actions.content.loadAlbum({ albumId: this.trackItem()?.album?.id! });
-		return (this._album = await interceptPromise(["content/LOAD_ALBUM_SUCCESS"], []).then((res) => <Album>res?.[0].album));
+		return (this._album = await AlbumCache.get(this.trackItem()?.album?.id));
 	}
 	public async recording(): Promise<Recording | undefined> {
 		if (this._recording !== undefined) return this._recording;
