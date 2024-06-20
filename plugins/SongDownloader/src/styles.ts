@@ -1,8 +1,7 @@
-import { appendStyle } from "@neptune/utils";
-import { settingsCSS } from "../../../lib/css/settings";
+import { setStyle } from "../../../lib/css/setStyle";
+import "../../../lib/css/settings";
 
-appendStyle(`
-${settingsCSS}
+const styles = `
 .download-button {
 	align-items: center;
 	display: flex;
@@ -55,4 +54,6 @@ ${settingsCSS}
     outline: none;
     border-color: #4f4f4f;
 }
-`);
+`;
+
+setStyle(styles, "neptune-downloader");

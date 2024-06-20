@@ -1,4 +1,6 @@
-export const settingsCSS = `
+import { setStyle } from "./setStyle";
+
+const settingsStyles = `
 .settings-section {
     color: #ffffff;
     padding: 20px;
@@ -18,3 +20,4 @@ export const settingsCSS = `
     margin-bottom: 15px;
 }
 `;
+setStyle(settingsStyles, "neptune-settings");

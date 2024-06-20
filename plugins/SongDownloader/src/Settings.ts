@@ -3,6 +3,7 @@ import { html } from "@neptune/voby";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 import { AudioQualityInverse, AudioQuality, validQualitiesSettings } from "../../../lib/AudioQualityTypes";
+import { setStyle } from "../../../lib/css/setStyle";
 
 storage.desiredDownloadQuality ??= AudioQuality.HiRes;
 storage.defaultDownloadPath ??= "";

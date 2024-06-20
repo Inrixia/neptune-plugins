@@ -1,6 +1,7 @@
 import { html } from "@neptune/voby";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
+import "../../../lib/css/settings";
 
 storage.displaySkippedScrobbles ??= true;
 export const Settings = () => {

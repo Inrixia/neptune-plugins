@@ -1,8 +1,7 @@
-import { appendStyle } from "@neptune/utils";
-import { settingsCSS } from "../../../lib/css/settings";
+import { setStyle } from "../../../lib/css/setStyle";
+import "../../../lib/css/settings";
 
-appendStyle(`
-${settingsCSS}
+const styles = `
 span[class^="titleText--"] {
 	max-width: 190px;
 }
@@ -68,4 +67,6 @@ input:checked + .slider {
 input:checked + .slider:before {
 	transform: translateX(26px);
 }
-`);
+`;
+
+setStyle(styles, "tidal-tags-styles");
