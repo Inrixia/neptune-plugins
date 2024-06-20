@@ -95,13 +95,15 @@ const ensureColumnHeader = (trackList: Element, name: string, sourceSelector: st
 };
 
 export const updateTrackRow = async (trackRows: NodeListOf<Element>) => {
-	for (const trackList of document.querySelectorAll(`div[aria-label="Tracklist"]`)) {
-		const bitDepthColumn = ensureColumnHeader(trackList, "Depth", `span[class^="timeColumn--"][role="columnheader"]`, `span[class^="timeColumn--"][role="columnheader"]`);
-		bitDepthColumn?.style.setProperty("min-width", "40px");
-		const sampleRateColumn = ensureColumnHeader(trackList, "Sample Rate", `span[class^="timeColumn--"][role="columnheader"]`, bitDepthColumn);
-		sampleRateColumn?.style.setProperty("min-width", "110px");
-		const bitrateColumn = ensureColumnHeader(trackList, "Bitrate", `span[class^="timeColumn--"][role="columnheader"]`, sampleRateColumn);
-		bitrateColumn?.style.setProperty("min-width", "100px");
+	if (storage.displayInfoColumns) {
+		for (const trackList of document.querySelectorAll(`div[aria-label="Tracklist"]`)) {
+			const bitDepthColumn = ensureColumnHeader(trackList, "Depth", `span[class^="timeColumn--"][role="columnheader"]`, `span[class^="timeColumn--"][role="columnheader"]`);
+			bitDepthColumn?.style.setProperty("min-width", "40px");
+			const sampleRateColumn = ensureColumnHeader(trackList, "Sample Rate", `span[class^="timeColumn--"][role="columnheader"]`, bitDepthColumn);
+			sampleRateColumn?.style.setProperty("min-width", "110px");
+			const bitrateColumn = ensureColumnHeader(trackList, "Bitrate", `span[class^="timeColumn--"][role="columnheader"]`, sampleRateColumn);
+			bitrateColumn?.style.setProperty("min-width", "100px");
+		}
 	}
 	for (const trackRow of trackRows) {
 		const trackId = trackRow.getAttribute("data-track-id");
@@ -112,38 +114,40 @@ export const updateTrackRow = async (trackRows: NodeListOf<Element>) => {
 
 		setQualityTag(trackRow, trackId, trackItem);
 
-		const qualityTag = sortQualityTags(<QualityTag[]>trackItem.mediaMetadata?.tags)[0] ?? "LOW";
+		if (storage.displayInfoColumns) {
+			const qualityTag = sortQualityTags(<QualityTag[]>trackItem.mediaMetadata?.tags)[0] ?? "LOW";
 
-		const audioQuality = lookupItemQuality(qualityTag, trackItem.audioQuality);
-		if (audioQuality === undefined) continue;
+			const audioQuality = lookupItemQuality(qualityTag, trackItem.audioQuality);
+			if (audioQuality === undefined) continue;
 
-		const bitDepthContent = document.createElement("span");
+			const bitDepthContent = document.createElement("span");
 
-		const bitDepthColumn = setColumn(trackRow, "Depth", `div[data-test="duration"]`, bitDepthContent, `div[data-test="duration"]`);
-		bitDepthColumn?.style.setProperty("min-width", "40px");
+			const bitDepthColumn = setColumn(trackRow, "Depth", `div[data-test="duration"]`, bitDepthContent, `div[data-test="duration"]`);
+			bitDepthColumn?.style.setProperty("min-width", "40px");
 
-		const sampleRateContent = document.createElement("span");
+			const sampleRateContent = document.createElement("span");
 
-		const sampleRateColumn = setColumn(trackRow, "Sample Rate", `div[data-test="duration"]`, sampleRateContent, bitDepthColumn);
-		sampleRateColumn?.style.setProperty("min-width", "110px");
+			const sampleRateColumn = setColumn(trackRow, "Sample Rate", `div[data-test="duration"]`, sampleRateContent, bitDepthColumn);
+			sampleRateColumn?.style.setProperty("min-width", "110px");
 
-		const bitrateContent = document.createElement("span");
+			const bitrateContent = document.createElement("span");
 
-		const bitrateColumn = setColumn(trackRow, "Bitrate", `div[data-test="duration"]`, bitrateContent, sampleRateColumn);
-		bitrateColumn?.style.setProperty("min-width", "100px");
+			const bitrateColumn = setColumn(trackRow, "Bitrate", `div[data-test="duration"]`, bitrateContent, sampleRateColumn);
+			bitrateColumn?.style.setProperty("min-width", "100px");
 
-		if (storage.infoColumnColors) {
-			const qualityColor = QualityMeta[qualityTag]?.color ?? "";
-			bitDepthContent.style.color = qualityColor;
-			sampleRateContent.style.color = qualityColor;
-			bitrateContent.style.color = qualityColor;
+			if (storage.infoColumnColors) {
+				const qualityColor = QualityMeta[qualityTag]?.color ?? "";
+				bitDepthContent.style.color = qualityColor;
+				sampleRateContent.style.color = qualityColor;
+				bitrateContent.style.color = qualityColor;
+			}
+
+			TrackInfoCache.register(trackId, audioQuality, async (trackInfoP) => {
+				const trackInfo = await trackInfoP;
+				if (!!trackInfo?.sampleRate) sampleRateContent.textContent = `${trackInfo.sampleRate / 1000}kHz`;
+				if (!!trackInfo?.bitDepth) bitDepthContent.textContent = `${trackInfo.bitDepth}bit`;
+				if (!!trackInfo?.bitrate) bitrateContent.textContent = `${Math.floor(trackInfo.bitrate / 1000)}kbps`;
+			});
 		}
-
-		TrackInfoCache.register(trackId, audioQuality, async (trackInfoP) => {
-			const trackInfo = await trackInfoP;
-			if (!!trackInfo?.sampleRate) sampleRateContent.textContent = `${trackInfo.sampleRate / 1000}kHz`;
-			if (!!trackInfo?.bitDepth) bitDepthContent.textContent = `${trackInfo.bitDepth}bit`;
-			if (!!trackInfo?.bitrate) bitrateContent.textContent = `${Math.floor(trackInfo.bitrate / 1000)}kbps`;
-		});
 	}
 };

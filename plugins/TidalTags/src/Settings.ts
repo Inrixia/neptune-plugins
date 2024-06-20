@@ -5,7 +5,8 @@ import { storage } from "@plugin";
 storage.showTags ??= true;
 storage.showAtmosQuality ??= true;
 storage.showFLACInfoBorder ??= true;
-storage.InfoColumnColors ??= false;
+storage.infoColumnColors ??= false;
+storage.displayInfoColumns ??= true;
 export const Settings = () => {
 	setTimeout(() => {
 		const showTags = document.getElementById("showTags");
@@ -19,6 +20,9 @@ export const Settings = () => {
 
 		const infoColumnColors = document.getElementById("infoColumnColors");
 		if (infoColumnColors instanceof HTMLInputElement && infoColumnColors.checked !== storage.infoColumnColors) infoColumnColors.checked = storage.infoColumnColors;
+
+		const displayInfoColumns = document.getElementById("displayInfoColumns");
+		if (displayInfoColumns instanceof HTMLInputElement && displayInfoColumns.checked !== storage.displayInfoColumns) displayInfoColumns.checked = storage.displayInfoColumns;
 	});
 
 	const onChange = (key: string) => (e: { target: { checked: boolean } }) => {
@@ -53,6 +57,14 @@ export const Settings = () => {
 		<p class="settings-explainer">FLAC Info Columns will have the color of the tracks quality</p>
 		<label class="switch">
 			<input type="checkbox" id="infoColumnColors" onChange=${onChange("infoColumnColors")} />
+			<span class="slider" />
+		</label>
+
+		<br class="settings-spacer" />
+		<h3 class="settings-header">Display FLAC Info Columns</h3>
+		<p class="settings-explainer">Toggles if the info columns are displayed or not</p>
+		<label class="switch">
+			<input type="checkbox" id="displayInfoColumns" onChange=${onChange("displayInfoColumns")} />
 			<span class="slider" />
 		</label>
 	</div>`;
