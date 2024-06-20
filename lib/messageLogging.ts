@@ -1,8 +1,9 @@
 import { actions } from "@neptune";
 
-export const messageError = (message: string) => {
-	console.error(message);
-	actions.message.messageError({ message, category: "OTHER", severity: "ERROR" });
+export const messageError = (message: string) => (error?: Error) => {
+	console.error(message, error);
+	const errMessage = error ? `${message} - ${error.message}` : message;
+	actions.message.messageError({ message: errMessage, category: "OTHER", severity: "ERROR" });
 };
 export const messageWarn = (message: string) => {
 	console.warn(message);

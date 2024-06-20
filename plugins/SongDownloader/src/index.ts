@@ -121,10 +121,7 @@ const downloadItems = (items: (TrackItem | VideoItem)[]) =>
 			prep();
 			for (const trackItem of trackItems) {
 				if (trackItem.id === undefined) continue;
-				await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress }).catch((err) => {
-					messageError(err.message);
-					console.error(err);
-				});
+				await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress }).catch(messageError("Error downloading track"));
 			}
 			clear();
 		});

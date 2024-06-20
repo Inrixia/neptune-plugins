@@ -27,7 +27,7 @@ const updateNowPlaying = async (playbackContext?: PlaybackContext) => {
 	const nowPlayingParams = await getTrackParams(currentTrack);
 	console.log("[last.fm] updatingNowPlaying", nowPlayingParams);
 	return LastFM.updateNowPlaying(nowPlayingParams)
-		.catch((err) => messageError(`last.fm - Failed to updateNowPlaying! ${err}`))
+		.catch(messageError(`last.fm - Failed to updateNowPlaying!`))
 		.then((res) => console.log("[last.fm] updatedNowPlaying", res));
 };
 
@@ -56,14 +56,13 @@ const intercepters = [
 				getTrackParams(currentTrack).then((scrobbleParams) => {
 					console.log("[last.fm] scrobbling", scrobbleParams);
 					LastFM.scrobble(scrobbleParams)
-						.catch((err) => messageError(`last.fm - Failed to scrobble! ${err}`))
+						.catch(messageError(`last.fm - Failed to scrobble!`))
 						.then((res) => console.log("[last.fm] scrobbled", res));
 				});
 			} else {
 				const trackTitle = currentTrack.extTrackItem.trackItem()?.title;
 				const noScrobbleMessage = `skipped scrobbling ${trackTitle} - Listened for ${(totalPlayTime / 1000).toFixed(0)}s, need ${(minPlayTime / 1000).toFixed(0)}s`;
-				console.log(`[last.fm] ${noScrobbleMessage}`);
-				if (storage.displaySkippedScrobbles) messageInfo(`last.fm - ${noScrobbleMessage}`);
+				if (storage.displaySkippedScrobbles) messageInfo(`[last.fm] - ${noScrobbleMessage}`);
 			}
 		}
 

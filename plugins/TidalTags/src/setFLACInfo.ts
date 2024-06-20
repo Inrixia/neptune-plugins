@@ -114,13 +114,15 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: Pl
 		flacInfoElem.style.border = "solid 1px red";
 		const errorText = (<Error>err).message.substring(0, 64);
 		if (flacInfoElem.textContent.includes(Loading_Bitrate)) {
-			const errMsg = `Error Loading Bitrate - ${errorText}`;
+			const errHeader = `Error Loading Bitrate`;
+			const errMsg = `${errHeader} - ${errorText}`;
 			flacInfoElem.textContent = flacInfoElem.textContent?.replace(Loading_Bitrate, errMsg) ?? "";
-			messageError(errMsg);
+			messageError(errHeader)(<Error>err);
 		} else {
-			const errMsg = `Error Loading TrackInfo - ${errorText}`;
+			const errHeader = `Error Loading TrackInfo`;
+			const errMsg = `${errHeader} - ${errorText}`;
 			flacInfoElem.textContent = errMsg;
-			messageError(errMsg);
+			messageError(errHeader)(<Error>err);
 		}
 	}
 

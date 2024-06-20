@@ -74,7 +74,7 @@ const handleDrop = async (event: DragEvent) => {
 				messageWarn(`No matches for ${file.name}`);
 			});
 		} catch (err) {
-			messageError(`Failed to recognize ${file.name}: ${(<Error>err).message}`);
+			messageError(`Failed to recognize ${file.name}`)(<Error>err);
 		}
 	}
 };
