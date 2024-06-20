@@ -15,8 +15,7 @@ You can see a list of all plugins including unreleased ones under the [**plugins
 
 
 ## Tidal Tags
-**Install Url: https://inrixia.github.io/neptune-plugins/TidalTags/**  
-Desktop port of my browser extension [TidalTags](https://github.com/Inrixia/TidalTags).  
+**Install Url: https://inrixia.github.io/neptune-plugins/TidalTags/**   
 Adds 
  - **Track Quality Tags** next to song titles
  - **Sample Rate/Bit Depth/Bitrate** information for currently playing track in the bottom right.
@@ -30,6 +29,18 @@ Adds
 Scrobbles and sets currently playing for [**last.fm**](https://www.last.fm/).  
 Tidals default last.fm implementation can be very inaccurate, this tries to fix that with a focus on accuracy.  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/7e4ff7ad-422f-4836-b187-45217c5dd4e3)
+
+## RealMAX
+**Install Url: https://inrixia.github.io/neptune-plugins/RealMAX/**  
+Tidal oftern has multiple versions of the same song at different qualities.  
+With RealMAX when playing a song if there is a version available at a higher quality it will automatically be added as the next song in the queue and skipped to.  
+This ensures you are **always listening to the best quality of a song**
+
+## Themer
+**Install Url: https://inrixia.github.io/neptune-plugins/Themer/**  
+A simple plugin allowing realtime css injection for testing and creating themes.  
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/dec1b36b-66df-4419-a7f1-9342992bd2b5)
+
 
 ## Shazam Files
 **Install Url: https://inrixia.github.io/neptune-plugins/Shazam/**  
