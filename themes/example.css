@@ -1,0 +1,31 @@
+/*
+{
+  "name": "Example",
+  "author": "@Inrixia",
+  "description": "An example theme..."
+}
+*/
+* {
+	font-family: "Comic Sans MS", "Comic Sans", cursive;
+}
+
+[id^="main"] {
+	background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 1) 100%), url("https://pbs.twimg.com/media/FxkvrreWcAAMPwe?format=jpg&name=large") no-repeat;
+	background-size: cover;
+}
+
+[id^="titleCell"],
+[id^="item"],
+[id^="albumText"],
+[id^="timeColumn"],
+[id^="contributionText"],
+[id^="releasedDateColumn"] {
+	color: #c4ab60;
+}
+
+[id^="headerColumn"],
+.wave-text-description-demi,
+.wave-text-title-bold {
+	color: #e26b69;
+	font-weight: 800;
+}
