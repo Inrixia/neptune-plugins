@@ -28,7 +28,7 @@ class MaxTrack {
 		if (idMapping !== undefined) return idMapping;
 
 		const extTrackItem = await ExtendedTrackItem.get(itemId);
-		const trackItem = extTrackItem?.trackItem();
+		const trackItem = extTrackItem?.trackItem;
 		if (trackItem !== undefined && hasHiRes(trackItem)) return false;
 
 		const isrcs = await extTrackItem?.isrcs();
@@ -39,7 +39,7 @@ class MaxTrack {
 				for await (const { resource } of fetchIsrcIterable(isrc)) {
 					if (resource?.id !== undefined && hasHiRes(<TrackItem>resource)) {
 						if (resource.artifactType !== "track") continue;
-						const maxTrackItem = TrackItemCache.get(resource?.id);
+						const maxTrackItem = await TrackItemCache.ensure(resource?.id);
 						if (maxTrackItem !== undefined && !hasHiRes(maxTrackItem)) continue;
 						else return resource;
 					}
@@ -60,12 +60,7 @@ export const onUnload = intercept(
 		const maxItem = await MaxTrack.getMaxId(queueId);
 		if (maxItem === false) return;
 		if (maxItem.id !== undefined && nextQueueId !== maxItem.id) {
-			if (TrackItemCache.get(maxItem.id) === undefined) {
-				// Force load
-				const currentPage = window.location.pathname;
-				actions.router.replace(<any>`/album/${maxItem.album!.id}`);
-				setTimeout(() => actions.router.replace(<any>currentPage), 50);
-			}
+			await TrackItemCache.ensure(maxItem.id);
 			trace.msg.log(`Found Max quality for ${maxItem.title}! Adding to queue and skipping...`);
 			actions.playQueue.addNext({ mediaItemIds: [maxItem.id], context: { type: "user" } });
 			actions.playQueue.moveNext();

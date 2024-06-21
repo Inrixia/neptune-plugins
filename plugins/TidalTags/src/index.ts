@@ -43,7 +43,7 @@ const updateTrackRows = async (trackRows: NodeListOf<Element>) => {
 		const trackId = trackRow.getAttribute("data-track-id");
 		if (trackId == null) return;
 
-		const trackItem = TrackItemCache.get(trackId);
+		const trackItem = await TrackItemCache.ensure(trackId);
 		if (trackItem?.contentType !== "track") continue;
 
 		if (storage.showTags) setQualityTags(trackRow, trackId, trackItem);

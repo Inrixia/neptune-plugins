@@ -74,7 +74,7 @@ const intercepters = [
 						.then((res) => trace.log("scrobbled", res));
 				});
 			} else {
-				const trackTitle = currentTrack.extTrackItem.trackItem()?.title;
+				const trackTitle = currentTrack.extTrackItem.trackItem.title;
 				const noScrobbleMessage = `skipped scrobbling ${trackTitle} - Listened for ${(totalPlayTime / 1000).toFixed(0)}s, need ${(minPlayTime / 1000).toFixed(0)}s`;
 				if (storage.displaySkippedScrobbles) trace.msg.log(`${noScrobbleMessage}`);
 			}
@@ -90,13 +90,13 @@ const getTrackParams = async ({ extTrackItem, playbackContext, playbackStart }: 
 	const { trackItem, releaseAlbum, recording, album } = await extTrackItem.everything();
 
 	let artist;
-	const sharedAlbumArtist = trackItem?.artists?.find((artist) => artist?.id === album?.artist?.id);
+	const sharedAlbumArtist = trackItem.artists?.find((artist) => artist?.id === album?.artist?.id);
 	if (sharedAlbumArtist?.name !== undefined) artist = formatArtists([sharedAlbumArtist.name]);
-	else if (trackItem?.artist?.name !== undefined) artist = formatArtists([trackItem.artist.name]);
-	else if ((trackItem?.artists?.length ?? -1) > 0) artist = formatArtists(trackItem?.artists?.map(({ name }) => name));
+	else if (trackItem.artist?.name !== undefined) artist = formatArtists([trackItem.artist.name]);
+	else if ((trackItem.artists?.length ?? -1) > 0) artist = formatArtists(trackItem.artists?.map(({ name }) => name));
 
 	const params: ScrobbleOpts = {
-		track: recording?.title ?? fullTitle(<TrackItem>trackItem),
+		track: recording?.title ?? fullTitle(trackItem),
 		artist: artist!,
 		timestamp: (playbackStart / 1000).toFixed(0),
 	};
@@ -109,9 +109,9 @@ const getTrackParams = async ({ extTrackItem, playbackContext, playbackStart }: 
 	if (!!releaseAlbum?.title) {
 		params.album = releaseAlbum?.title;
 		if (!!releaseAlbum.disambiguation) params.album += ` (${releaseAlbum.disambiguation})`;
-	} else if (!!trackItem?.album?.title) params.album = trackItem.album.title;
+	} else if (!!trackItem.album?.title) params.album = trackItem.album.title;
 
-	if (!!trackItem?.trackNumber) params.trackNumber = trackItem.trackNumber.toString();
+	if (!!trackItem.trackNumber) params.trackNumber = trackItem.trackNumber.toString();
 	if (!!playbackContext.actualDuration) params.duration = playbackContext.actualDuration.toFixed(0);
 
 	return params;
@@ -131,7 +131,7 @@ const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<Curre
 	playbackContext ??= <PlaybackContext>store.getState().playbackControls.playbackContext;
 	if (!playbackContext) throw new Error("No playbackContext found");
 
-	const extTrackItem = ExtendedTrackItem.get(playbackContext.actualProductId);
+	const extTrackItem = await ExtendedTrackItem.get(playbackContext.actualProductId);
 	if (extTrackItem === undefined) throw new Error("Failed to get extTrackItem");
 
 	const currentTrack = { extTrackItem, playbackContext, playbackStart };
