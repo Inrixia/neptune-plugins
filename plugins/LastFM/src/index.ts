@@ -15,6 +15,7 @@ export { Settings } from "./Settings";
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 import { ExtendedTrackItem } from "../../../lib/Caches/ExtendedTrackItem";
+import { debounce } from "../../../lib/debounce";
 
 let totalPlayTime = 0;
 let lastPlayStart: number | null = null;
@@ -34,15 +35,14 @@ const isPlaying = (desiredPlaybackState?: PlaybackState) => {
 };
 
 let currentTrack: CurrentTrack;
-const updateNowPlaying = async (playbackContext?: PlaybackContext) => {
+const updateNowPlaying = debounce(async (playbackContext?: PlaybackContext) => {
 	if (!isPlaying()) return;
 	currentTrack = await getCurrentTrack(playbackContext);
 	const nowPlayingParams = await getTrackParams(currentTrack);
 	trace.log("updatingNowPlaying", nowPlayingParams);
-	return LastFM.updateNowPlaying(nowPlayingParams)
-		.catch(trace.msg.err.withContext(`Failed to updateNowPlaying!`))
-		.then((res) => trace.log("updatedNowPlaying", res));
-};
+	const res = await LastFM.updateNowPlaying(nowPlayingParams).catch(trace.msg.err.withContext(`Failed to updateNowPlaying!`));
+	if (res?.nowplaying) trace.log("updatedNowPlaying", res?.nowplaying);
+}, 250);
 
 actions.lastFm.disconnect();
 
@@ -67,11 +67,10 @@ const intercepters = [
 			const minPlayTime = +currentTrack.playbackContext.actualDuration * MIN_SCROBBLE_PERCENTAGE * 1000;
 			const moreThan50Percent = totalPlayTime >= minPlayTime;
 			if (longerThan4min || moreThan50Percent) {
-				getTrackParams(currentTrack).then((scrobbleParams) => {
+				getTrackParams(currentTrack).then(async (scrobbleParams) => {
 					trace.log("scrobbling", scrobbleParams);
-					LastFM.scrobble(scrobbleParams)
-						.catch(trace.msg.err.withContext(`last.fm - Failed to scrobble!`))
-						.then((res) => trace.log("scrobbled", res));
+					const res = await LastFM.scrobble(scrobbleParams).catch(trace.msg.err.withContext(`last.fm - Failed to scrobble!`));
+					if (res?.scrobbles) trace.log("scrobbled", res?.scrobbles["@attr"], res.scrobbles.scrobble);
 				});
 			} else {
 				const trackTitle = currentTrack.extTrackItem.trackItem.title;
