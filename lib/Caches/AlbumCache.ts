@@ -1,8 +1,7 @@
 import { actions, store } from "@neptune";
 import type { Album } from "neptune-types/tidal";
 import { interceptPromise } from "../intercept/interceptPromise";
-import { undefinedWarn } from "../undefinedError";
-
+import { libTrace } from "../trace";
 export class AlbumCache {
 	private static readonly _cache: Record<number, Album> = {};
 	public static async get(albumId?: number) {
@@ -17,7 +16,7 @@ export class AlbumCache {
 		if (this._cache[albumId] === undefined) {
 			const album = await interceptPromise(() => actions.content.loadAlbum({ albumId }), ["content/LOAD_ALBUM_SUCCESS"], [])
 				.then((res) => <Album>res?.[0].album)
-				.catch(undefinedWarn("AlbumCache.get"));
+				.catch(libTrace.warn.withContext("AlbumCache.get"));
 			if (album !== undefined) this._cache[albumId] = album;
 		}
 

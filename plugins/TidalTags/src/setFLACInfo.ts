@@ -5,8 +5,10 @@ import { AudioQuality, PlaybackContext } from "../../../lib/AudioQualityTypes";
 import { storage } from "@plugin";
 
 import { TrackInfoCache } from "./lib/TrackInfoCache";
-import { messageError } from "../../../lib/messageLogging";
 import { hexToRgba } from "./lib/hexToRgba";
+
+import { Tracer } from "../../../lib/trace";
+const trace = Tracer("[TidalTags]");
 
 const flacInfoElem = document.createElement("span");
 flacInfoElem.className = "bitInfo";
@@ -117,12 +119,12 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: Pl
 			const errHeader = `Error Loading Bitrate`;
 			const errMsg = `${errHeader} - ${errorText}`;
 			flacInfoElem.textContent = flacInfoElem.textContent?.replace(Loading_Bitrate, errMsg) ?? "";
-			messageError(errHeader)(<Error>err);
+			trace.msg.err.withContext(errHeader)(<Error>err);
 		} else {
 			const errHeader = `Error Loading TrackInfo`;
 			const errMsg = `${errHeader} - ${errorText}`;
 			flacInfoElem.textContent = errMsg;
-			messageError(errHeader)(<Error>err);
+			trace.msg.err.withContext(errHeader)(<Error>err);
 		}
 	}
 

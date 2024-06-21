@@ -3,10 +3,12 @@ import { PlaybackContext } from "../../../lib/AudioQualityTypes";
 
 import { LastFM, ScrobbleOpts } from "./LastFM";
 
-import type { TrackItem } from "neptune-types/tidal";
-import { messageError, messageInfo } from "../../../lib/messageLogging";
+import type { PlaybackState, TrackItem } from "neptune-types/tidal";
 
 import { fullTitle } from "../../../lib/fullTitle";
+
+import { Tracer } from "../../../lib/trace";
+const trace = Tracer("[last.fm]");
 
 export { Settings } from "./Settings";
 
@@ -20,15 +22,26 @@ let lastPlayStart: number | null = null;
 const MIN_SCROBBLE_DURATION = 240000; // 4 minutes in milliseconds
 const MIN_SCROBBLE_PERCENTAGE = 0.5; // Minimum percentage of song duration required to scrobble
 
+const isStartingPlaying = () => {
+	const {
+		playbackControls: { desiredPlaybackState, playbackState },
+	} = store.getState();
+	return isPlaying(desiredPlaybackState) && playbackState !== desiredPlaybackState;
+};
+const isPlaying = (desiredPlaybackState?: PlaybackState) => {
+	desiredPlaybackState ??= store.getState().playbackControls.desiredPlaybackState;
+	return desiredPlaybackState === "PLAYING";
+};
+
 let currentTrack: CurrentTrack;
 const updateNowPlaying = async (playbackContext?: PlaybackContext) => {
-	if (store.getState().playbackControls.desiredPlaybackState !== "PLAYING") return;
+	if (!isPlaying()) return;
 	currentTrack = await getCurrentTrack(playbackContext);
 	const nowPlayingParams = await getTrackParams(currentTrack);
-	console.log("[last.fm] updatingNowPlaying", nowPlayingParams);
+	trace.log("updatingNowPlaying", nowPlayingParams);
 	return LastFM.updateNowPlaying(nowPlayingParams)
-		.catch(messageError(`last.fm - Failed to updateNowPlaying!`))
-		.then((res) => console.log("[last.fm] updatedNowPlaying", res));
+		.catch(trace.msg.err.withContext(`Failed to updateNowPlaying!`))
+		.then((res) => trace.log("updatedNowPlaying", res));
 };
 
 actions.lastFm.disconnect();
@@ -37,6 +50,7 @@ const intercepters = [
 	intercept("playbackControls/SET_PLAYBACK_STATE", ([state]) => {
 		switch (state) {
 			case "PLAYING": {
+				if (isStartingPlaying()) updateNowPlaying();
 				lastPlayStart = Date.now();
 				break;
 			}
@@ -54,15 +68,15 @@ const intercepters = [
 			const moreThan50Percent = totalPlayTime >= minPlayTime;
 			if (longerThan4min || moreThan50Percent) {
 				getTrackParams(currentTrack).then((scrobbleParams) => {
-					console.log("[last.fm] scrobbling", scrobbleParams);
+					trace.log("scrobbling", scrobbleParams);
 					LastFM.scrobble(scrobbleParams)
-						.catch(messageError(`last.fm - Failed to scrobble!`))
-						.then((res) => console.log("[last.fm] scrobbled", res));
+						.catch(trace.msg.err.withContext(`last.fm - Failed to scrobble!`))
+						.then((res) => trace.log("scrobbled", res));
 				});
 			} else {
 				const trackTitle = currentTrack.extTrackItem.trackItem()?.title;
 				const noScrobbleMessage = `skipped scrobbling ${trackTitle} - Listened for ${(totalPlayTime / 1000).toFixed(0)}s, need ${(minPlayTime / 1000).toFixed(0)}s`;
-				if (storage.displaySkippedScrobbles) messageInfo(`[last.fm] - ${noScrobbleMessage}`);
+				if (storage.displaySkippedScrobbles) trace.msg.log(`${noScrobbleMessage}`);
 			}
 		}
 
@@ -121,7 +135,7 @@ const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<Curre
 	if (extTrackItem === undefined) throw new Error("Failed to get extTrackItem");
 
 	const currentTrack = { extTrackItem, playbackContext, playbackStart };
-	console.log("[last.fm] getCurrentTrack", currentTrack);
+	trace.log("getCurrentTrack", currentTrack);
 
 	return currentTrack;
 };

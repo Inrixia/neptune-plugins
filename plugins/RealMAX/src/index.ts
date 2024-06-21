@@ -5,7 +5,9 @@ import { actions, intercept, store } from "@neptune";
 import { ExtendedTrackItem } from "../../../lib/Caches/ExtendedTrackItem";
 import { Resource } from "../../../lib/tidalDevApi/types/ISRC";
 import { debounce } from "../../../lib/debounce";
-import { messageInfo } from "../../../lib/messageLogging";
+
+import { Tracer } from "../../../lib/trace";
+const trace = Tracer("[RealMAX]");
 
 const hasHiRes = (trackItem: TrackItem) => {
 	const tags = trackItem.mediaMetadata?.tags;
@@ -64,7 +66,7 @@ export const onUnload = intercept(
 				actions.router.replace(<any>`/album/${maxItem.album!.id}`);
 				setTimeout(() => actions.router.replace(<any>currentPage), 50);
 			}
-			messageInfo(`Found Max quality for ${maxItem.title}! Adding to queue and skipping...`);
+			trace.msg.log(`Found Max quality for ${maxItem.title}! Adding to queue and skipping...`);
 			actions.playQueue.addNext({ mediaItemIds: [maxItem.id], context: { type: "user" } });
 			actions.playQueue.moveNext();
 		}

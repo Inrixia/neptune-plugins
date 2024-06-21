@@ -12,11 +12,13 @@ import { saveFile } from "./lib/saveFile";
 
 import { interceptPromise } from "../../../lib/intercept/interceptPromise";
 
-import { messageError } from "../../../lib/messageLogging";
 import { addMetadata } from "./addMetadata";
 import { fileNameFromInfo } from "./lib/fileName";
 import { toBuffer } from "../../../lib/fetch";
 import { TrackItemCache } from "../../../lib/Caches/TrackItemCache";
+
+import { Tracer } from "../../../lib/trace";
+const trace = Tracer("[SongDownloader]");
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};
@@ -121,7 +123,7 @@ const downloadItems = (items: (TrackItem | VideoItem)[]) =>
 			prep();
 			for (const trackItem of trackItems) {
 				if (trackItem.id === undefined) continue;
-				await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress }).catch(messageError("Error downloading track"));
+				await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress }).catch(trace.msg.err.withContext("Error downloading track"));
 			}
 			clear();
 		});

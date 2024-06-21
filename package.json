@@ -3,13 +3,16 @@
 	"description": "A neptune plugin monorepo template",
 	"main": "index.js",
 	"scripts": {
+		"watch": "concurrently \"nodemon\" \"npm run serve\"",
 		"build": "node ./build.js",
 		"serve": "npx http-server --cors -S -p 443"
 	},
 	"devDependencies": {
 		"@types/node": "^20.12.7",
+		"concurrently": "^8.2.2",
 		"esbuild": "^0.20.2",
 		"neptune-types": "^1.0.0",
+		"nodemon": "^3.1.4",
 		"typescript": "^5.4.5"
 	},
 	"dependencies": {
@@ -18,14 +21,10 @@
 	},
 	"nodemonConfig": {
 		"watch": [
-			"./plugins/Shazam/src/**",
-			"./plugins/AlwaysExclusive/src/**",
-			"./plugins/SongDownloader/src/**",
-			"./plugins/Testing/src/**",
-			"./plugins/TidalTags/src/**",
+			"./plugins/*/src/**",
 			"./lib/**"
 		],
-		"ext": "ts",
+		"ext": "*",
 		"exec": "npm run build"
 	}
 }

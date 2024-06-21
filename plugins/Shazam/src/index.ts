@@ -5,12 +5,14 @@ init();
 import { actions, store } from "@neptune";
 import { DecodedSignature } from "shazamio-core";
 import { interceptPromise } from "../../../lib/intercept/interceptPromise";
-import { messageError, messageWarn, messageInfo } from "../../../lib/messageLogging";
 import { fetchShazamData } from "./shazamApi/fetch";
 
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
 import { fetchIsrc } from "../../../lib/tidalDevApi/isrc";
+
+import { Tracer } from "../../../lib/trace";
+const trace = Tracer("[Shazam]");
 
 export { Settings } from "./Settings";
 
@@ -39,7 +41,7 @@ const handleDrop = async (event: DragEvent) => {
 	const { pathname, params } = store.getState().router;
 
 	if (!pathname.startsWith("/playlist/")) {
-		return messageError(`This is not a playlist!`);
+		return trace.err(`This is not a playlist!`);
 	}
 	const playlistUUID: string = params.id;
 	for (const file of event.dataTransfer?.files ?? []) {
@@ -50,7 +52,7 @@ const handleDrop = async (event: DragEvent) => {
 			await using(recognizeBytes(new Uint8Array(bytes), 0, Number.MAX_SAFE_INTEGER), async (signatures) => {
 				let i = storage.startInMiddle ? Math.floor(signatures.length / 2) : 1;
 				for (; i < signatures.length; i += 4) {
-					messageInfo(`Matching ${file.name}...`);
+					trace.log(`Matching ${file.name}...`);
 					const sig = signatures[i];
 					const shazamData = await fetchShazamData({ samplems: sig.samplems, uri: sig.uri });
 					if (shazamData.matches.length === 0) continue;
@@ -60,21 +62,21 @@ const handleDrop = async (event: DragEvent) => {
 					const isrcData = isrc !== undefined ? await fetchIsrc(isrc).catch(() => undefined) : undefined;
 					const ids = (isrcData?.data ?? []).map((track) => track.id);
 					if (ids.length > 0) {
-						messageInfo(`Adding ${trackName} to playlist`);
+						trace.log(`Adding ${trackName} to playlist`);
 						await addToPlaylist(
 							playlistUUID,
 							ids.filter((id) => id !== undefined)
 						);
 					} else {
-						console.log("[SHAZAM!]", shazamData);
-						messageWarn(`Track ${trackName} is not avalible in Tidal`);
+						trace.log(shazamData);
+						trace.msg.log(`Track ${trackName} is not avalible in Tidal`);
 					}
 					if (storage.exitOnFirstMatch) return;
 				}
-				messageWarn(`No matches for ${file.name}`);
+				trace.msg.warn(`No matches for ${file.name}`);
 			});
 		} catch (err) {
-			messageError(`Failed to recognize ${file.name}`)(<Error>err);
+			trace.msg.err.withContext(`Failed to recognize ${file.name}`)(<Error>err);
 		}
 	}
 };
