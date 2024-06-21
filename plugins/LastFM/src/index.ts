@@ -12,7 +12,6 @@ export { Settings } from "./Settings";
 
 // @ts-expect-error Remove this when types are available
 import { storage } from "@plugin";
-import { undefinedWarn } from "../../../lib/undefinedError";
 import { ExtendedTrackItem } from "../../../lib/Caches/ExtendedTrackItem";
 
 let totalPlayTime = 0;
@@ -23,6 +22,7 @@ const MIN_SCROBBLE_PERCENTAGE = 0.5; // Minimum percentage of song duration requ
 
 let currentTrack: CurrentTrack;
 const updateNowPlaying = async (playbackContext?: PlaybackContext) => {
+	if (store.getState().playbackControls.desiredPlaybackState !== "PLAYING") return;
 	currentTrack = await getCurrentTrack(playbackContext);
 	const nowPlayingParams = await getTrackParams(currentTrack);
 	console.log("[last.fm] updatingNowPlaying", nowPlayingParams);
