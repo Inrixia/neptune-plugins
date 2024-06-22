@@ -25,7 +25,7 @@ export type TrackInfo = {
 };
 const WEEK = 7 * 24 * 60 * 60 * 1000;
 export class TrackInfoCache {
-	private static readonly _listeners: Map<[TrackInfo["trackId"], AudioQuality], ((trackInfo: TrackInfo) => void)[]> = new Map();
+	private static readonly _listeners: Record<string, ((trackInfo: TrackInfo) => void)[]> = {};
 	private static readonly _store: SharedObjectStore<[TrackInfo["trackId"], TrackInfo["audioQuality"]], TrackInfo> = new SharedObjectStore("TrackInfoCache", {
 		keyPath: ["trackId", "audioQuality"],
 	});
@@ -34,16 +34,15 @@ export class TrackInfoCache {
 	}
 
 	public static async register(trackId: TrackInfo["trackId"], audioQuality: AudioQuality, onTrackInfo: (trackInfoP: TrackInfo) => void): Promise<void> {
-		const listeners = this._listeners.get([trackId, audioQuality]);
-		if (listeners !== undefined) listeners.push(onTrackInfo);
-		else this._listeners.set([trackId, audioQuality], [onTrackInfo]);
+		const key = `${trackId}${audioQuality}`;
+		if (this._listeners[key]?.push(onTrackInfo) === undefined) this._listeners[key] = [onTrackInfo];
 		const trackInfo = await this._store.getCache([trackId, audioQuality], tracer.err.withContext("register"));
 		if (trackInfo !== undefined) onTrackInfo(trackInfo);
 	}
 
 	private static put(trackInfo: TrackInfo): void {
 		this._store.putCache(trackInfo, [trackInfo.trackId, trackInfo.audioQuality], tracer.err.withContext("put"));
-		for (const listener of TrackInfoCache._listeners.get([trackInfo.trackId, trackInfo.audioQuality]) || []) listener(trackInfo);
+		for (const listener of TrackInfoCache._listeners[`${trackInfo.trackId}${trackInfo.audioQuality}`] ?? []) listener(trackInfo);
 	}
 
 	public static async ensure(playbackContext: PlaybackContext): Promise<TrackInfo> {
