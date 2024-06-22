@@ -3,10 +3,6 @@ import { $, html } from "@neptune/voby";
 type SwitchSettingProps = { checked: boolean; onClick?: () => void; title: string };
 export const SwitchSetting = ({ checked, onClick, title }: SwitchSettingProps) => {
 	checked ??= false;
-	if (!onClick) {
-		const onChecked = $(!!checked);
-		onClick = () => onChecked((c) => !c);
-	}
 	return html`
 		<div style="margin-bottom: 15px;display: flex;justify-content: space-between;">
 			<label for="switch-${title}" style="font-size: 1.2em;margin-bottom: 5px;">${title}</label>

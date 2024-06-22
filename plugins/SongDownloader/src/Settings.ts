@@ -2,6 +2,7 @@ import { html } from "@neptune/voby";
 import { getSettings } from "@inrixia/lib/storage";
 import { AudioQualityInverse, AudioQuality, validQualitiesSettings } from "@inrixia/lib/AudioQualityTypes";
 import { DropdownSelect } from "@inrixia/lib/components/DropdownSelect";
+import { TextInput } from "@inrixia/lib/components/TextInput";
 
 export const settings = getSettings({
 	desiredDownloadQuality: AudioQuality.HiRes,
@@ -10,12 +11,10 @@ export const settings = getSettings({
 export const Settings = () => html`<div>
 	<${DropdownSelect}
 		selected=${settings.desiredDownloadQuality}
-		onSelected=${(selected: AudioQuality) => (settings.desiredDownloadQuality = selected)}
+		onSelect=${(selected: AudioQuality) => (settings.desiredDownloadQuality = selected)}
 		options=${validQualitiesSettings}
 		title="Download Quality"
 	/>
-
-	<h3 class="settings-header">Download Path</h3>
-	<p class="settings-explainer">System path to save to. Doing so will disable download prompt</p>
-	<input onChange=${({ target }: { target: { value: string } }) => (settings.defaultDownloadPath = target.value)} value=${settings.defaultDownloadPath} />
+	<${TextInput} text=${settings.defaultDownloadPath} onText=${(text: string) => (settings.defaultDownloadPath = text)} title="Download Path" />
+	Specifying download path to save to will disable download prompt and save all files to the specified path.
 </div>`;
