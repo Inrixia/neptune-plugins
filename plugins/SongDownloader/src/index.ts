@@ -88,7 +88,7 @@ const onPlaylist = async (playlistUUID: ItemId) => {
 };
 
 const queueMediaIds = (mediaIds: ItemId[]) => {
-	Promise.all(mediaIds.map(TrackItemCache.ensure))
+	Promise.all(mediaIds.map(TrackItemCache.ensure.bind(TrackItemCache)))
 		.then((tracks) => tracks.filter((item) => item !== undefined))
 		.then(downloadItems);
 };
