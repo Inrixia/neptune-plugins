@@ -33,34 +33,50 @@ export class SharedObjectStore<K extends IDBValidKey, V> {
 		return this.db.then((db) => db.close());
 	}
 
-	constructor(private readonly storeName: string, storeSchema?: IDBObjectStoreParameters) {
+	private readonly _memCache = new Map<K, V>();
+	constructor(private readonly storeName: string, private readonly storeSchema?: IDBObjectStoreParameters) {
 		SharedObjectStore.openDB(storeName, storeSchema);
 	}
-	async add(value: V, key?: K) {
-		return (await SharedObjectStore.db).add(this.storeName, value, key);
+	add(value: V, key?: K) {
+		return SharedObjectStore.db.then((db) => db.add(this.storeName, value, key));
 	}
-	async clear() {
-		return (await SharedObjectStore.db).clear(this.storeName);
+	clear() {
+		return SharedObjectStore.db.then((db) => db.clear(this.storeName));
 	}
-	async count(key?: K | null) {
-		return (await SharedObjectStore.db).count(this.storeName, key);
+	count(key?: K | null) {
+		return SharedObjectStore.db.then((db) => db.count(this.storeName, key));
 	}
-	async delete(key: K) {
-		return (await SharedObjectStore.db).delete(this.storeName, key);
+	delete(key: K) {
+		return SharedObjectStore.db.then((db) => db.delete(this.storeName, key));
 	}
-	async get(query: K) {
-		return (await SharedObjectStore.db).get(this.storeName, query);
+	getCache(query: K, errorHandler: (err?: Error) => void) {
+		const value = SharedObjectStore.db
+			.then((db) => db.get(this.storeName, query))
+			.then((value) => {
+				this._memCache.set(query, value);
+				return value;
+			})
+			.catch(errorHandler);
+		const memValue = this._memCache.get(query);
+		return memValue ?? value;
 	}
-	async getAll(query?: K | null, count?: number) {
-		return (await SharedObjectStore.db).getAll(this.storeName, query, count);
+	get(query: K) {
+		return SharedObjectStore.db.then((db) => db.get(this.storeName, query));
 	}
-	async getAllKeys(query?: K | null, count?: number) {
-		return (await SharedObjectStore.db).getAllKeys(this.storeName, query, count);
+	getAll(query?: K | null, count?: number) {
+		return SharedObjectStore.db.then((db) => db.getAll(this.storeName, query, count));
 	}
-	async getKey(query: K) {
-		return (await SharedObjectStore.db).getKey(this.storeName, query);
+	getAllKeys(query?: K | null, count?: number) {
+		return SharedObjectStore.db.then((db) => db.getAllKeys(this.storeName, query, count));
 	}
-	async put(value: V, key?: K) {
-		return (await SharedObjectStore.db).put(this.storeName, value, key);
+	getKey(query: K) {
+		return SharedObjectStore.db.then((db) => db.getKey(this.storeName, query));
+	}
+	putCache(value: V, key: K, errorHandler: (err?: Error) => void) {
+		this._memCache.set(key, value);
+		SharedObjectStore.db.then((db) => db.put(this.storeName, value, this.storeSchema?.keyPath !== undefined ? undefined : key)).catch(errorHandler);
+	}
+	put(value: V, key?: K) {
+		return SharedObjectStore.db.then((db) => db.put(this.storeName, value, key));
 	}
 }

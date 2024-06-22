@@ -7,6 +7,9 @@ import { ManifestMimeType } from "../trackBytes/getPlaybackInfo";
 
 import { SharedObjectStore } from "../sharedStorage";
 
+import { Tracer } from "../trace";
+const tracer = Tracer("TrackInfoCache");
+
 const { parseStream } = <{ parseStream: typeof ParseStreamType }>require("music-metadata/lib/core");
 
 export type TrackInfo = {
@@ -23,25 +26,23 @@ export type TrackInfo = {
 const WEEK = 7 * 24 * 60 * 60 * 1000;
 export class TrackInfoCache {
 	private static readonly _listeners: Map<[TrackInfo["trackId"], AudioQuality], ((trackInfo: TrackInfo) => void)[]> = new Map();
-	private static readonly _store: SharedObjectStore<[TrackInfo["trackId"], TrackInfo["audioQuality"]], TrackInfo> = new SharedObjectStore("TrackInfoCache", { keyPath: ["trackId", "audioQuality"] });
-	public static get(trackId: TrackInfo["trackId"], audioQuality: AudioQuality): Promise<TrackInfo | undefined> {
-		return this._store.get([trackId, audioQuality]);
-	}
-
-	public static test() {
-		this._store.getAll().then(console.log);
+	private static readonly _store: SharedObjectStore<[TrackInfo["trackId"], TrackInfo["audioQuality"]], TrackInfo> = new SharedObjectStore("TrackInfoCache", {
+		keyPath: ["trackId", "audioQuality"],
+	});
+	public static async get(trackId: TrackInfo["trackId"], audioQuality: AudioQuality): Promise<TrackInfo | undefined> {
+		return this._store.getCache([trackId, audioQuality], tracer.err.withContext("get"));
 	}
 
 	public static async register(trackId: TrackInfo["trackId"], audioQuality: AudioQuality, onTrackInfo: (trackInfoP: TrackInfo) => void): Promise<void> {
 		const listeners = this._listeners.get([trackId, audioQuality]);
 		if (listeners !== undefined) listeners.push(onTrackInfo);
 		else this._listeners.set([trackId, audioQuality], [onTrackInfo]);
-		const trackInfo = await this._store.get([trackId, audioQuality]);
+		const trackInfo = await this._store.getCache([trackId, audioQuality], tracer.err.withContext("register"));
 		if (trackInfo !== undefined) onTrackInfo(trackInfo);
 	}
 
 	private static put(trackInfo: TrackInfo): void {
-		this._store.put(trackInfo);
+		this._store.putCache(trackInfo, [trackInfo.trackId, trackInfo.audioQuality], tracer.err.withContext("put"));
 		for (const listener of TrackInfoCache._listeners.get([trackInfo.trackId, trackInfo.audioQuality]) || []) listener(trackInfo);
 	}
 
