@@ -39,7 +39,11 @@ jobs:
       npm run build
       for plugin in plugins/*
       do
-        cp -r $plugin/dist .dist/$(basename $plugin)
+        if [ -d "$plugin/dist" ]; then
+          cp -r "$plugin/dist" ".dist/$(basename $plugin)"
+        else
+          echo "Directory $plugin/dist does not exist skipping..."
+        fi
       done
 
    - name: Copy themes folder
