@@ -29,6 +29,7 @@ export interface FetchyOptions {
 
 export const rejectNotOk = (res: IncomingMessage) => {
 	const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
+	if (res.statusCode === undefined) console.log(res);
 	if (!OK) throw new Error(`Status code is ${res.statusCode}`);
 	return res;
 };
@@ -41,7 +42,7 @@ export const toBuffer = (stream: Readable) =>
 		stream.on("error", reject);
 	});
 
-type RequestOptionsWithBody = RequestOptions & { body?: string };
+export type RequestOptionsWithBody = RequestOptions & { body?: string };
 export const requestStream = (url: string, options: RequestOptionsWithBody = {}) =>
 	new Promise<IncomingMessage>((resolve, reject) => {
 		const body = options.body;

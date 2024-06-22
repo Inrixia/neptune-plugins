@@ -1,15 +1,11 @@
 import { openDB, IDBPDatabase } from "idb";
-
-import type { Album, TrackItem } from "neptune-types/tidal";
-import type { TrackInfo } from "./Caches/TrackInfoCache";
-import type { ExtendedTrackItem } from "./Caches/ExtendedTrackItem";
 import { Semaphore } from "./Semaphore";
 
 const dbName = "@inrixia/sharedStorage";
 export class SharedObjectStore<K extends IDBValidKey, V> {
 	public static db: Promise<IDBPDatabase>;
 	private static openSema: Semaphore = new Semaphore(1);
-	private static async openDB(storeName: string, storeSchema: IDBObjectStoreParameters) {
+	private static async openDB(storeName: string, storeSchema?: IDBObjectStoreParameters) {
 		await this.openSema.obtain();
 		try {
 			const reOpen = (db: IDBPDatabase) => async () => {
@@ -37,7 +33,7 @@ export class SharedObjectStore<K extends IDBValidKey, V> {
 		return this.db.then((db) => db.close());
 	}
 
-	constructor(private readonly storeName: string, storeSchema: IDBObjectStoreParameters) {
+	constructor(private readonly storeName: string, storeSchema?: IDBObjectStoreParameters) {
 		SharedObjectStore.openDB(storeName, storeSchema);
 	}
 	async add(value: V, key?: K) {
@@ -68,7 +64,3 @@ export class SharedObjectStore<K extends IDBValidKey, V> {
 		return (await SharedObjectStore.db).put(this.storeName, value, key);
 	}
 }
-export const TrackItemStore = new SharedObjectStore<NonNullable<TrackItem["id"]>, TrackItem>("TrackItemCache", { keyPath: "id" });
-export const AlbumStore = new SharedObjectStore<NonNullable<Album["id"]>, Album>("AlbumCache", { keyPath: "id" });
-export const ExtendedTrackItemStore = new SharedObjectStore<ExtendedTrackItem["trackId"], ExtendedTrackItem>("ExtendedTrackItemCache", { keyPath: "trackId" });
-export const TrackInfoStore = new SharedObjectStore<[TrackInfo["trackId"], TrackInfo["audioQuality"]], TrackInfo>("TrackInfoCache", { keyPath: ["trackId", "audioQuality"] });

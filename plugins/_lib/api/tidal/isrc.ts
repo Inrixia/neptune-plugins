@@ -1,6 +1,7 @@
-import { Datum, ISRCResponse, Resource } from "./types/ISRC";
-import { requestStream, rejectNotOk, toJson } from "../../fetch";
+import { Datum, ISRCResponse } from "./types/ISRC";
+import { rejectNotOk, toJson } from "../../fetch";
 import { getToken } from "./auth";
+import { requestCached } from "../requestCache";
 
 type ISRCOptions = {
 	offset: number;
@@ -8,14 +9,12 @@ type ISRCOptions = {
 };
 export const fetchIsrc = async (isrc: string, options?: ISRCOptions) => {
 	const { limit, offset } = options ?? { limit: 100, offset: 0 };
-	return requestStream(`https://openapi.tidal.com/tracks/byIsrc?isrc=${isrc}&countryCode=US&limit=${limit}&offset=${offset}`, {
+	return requestCached<ISRCResponse>(`https://openapi.tidal.com/tracks/byIsrc?isrc=${isrc}&countryCode=US&limit=${limit}&offset=${offset}`, {
 		headers: {
 			Authorization: `Bearer ${await getToken()}`,
 			"Content-Type": "application/vnd.tidal.v1+json",
 		},
-	})
-		.then(rejectNotOk)
-		.then(toJson<ISRCResponse>);
+	});
 };
 
 export async function* fetchIsrcIterable(isrc: string): AsyncIterable<Datum> {
