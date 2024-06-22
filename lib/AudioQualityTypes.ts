@@ -30,6 +30,11 @@ export const lookupItemQuality = (qualityTag: QualityTag, audioQuality: TrackIte
 			return AudioQuality.Lowest;
 	}
 };
+export const QTLookup = {
+	[AudioQuality.HiRes]: QualityTag.HiRes,
+	[AudioQuality.MQA]: QualityTag.MQA,
+	[AudioQuality.High]: QualityTag.High,
+} as const;
 
 export interface ISRCData {
 	mediaProduct: MediaProduct;

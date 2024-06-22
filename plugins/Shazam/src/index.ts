@@ -7,13 +7,12 @@ import { DecodedSignature } from "shazamio-core";
 import { interceptPromise } from "../../../lib/intercept/interceptPromise";
 import { fetchShazamData } from "./shazamApi/fetch";
 
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
 import { fetchIsrc } from "../../../lib/tidalDevApi/isrc";
 
 import { Tracer } from "../../../lib/trace";
 const trace = Tracer("[Shazam]");
 
+import { settings } from "./Settings";
 export { Settings } from "./Settings";
 
 const addToPlaylist = async (playlistUUID: string, mediaItemIdsToAdd: string[]) => {
@@ -50,7 +49,7 @@ const handleDrop = async (event: DragEvent) => {
 
 		try {
 			await using(recognizeBytes(new Uint8Array(bytes), 0, Number.MAX_SAFE_INTEGER), async (signatures) => {
-				let i = storage.startInMiddle ? Math.floor(signatures.length / 2) : 1;
+				let i = settings.startInMiddle ? Math.floor(signatures.length / 2) : 1;
 				for (; i < signatures.length; i += 4) {
 					trace.log(`Matching ${file.name}...`);
 					const sig = signatures[i];
@@ -71,7 +70,7 @@ const handleDrop = async (event: DragEvent) => {
 						trace.log(shazamData);
 						trace.msg.log(`Track ${trackName} is not avalible in Tidal`);
 					}
-					if (storage.exitOnFirstMatch) return;
+					if (settings.exitOnFirstMatch) return;
 				}
 				trace.msg.warn(`No matches for ${file.name}`);
 			});

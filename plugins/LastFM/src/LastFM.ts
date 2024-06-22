@@ -1,7 +1,9 @@
 import { findModuleFunction } from "../../../lib/findModuleFunction";
 import type crypto from "crypto";
-import { requestStream, toBuffer, toJson } from "../../../lib/fetch";
 const { createHash } = <typeof crypto>require("crypto");
+import { requestStream, toJson } from "../../../lib/fetch";
+
+import storage from "./storage";
 
 const lastFmSecret = findModuleFunction<string>("lastFmSecret", "string");
 const lastFmApiKey = findModuleFunction<string>("lastFmApiKey", "string");
@@ -9,8 +11,6 @@ const lastFmApiKey = findModuleFunction<string>("lastFmApiKey", "string");
 if (lastFmSecret === undefined) throw new Error("Last.fm secret not found");
 if (lastFmApiKey === undefined) throw new Error("Last.fm API key not found");
 
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
 import { NowPlaying } from "./types/lastfm/NowPlaying";
 import { Scrobble } from "./types/lastfm/Scrobble";
 
@@ -31,7 +31,7 @@ export interface ScrobbleOpts extends NowPlayingOpts {
 	chosenByUser?: string;
 }
 
-type LastFmSession = {
+export type LastFmSession = {
 	name: string;
 	key: string;
 	subscriber: number;

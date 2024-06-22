@@ -1,14 +1,13 @@
-import { QualityMeta, QualityTag } from "../../../lib/AudioQualityTypes";
+import { QTLookup, QualityMeta, QualityTag } from "../../../lib/AudioQualityTypes";
 import { AudioQuality, PlaybackContext } from "../../../lib/AudioQualityTypes";
 
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
-
-import { TrackInfoCache } from "./lib/TrackInfoCache";
+import { TrackInfoCache } from "../../../lib/Caches/TrackInfoCache";
 import { hexToRgba } from "./lib/hexToRgba";
 
 import { Tracer } from "../../../lib/trace";
 const trace = Tracer("[TidalTags]");
+
+import { settings } from "./Settings";
 
 const flacInfoElem = document.createElement("span");
 flacInfoElem.className = "bitInfo";
@@ -77,24 +76,15 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: Pl
 
 	let { actualAudioQuality, bitDepth, sampleRate } = playbackContext;
 	switch (actualAudioQuality) {
-		case AudioQuality.MQA: {
-			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTag.MQA].color);
-			if (storage.showFLACInfoBorder) flacInfoElem.style.border = `solid 1px ${hexToRgba(color, 0.3)}`;
+		case AudioQuality.MQA:
+		case AudioQuality.High:
+		case AudioQuality.HiRes:
+			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QTLookup[actualAudioQuality]].color);
+			if (settings.showFLACInfoBorder) flacInfoElem.style.border = `solid 1px ${hexToRgba(color, 0.3)}`;
 			break;
-		}
-		case AudioQuality.High: {
-			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTag.High].color);
-			if (storage.showFLACInfoBorder) flacInfoElem.style.border = `solid 1px ${hexToRgba(color, 0.3)}`;
-			break;
-		}
-		case AudioQuality.HiRes: {
-			const color = (tidalQualityElement.style.color = progressBar.style.color = QualityMeta[QualityTag.HiRes].color);
-			if (storage.showFLACInfoBorder) flacInfoElem.style.border = `solid 1px ${hexToRgba(color, 0.3)}`;
-			break;
-		}
 		default:
 			tidalQualityElement.style.color = progressBar.style.color = "#cfcfcf";
-			if (storage.showFLACInfoBorder) flacInfoElem.style.border = `solid 1px #cfcfcf`;
+			if (settings.showFLACInfoBorder) flacInfoElem.style.border = `solid 1px #cfcfcf`;
 			break;
 	}
 

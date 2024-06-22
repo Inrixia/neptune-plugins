@@ -1,9 +1,12 @@
-import { fetchTrack } from "../../../../lib/trackBytes/download";
+import { fetchTrack } from "../trackBytes/download";
 
-import { AudioQuality, PlaybackContext } from "../../../../lib/AudioQualityTypes";
+import { AudioQuality, PlaybackContext } from "../AudioQualityTypes";
 
 import type { parseStream as ParseStreamType } from "music-metadata";
-import { ManifestMimeType } from "../../../../lib/trackBytes/getPlaybackInfo";
+import { ManifestMimeType } from "../trackBytes/getPlaybackInfo";
+
+import storage from "../storage";
+
 const { parseStream } = <{ parseStream: typeof ParseStreamType }>require("music-metadata/lib/core");
 
 export type TrackInfo = {
@@ -16,11 +19,6 @@ export type TrackInfo = {
 	bytes?: number;
 	bitrate?: number;
 };
-
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
-
-storage._trackInfoCache ??= {};
 export class TrackInfoCache {
 	private static readonly _cache: Record<string, TrackInfo> = storage._trackInfoCache;
 	private static readonly _listeners: Record<string, ((trackInfo: TrackInfo) => void)[]> = {};

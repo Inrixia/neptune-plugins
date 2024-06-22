@@ -6,14 +6,12 @@ import "./style";
 import { setQualityTags } from "./setQualityTags";
 
 export { Settings } from "./Settings";
+import { settings } from "./Settings";
 
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
 import { isElement } from "./lib/isElement";
 import { setInfoColumnHeaders, setInfoColumns } from "./setInfoColumns";
 import { TrackItemCache } from "../../../lib/Caches/TrackItemCache";
 import { PlaybackContext } from "../../../lib/AudioQualityTypes";
-import { getHeaders } from "../../../lib/fetch";
 
 /**
  * Flac Info
@@ -38,7 +36,7 @@ const observer = new MutationObserver((mutationsList) => {
 	}
 });
 const updateTrackRows = async (trackRows: NodeListOf<Element>) => {
-	if (storage.displayInfoColumns) setInfoColumnHeaders();
+	if (settings.displayInfoColumns) setInfoColumnHeaders();
 	for (const trackRow of trackRows) {
 		const trackId = trackRow.getAttribute("data-track-id");
 		if (trackId == null) return;
@@ -46,13 +44,13 @@ const updateTrackRows = async (trackRows: NodeListOf<Element>) => {
 		const trackItem = await TrackItemCache.ensure(trackId);
 		if (trackItem?.contentType !== "track") continue;
 
-		if (storage.showTags) setQualityTags(trackRow, trackId, trackItem);
-		if (storage.displayInfoColumns) setInfoColumns(trackRow, trackId, trackItem);
+		if (settings.showTags) setQualityTags(trackRow, trackId, trackItem);
+		if (settings.displayInfoColumns) setInfoColumns(trackRow, trackId, trackItem);
 	}
 };
 export const updateObserver = () => {
 	observer.disconnect();
-	if (storage.showTags || storage.displayInfoColumns) {
+	if (settings.showTags || settings.displayInfoColumns) {
 		// Start observing the document with the configured parameters
 		observer.observe(document.body, { childList: true, subtree: true });
 	}

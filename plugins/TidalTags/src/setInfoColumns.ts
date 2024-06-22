@@ -1,10 +1,9 @@
 import { lookupItemQuality, QualityMeta, QualityTag, sortQualityTags } from "../../../lib/AudioQualityTypes";
 import { isElement } from "./lib/isElement";
 
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
-import { TrackInfoCache } from "./lib/TrackInfoCache";
+import { TrackInfoCache } from "../../../lib/Caches/TrackInfoCache";
 import { TrackItem } from "neptune-types/tidal";
+import { settings } from "./Settings";
 
 const setColumn = (trackRow: Element, name: string, sourceSelector: string, content: HTMLElement, beforeSelector?: string | Element) => {
 	let column = trackRow.querySelector<HTMLElement>(`div[data-test="${name}"]`);
@@ -69,7 +68,7 @@ export const setInfoColumns = (trackRow: Element, trackId: string, trackItem: Tr
 	const bitrateColumn = setColumn(trackRow, "Bitrate", `div[data-test="duration"]`, bitrateContent, sampleRateColumn);
 	bitrateColumn?.style.setProperty("min-width", "100px");
 
-	if (storage.infoColumnColors) {
+	if (settings.infoColumnColors) {
 		const qualityColor = QualityMeta[qualityTag]?.color ?? "";
 		bitDepthContent.style.color = qualityColor;
 		sampleRateContent.style.color = qualityColor;

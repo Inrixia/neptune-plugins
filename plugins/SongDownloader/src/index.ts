@@ -1,10 +1,6 @@
 import { intercept, actions, store } from "@neptune";
 
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
-
 import "./styles";
-export { Settings } from "./Settings";
 
 import { fetchTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/trackBytes/download";
 import { ItemId, MediaItem, TrackItem, VideoItem } from "neptune-types/tidal";
@@ -19,6 +15,9 @@ import { TrackItemCache } from "../../../lib/Caches/TrackItemCache";
 
 import { Tracer } from "../../../lib/trace";
 const trace = Tracer("[SongDownloader]");
+
+import { settings } from "./Settings";
+export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
 const downloadButtons: DownloadButtoms = {};
@@ -125,7 +124,7 @@ const downloadItems = (items: (TrackItem | VideoItem)[]) =>
 			prep();
 			for (const trackItem of trackItems) {
 				if (trackItem.id === undefined) continue;
-				await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: storage.desiredDownloadQuality }, { onProgress }).catch(trace.msg.err.withContext("Error downloading track"));
+				await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: settings.desiredDownloadQuality }, { onProgress }).catch(trace.msg.err.withContext("Error downloading track"));
 			}
 			clear();
 		});

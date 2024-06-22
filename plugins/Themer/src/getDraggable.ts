@@ -1,7 +1,10 @@
 import { getStyle, setStyle } from "../../../lib/css/setStyle";
 
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
+import { getStorage } from "../../../lib/storage";
+
+const storage = getStorage({
+	css: "",
+});
 
 export const draggableId = "__Themer__Draggable";
 export const draggableStyleId = `${draggableId}__Style`;

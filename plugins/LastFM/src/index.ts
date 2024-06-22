@@ -10,12 +10,11 @@ import { fullTitle } from "../../../lib/fullTitle";
 import { Tracer } from "../../../lib/trace";
 const trace = Tracer("[last.fm]");
 
-export { Settings } from "./Settings";
-
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
 import { ExtendedTrackItem } from "../../../lib/Caches/ExtendedTrackItem";
 import { debounce } from "../../../lib/debounce";
+
+import { settings } from "./Settings";
+export { Settings } from "./Settings";
 
 let totalPlayTime = 0;
 let lastPlayStart: number | null = null;
@@ -75,7 +74,7 @@ const intercepters = [
 			} else {
 				const trackTitle = currentTrack.extTrackItem.trackItem.title;
 				const noScrobbleMessage = `skipped scrobbling ${trackTitle} - Listened for ${(totalPlayTime / 1000).toFixed(0)}s, need ${(minPlayTime / 1000).toFixed(0)}s`;
-				if (storage.displaySkippedScrobbles) trace.msg.log(`${noScrobbleMessage}`);
+				if (settings.displaySkippedScrobbles) trace.msg.log(`${noScrobbleMessage}`);
 			}
 		}
 

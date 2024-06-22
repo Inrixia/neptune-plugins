@@ -1,8 +1,6 @@
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
-
 import { AudioQuality, QualityMeta, QualityTag } from "../../../lib/AudioQualityTypes";
 import type { TrackItem } from "neptune-types/tidal";
+import { settings } from "./Settings";
 
 export const setQualityTags = (trackRow: Element, trackId: string, mediaItem: TrackItem) => {
 	let trackTags = mediaItem.mediaMetadata?.tags;
@@ -30,7 +28,7 @@ export const setQualityTags = (trackRow: Element, trackId: string, mediaItem: Tr
 
 	for (const tag of trackTags) {
 		if (tag === QualityTag.High) continue;
-		if (!storage.showAtmosQuality && tag === QualityTag.DolbyAtmos) continue;
+		if (!settings.showAtmosQuality && tag === QualityTag.DolbyAtmos) continue;
 
 		const data = QualityMeta[tag];
 		if (data === undefined) continue;

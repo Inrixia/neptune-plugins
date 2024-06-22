@@ -1,16 +1,15 @@
 import type * as fs from "fs/promises";
 const { writeFile } = <typeof fs>require("fs/promises");
 
-// @ts-expect-error Remove this when types are available
-import { storage } from "@plugin";
+import { settings } from "../Settings";
 
 const unsafeCharacters = /[\/:*?"<>|]/g;
 const sanitizeFilename = (filename: string): string => filename.replace(unsafeCharacters, "_");
 
 export const saveFile = async (blob: Blob, fileName: string) => {
 	fileName = sanitizeFilename(fileName);
-	if (storage.defaultDownloadPath !== undefined && storage.defaultDownloadPath !== "") {
-		return await writeFile(storage.defaultDownloadPath + "/" + fileName, Buffer.from(await blob.arrayBuffer()));
+	if (settings.defaultDownloadPath !== "") {
+		return await writeFile(settings.defaultDownloadPath + "/" + fileName, Buffer.from(await blob.arrayBuffer()));
 	}
 	// Create a new Object URL for the Blob
 	const objectUrl = URL.createObjectURL(blob);
