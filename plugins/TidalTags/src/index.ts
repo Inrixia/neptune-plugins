@@ -10,8 +10,9 @@ import { settings } from "./Settings";
 
 import { isElement } from "./lib/isElement";
 import { setInfoColumnHeaders, setInfoColumns } from "./setInfoColumns";
-import { TrackItemCache } from "../../../lib/Caches/TrackItemCache";
-import { PlaybackContext } from "../../../lib/AudioQualityTypes";
+import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
+import { PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
+import safeUnload from "@inrixia/lib/safeUnload";
 
 /**
  * Flac Info
@@ -60,4 +61,5 @@ updateObserver();
 export const onUnload = () => {
 	observer.disconnect();
 	unloadIntercept();
+	safeUnload();
 };

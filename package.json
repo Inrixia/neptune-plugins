@@ -4,7 +4,8 @@
 	"scripts": {
 		"watch": "concurrently \"nodemon\" \"npm run serve\"",
 		"build": "node ./build.js",
-		"serve": "npx http-server --cors -S -p 443"
+		"serve": "npx http-server --cors -S -p 443",
+		"postinstall": "node postinstall.js"
 	},
 	"devDependencies": {
 		"@types/node": "^20.12.7",
@@ -23,7 +24,7 @@
 	"nodemonConfig": {
 		"watch": [
 			"./plugins/*/src/**",
-			"./lib/**"
+			"./plugins/_lib/**"
 		],
 		"ext": "*",
 		"exec": "npm run build"

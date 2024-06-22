@@ -1,7 +1,7 @@
-import { lookupItemQuality, QualityMeta, QualityTag, sortQualityTags } from "../../../lib/AudioQualityTypes";
+import { lookupItemQuality, QualityMeta, QualityTag, sortQualityTags } from "@inrixia/lib/AudioQualityTypes";
 import { isElement } from "./lib/isElement";
 
-import { TrackInfoCache } from "../../../lib/Caches/TrackInfoCache";
+import { TrackInfoCache } from "@inrixia/lib/Caches/TrackInfoCache";
 import { TrackItem } from "neptune-types/tidal";
 import { settings } from "./Settings";
 
@@ -75,8 +75,7 @@ export const setInfoColumns = (trackRow: Element, trackId: string, trackItem: Tr
 		bitrateContent.style.color = qualityColor;
 	}
 
-	TrackInfoCache.register(trackId, audioQuality, async (trackInfoP) => {
-		const trackInfo = await trackInfoP;
+	TrackInfoCache.register(trackId, audioQuality, async (trackInfo) => {
 		if (!!trackInfo?.sampleRate) sampleRateContent.textContent = `${trackInfo.sampleRate / 1000}kHz`;
 		if (!!trackInfo?.bitDepth) bitDepthContent.textContent = `${trackInfo.bitDepth}bit`;
 		if (!!trackInfo?.bitrate) bitrateContent.textContent = `${Math.floor(trackInfo.bitrate / 1000).toLocaleString()}kbps`;

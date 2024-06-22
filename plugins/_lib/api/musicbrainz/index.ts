@@ -1,5 +1,4 @@
-import type { MediaItem } from "neptune-types/tidal";
-import { requestStream, rejectNotOk, toJson } from "../fetch";
+import { requestStream, rejectNotOk, toJson } from "../../fetch";
 import type { ISRCData } from "./types/ISRCData";
 import type { ReleaseData } from "./types/ReleaseData";
 import type { UPCData, Release } from "./types/UPCData";

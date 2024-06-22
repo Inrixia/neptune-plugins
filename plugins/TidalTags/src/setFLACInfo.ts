@@ -1,10 +1,10 @@
-import { QTLookup, QualityMeta, QualityTag } from "../../../lib/AudioQualityTypes";
-import { AudioQuality, PlaybackContext } from "../../../lib/AudioQualityTypes";
+import { QTLookup, QualityMeta, QualityTag } from "@inrixia/lib/AudioQualityTypes";
+import { AudioQuality, PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
 
-import { TrackInfoCache } from "../../../lib/Caches/TrackInfoCache";
+import { TrackInfoCache } from "@inrixia/lib/Caches/TrackInfoCache";
 import { hexToRgba } from "./lib/hexToRgba";
 
-import { Tracer } from "../../../lib/trace";
+import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[TidalTags]");
 
 import { settings } from "./Settings";

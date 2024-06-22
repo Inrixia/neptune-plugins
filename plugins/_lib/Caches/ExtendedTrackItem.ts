@@ -1,24 +1,18 @@
 import { ItemId, TrackItem, Album } from "neptune-types/tidal";
-import { MusicBrainz } from "../musicbrainzApi";
-import { Recording } from "../musicbrainzApi/types/Recording";
-import { Release } from "../musicbrainzApi/types/UPCData";
+import { MusicBrainz } from "../api/musicbrainz";
+import { Recording } from "../api/musicbrainz/types/Recording";
+import { Release } from "../api/musicbrainz/types/UPCData";
 import { TrackItemCache } from "./TrackItemCache";
 import { AlbumCache } from "./AlbumCache";
 import { libTrace } from "../trace";
 
 export class ExtendedTrackItem {
-	public readonly trackId: ItemId;
-	public readonly trackItem: TrackItem;
 	private _album?: Album;
 	private _recording?: Recording;
 	private _releaseAlbum?: Release;
 
 	private static readonly _cache: Record<ItemId, ExtendedTrackItem> = {};
-
-	private constructor(trackId: ItemId, trackItem: TrackItem) {
-		this.trackId = trackId;
-		this.trackItem = trackItem;
-	}
+	private constructor(public readonly trackId: ItemId, public readonly trackItem: TrackItem) {}
 
 	public static async get(trackId: ItemId) {
 		if (trackId === undefined) return undefined;

@@ -1,4 +1,5 @@
-import { getStyle } from "../../../lib/css/setStyle";
+import safeUnload from "@inrixia/lib/safeUnload";
+import { getStyle } from "../../_lib/css/setStyle";
 import { draggableId, draggableStyleId, getDraggable } from "./getDraggable";
 
 const draggable = getDraggable();
@@ -29,4 +30,5 @@ export const onUnload = () => {
 	document.removeEventListener("mouseup", onMouseUp);
 	draggable.remove();
 	getStyle(draggableStyleId)?.remove();
+	safeUnload();
 };

@@ -1,6 +1,6 @@
-import { getStyle, setStyle } from "../../../lib/css/setStyle";
+import { getStyle, setStyle } from "../../_lib/css/setStyle";
 
-import { getStorage } from "../../../lib/storage";
+import { getStorage } from "@inrixia/lib/storage";
 
 const storage = getStorage({
 	css: "",

@@ -1,7 +1,7 @@
 import { html } from "@neptune/voby";
 
-import { SwitchSetting } from "../../../lib/components/SwitchSetting";
-import { getSettings } from "../../../lib/storage";
+import { SwitchSetting } from "../../_lib/components/SwitchSetting";
+import { getSettings } from "@inrixia/lib/storage";
 
 export const settings = getSettings({
 	exitOnFirstMatch: true,

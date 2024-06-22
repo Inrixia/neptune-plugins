@@ -1,4 +1,4 @@
-import { AudioQuality, QualityMeta, QualityTag } from "../../../lib/AudioQualityTypes";
+import { AudioQuality, QualityMeta, QualityTag } from "@inrixia/lib/AudioQualityTypes";
 import type { TrackItem } from "neptune-types/tidal";
 import { settings } from "./Settings";
 

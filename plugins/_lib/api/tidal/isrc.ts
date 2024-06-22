@@ -1,5 +1,5 @@
 import { Datum, ISRCResponse, Resource } from "./types/ISRC";
-import { requestStream, rejectNotOk, toJson } from "../fetch";
+import { requestStream, rejectNotOk, toJson } from "../../fetch";
 import { getToken } from "./auth";
 
 type ISRCOptions = {

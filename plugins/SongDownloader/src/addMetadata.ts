@@ -1,14 +1,14 @@
 import { utils } from "@neptune";
 import { TrackItem } from "neptune-types/tidal";
-import { fullTitle } from "../../../lib/fullTitle";
-import { ExtendedPlaybackInfoWithBytes } from "../../../lib/trackBytes/download";
-import { rejectNotOk, requestStream, toBuffer } from "../../../lib/fetch";
-import { ManifestMimeType } from "../../../lib/trackBytes/getPlaybackInfo";
+import { fullTitle } from "@inrixia/lib/fullTitle";
+import { ExtendedPlaybackInfoWithBytes } from "../../_lib/trackBytes/download";
+import { rejectNotOk, requestStream, toBuffer } from "../../_lib/fetch";
+import { ManifestMimeType } from "../../_lib/trackBytes/getPlaybackInfo";
 import { actions } from "@neptune";
-import { interceptPromise } from "../../../lib/intercept/interceptPromise";
+import { interceptPromise } from "../../_lib/intercept/interceptPromise";
 
 import { type FlacTagMap, PictureType, createFlacTagsBuffer } from "./flac-tagger";
-import { AlbumCache } from "../../../lib/Caches/AlbumCache";
+import { AlbumCache } from "@inrixia/lib/Caches/AlbumCache";
 
 export async function addMetadata(trackInfo: ExtendedPlaybackInfoWithBytes, track: TrackItem) {
 	if (trackInfo.manifestMimeType === ManifestMimeType.Tidal) {

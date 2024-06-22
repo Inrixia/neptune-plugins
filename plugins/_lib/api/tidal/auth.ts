@@ -1,5 +1,5 @@
-import { rejectNotOk, requestStream, toJson } from "../fetch";
-import { Semaphore } from "../Semaphore";
+import { rejectNotOk, requestStream, toJson } from "../../fetch";
+import { Semaphore } from "../../Semaphore";
 
 const CLIENT_ID = "tzecdDS3Bbx00rMP";
 const CLIENT_SECRET = "zhRnKETi4FeXNGB72yAPJDssJ1U3BBGqmvYKcaw3kk8=";

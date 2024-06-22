@@ -4,12 +4,12 @@ init();
 
 import { actions, store } from "@neptune";
 import { DecodedSignature } from "shazamio-core";
-import { interceptPromise } from "../../../lib/intercept/interceptPromise";
+import { interceptPromise } from "../../_lib/intercept/interceptPromise";
 import { fetchShazamData } from "./shazamApi/fetch";
 
-import { fetchIsrc } from "../../../lib/tidalDevApi/isrc";
+import { fetchIsrc } from "@inrixia/lib/api/tidal/isrc";
 
-import { Tracer } from "../../../lib/trace";
+import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[Shazam]");
 
 import { settings } from "./Settings";

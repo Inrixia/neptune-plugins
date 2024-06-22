@@ -1,7 +1,7 @@
-import { findModuleFunction } from "../../../lib/findModuleFunction";
+import { findModuleFunction } from "@inrixia/lib/findModuleFunction";
 import type crypto from "crypto";
 const { createHash } = <typeof crypto>require("crypto");
-import { requestStream, toJson } from "../../../lib/fetch";
+import { requestStream, toJson } from "../../_lib/fetch";
 
 import storage from "./storage";
 

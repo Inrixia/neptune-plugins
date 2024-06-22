@@ -1,6 +1,6 @@
 import { $, html } from "@neptune/voby";
-import { getSettings } from "../../../lib/storage";
-import { SwitchSetting } from "../../../lib/components/SwitchSetting";
+import { getSettings } from "@inrixia/lib/storage";
+import { SwitchSetting } from "../../_lib/components/SwitchSetting";
 
 export const settings = getSettings({
 	displaySkippedScrobbles: false,

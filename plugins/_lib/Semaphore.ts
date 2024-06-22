@@ -1,10 +1,6 @@
 export class Semaphore {
-	private avalibleSlots: number;
 	private readonly queued: (() => void)[] = [];
-
-	constructor(slots: number) {
-		this.avalibleSlots = slots;
-	}
+	constructor(private avalibleSlots: number) {}
 
 	public async obtain() {
 		// If there is an available request slot, proceed immediately

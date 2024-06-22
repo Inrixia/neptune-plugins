@@ -1,12 +1,13 @@
 import { ItemId, TrackItem } from "neptune-types/tidal";
-import { TrackItemCache } from "../../../lib/Caches/TrackItemCache";
-import { fetchIsrcIterable } from "../../../lib/tidalDevApi/isrc";
+import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
+import { fetchIsrcIterable } from "@inrixia/lib/api/tidal/isrc";
 import { actions, intercept, store } from "@neptune";
-import { ExtendedTrackItem } from "../../../lib/Caches/ExtendedTrackItem";
-import { Resource } from "../../../lib/tidalDevApi/types/ISRC";
-import { debounce } from "../../../lib/debounce";
+import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
+import { Resource } from "@inrixia/lib/api/tidal/types/ISRC";
+import { debounce } from "@inrixia/lib/debounce";
 
-import { Tracer } from "../../../lib/trace";
+import { Tracer } from "@inrixia/lib/trace";
+import safeUnload from "@inrixia/lib/safeUnload";
 const trace = Tracer("[RealMAX]");
 
 const hasHiRes = (trackItem: TrackItem) => {
@@ -50,7 +51,7 @@ class MaxTrack {
 	}
 }
 
-export const onUnload = intercept(
+const unloadIntercept = intercept(
 	"playbackControls/MEDIA_PRODUCT_TRANSITION",
 	debounce(async () => {
 		const { elements, currentIndex } = store.getState().playQueue;
@@ -70,3 +71,8 @@ export const onUnload = intercept(
 		MaxTrack.getMaxId(elements[currentIndex + 2]?.mediaItemId);
 	}, 125)
 );
+
+export const onUnload = () => {
+	unloadIntercept();
+	safeUnload();
+};

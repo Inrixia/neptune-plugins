@@ -6,12 +6,10 @@ const repl = require("repl");
 
 const plugins = fs.readdirSync("./plugins");
 for (const plugin of plugins) {
-	let pluginPath = path.join("./plugins/", plugin);
-
+	if (plugin === "_lib") continue;
+	const pluginPath = path.join("./plugins/", plugin);
 	const pluginManifest = JSON.parse(fs.readFileSync(path.join(pluginPath, "plugin.json")));
-
 	const outfile = path.join(pluginPath, "dist/index.js");
-
 	esbuild
 		.build({
 			entryPoints: ["./" + path.join(pluginPath, pluginManifest.main ?? "index.js")],

@@ -5,7 +5,7 @@ import { AudioQuality, PlaybackContext } from "../AudioQualityTypes";
 import type { parseStream as ParseStreamType } from "music-metadata";
 import { ManifestMimeType } from "../trackBytes/getPlaybackInfo";
 
-import storage from "../storage";
+import { TrackInfoStore } from "../sharedStorage";
 
 const { parseStream } = <{ parseStream: typeof ParseStreamType }>require("music-metadata/lib/core");
 
@@ -20,41 +20,34 @@ export type TrackInfo = {
 	bitrate?: number;
 };
 export class TrackInfoCache {
-	private static readonly _cache: Record<string, TrackInfo> = storage._trackInfoCache;
-	private static readonly _listeners: Record<string, ((trackInfo: TrackInfo) => void)[]> = {};
+	private static readonly _listeners: Map<[TrackInfo["trackId"], AudioQuality], ((trackInfo: TrackInfo) => void)[]> = new Map();
 
-	private static makeKey(trackId: string, audioQuality: AudioQuality): string {
-		return `${trackId}-${audioQuality}`;
+	public static get(trackId: TrackInfo["trackId"], audioQuality: AudioQuality): Promise<TrackInfo | undefined> {
+		return TrackInfoStore.get([trackId, audioQuality]);
 	}
 
-	public static get(trackId: string, audioQuality: AudioQuality): Promise<TrackInfo> | TrackInfo | undefined {
-		return TrackInfoCache._get(TrackInfoCache.makeKey(trackId, audioQuality));
+	public static test() {
+		TrackInfoStore.getAll().then(console.log);
 	}
 
-	public static register(trackId: string, audioQuality: AudioQuality, onTrackInfo: (trackInfoP: Promise<TrackInfo> | TrackInfo) => void): void {
-		const key = TrackInfoCache.makeKey(trackId, audioQuality);
-		const listeners = TrackInfoCache._listeners[key];
+	public static async register(trackId: TrackInfo["trackId"], audioQuality: AudioQuality, onTrackInfo: (trackInfoP: TrackInfo) => void): Promise<void> {
+		const listeners = this._listeners.get([trackId, audioQuality]);
 		if (listeners !== undefined) listeners.push(onTrackInfo);
-		else TrackInfoCache._listeners[key] = [onTrackInfo];
-		const trackInfo = TrackInfoCache._cache[key];
-		if (trackInfo !== undefined) onTrackInfo(TrackInfoCache._cache[key]!);
+		else this._listeners.set([trackId, audioQuality], [onTrackInfo]);
+		const trackInfo = await TrackInfoStore.get([trackId, audioQuality]);
+		if (trackInfo !== undefined) onTrackInfo(trackInfo);
 	}
 
-	private static set(key: string, trackInfo: TrackInfo): void {
-		TrackInfoCache._cache[key] = trackInfo;
-		for (const listener of TrackInfoCache._listeners[key] || []) listener(trackInfo);
-	}
-	private static _get(key: string): Promise<TrackInfo> | TrackInfo | undefined {
-		return TrackInfoCache._cache[key];
+	private static put(trackInfo: TrackInfo): void {
+		TrackInfoStore.put(trackInfo);
+		for (const listener of TrackInfoCache._listeners.get([trackInfo.trackId, trackInfo.audioQuality]) || []) listener(trackInfo);
 	}
 
 	public static async ensure(playbackContext: PlaybackContext): Promise<TrackInfo> {
 		let { actualProductId: trackId, actualAudioQuality: audioQuality, bitDepth, sampleRate, codec, actualDuration: duration } = playbackContext;
 
-		const key = TrackInfoCache.makeKey(trackId, audioQuality);
-
 		// If a promise for this key is already in the cache, await it
-		const trackInfo = TrackInfoCache._get(key);
+		const trackInfo = await this.get(trackId, audioQuality);
 		if (trackInfo !== undefined) return trackInfo;
 
 		// Fallback to parsing metadata if info is not in context
@@ -95,7 +88,7 @@ export class TrackInfoCache {
 				bytes,
 				bitrate,
 			};
-			TrackInfoCache.set(key, trackInfo);
+			this.put(trackInfo);
 			return trackInfo;
 		} else {
 			let bytes;
@@ -110,7 +103,7 @@ export class TrackInfoCache {
 				bytes,
 				bitrate: !!bytes ? (bytes / duration) * 8 : undefined,
 			};
-			TrackInfoCache.set(key, trackInfo);
+			this.put(trackInfo);
 			return trackInfo;
 		}
 	}

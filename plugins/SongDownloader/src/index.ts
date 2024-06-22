@@ -2,21 +2,22 @@ import { intercept, actions, store } from "@neptune";
 
 import "./styles";
 
-import { fetchTrack, DownloadTrackOptions, TrackOptions } from "../../../lib/trackBytes/download";
+import { fetchTrack, DownloadTrackOptions, TrackOptions } from "../../_lib/trackBytes/download";
 import { ItemId, MediaItem, TrackItem, VideoItem } from "neptune-types/tidal";
 import { saveFile } from "./lib/saveFile";
 
-import { interceptPromise } from "../../../lib/intercept/interceptPromise";
+import { interceptPromise } from "../../_lib/intercept/interceptPromise";
 
 import { addMetadata } from "./addMetadata";
 import { fileNameFromInfo } from "./lib/fileName";
-import { toBuffer } from "../../../lib/fetch";
-import { TrackItemCache } from "../../../lib/Caches/TrackItemCache";
+import { toBuffer } from "../../_lib/fetch";
+import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
 
-import { Tracer } from "../../../lib/trace";
+import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[SongDownloader]");
 
 import { settings } from "./Settings";
+import safeUnload from "@inrixia/lib/safeUnload";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
@@ -67,7 +68,10 @@ const intercepts = [
 		}
 	}),
 ];
-export const onUnload = () => intercepts.forEach((unload) => unload());
+export const onUnload = () => {
+	intercepts.forEach((unload) => unload());
+	safeUnload();
+};
 
 const onAlbum = async (albumId: ItemId) => {
 	const [{ mediaItems }] = await interceptPromise(

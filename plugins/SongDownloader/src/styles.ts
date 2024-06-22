@@ -1,4 +1,4 @@
-import { setStyle } from "../../../lib/css/setStyle";
+import { setStyle } from "../../_lib/css/setStyle";
 
 const styles = `
 .download-button {

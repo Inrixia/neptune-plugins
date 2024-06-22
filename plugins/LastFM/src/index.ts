@@ -1,17 +1,19 @@
 import { actions, intercept, store } from "@neptune";
-import { PlaybackContext } from "../../../lib/AudioQualityTypes";
+import { PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
 
 import { LastFM, ScrobbleOpts } from "./LastFM";
 
 import type { PlaybackState, TrackItem } from "neptune-types/tidal";
 
-import { fullTitle } from "../../../lib/fullTitle";
+import { fullTitle } from "@inrixia/lib/fullTitle";
 
-import { Tracer } from "../../../lib/trace";
+import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[last.fm]");
 
-import { ExtendedTrackItem } from "../../../lib/Caches/ExtendedTrackItem";
-import { debounce } from "../../../lib/debounce";
+import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
+import { debounce } from "@inrixia/lib/debounce";
+
+import safeUnload from "@inrixia/lib/safeUnload";
 
 import { settings } from "./Settings";
 export { Settings } from "./Settings";
@@ -138,5 +140,8 @@ const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<Curre
 	return currentTrack;
 };
 
-export const onUnload = () => intercepters.forEach((unload) => unload());
+export const onUnload = () => {
+	intercepters.forEach((unload) => unload());
+	safeUnload();
+};
 updateNowPlaying();

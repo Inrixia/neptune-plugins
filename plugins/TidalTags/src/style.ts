@@ -1,4 +1,4 @@
-import { setStyle } from "../../../lib/css/setStyle";
+import { setStyle } from "@inrixia/lib/css/setStyle";
 
 const styles = `
 span[class^="titleText--"] {

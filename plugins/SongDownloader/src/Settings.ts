@@ -1,6 +1,6 @@
 import { html } from "@neptune/voby";
-import { getSettings } from "../../../lib/storage";
-import { AudioQualityInverse, AudioQuality, validQualitiesSettings } from "../../../lib/AudioQualityTypes";
+import { getSettings } from "@inrixia/lib/storage";
+import { AudioQualityInverse, AudioQuality, validQualitiesSettings } from "@inrixia/lib/AudioQualityTypes";
 
 export const settings = getSettings({
 	desiredDownloadQuality: AudioQuality.HiRes,
