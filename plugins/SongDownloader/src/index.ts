@@ -16,8 +16,9 @@ import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
 import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[SongDownloader]");
 
-import { settings } from "./Settings";
 import safeUnload from "@inrixia/lib/safeUnload";
+
+import { settings } from "./Settings";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;

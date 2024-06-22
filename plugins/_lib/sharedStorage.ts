@@ -30,7 +30,7 @@ export class SharedObjectStore<K extends IDBValidKey, V> {
 		}
 	}
 	public static close() {
-		return this.db.then((db) => db.close());
+		return this.db?.then((db) => db.close());
 	}
 
 	private readonly _memCache = new Map<K, V>();
