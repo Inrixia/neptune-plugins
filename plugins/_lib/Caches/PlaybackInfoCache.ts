@@ -7,6 +7,7 @@ import { Semaphore } from "../Semaphore";
 import { SharedObjectStore } from "../storage/SharedObjectStore";
 
 import type * as dasha from "dasha";
+import { SharedObjectStoreExpirable } from "../storage/SharedObjectStoreExpirable";
 const { parse } = <typeof dasha>require("dasha");
 
 export enum ManifestMimeType {
@@ -41,17 +42,22 @@ export type ExtendedPlayackInfo =
 	| { playbackInfo: PlaybackInfo; manifestMimeType: ManifestMimeType.Tidal; manifest: TidalManifest };
 
 export class PlaybackInfoCache {
-	// private static readonly _store: SharedObjectStore<[ExtendedPlayackInfo["playbackInfo"]["trackId"], ExtendedPlayackInfo["playbackInfo"]["audioQuality"]], ExtendedPlayackInfo> = new SharedObjectStore(
-	// 	"TrackInfoCache",
-	// 	{
-	// 		keyPath: ["playbackInfo.trackId", "playbackInfo.audioQuality"],
-	// 	}
-	// );
+	private static readonly _store: SharedObjectStoreExpirable<[ExtendedPlayackInfo["playbackInfo"]["trackId"], ExtendedPlayackInfo["playbackInfo"]["audioQuality"]], ExtendedPlayackInfo> =
+		new SharedObjectStoreExpirable("PlaybackInfoCache", {
+			storeSchema: {
+				keyPath: ["playbackInfo.trackId", "playbackInfo.audioQuality"],
+			},
+		});
 	private static readonly _sema = new Semaphore(1);
-	static async ensure(trackId: number, audioQuality: AudioQuality) {
+	static async ensure(trackId: number, audioQuality: AudioQuality): Promise<ExtendedPlayackInfo> {
 		if (!audioQualities.includes(audioQuality)) throw new Error(`Cannot get Stream Info! Invalid audio quality: ${audioQuality}, should be one of ${audioQualities.join(", ")}`);
 		if (trackId === undefined) throw new Error("Cannot get Stream Info! trackId is missing");
 
+		const playbackInfo = await this._store.get([trackId, audioQuality]);
+		if (playbackInfo !== undefined) return playbackInfo;
+		return this.update(trackId, audioQuality);
+	}
+	static async update(trackId: number, audioQuality: AudioQuality): Promise<ExtendedPlayackInfo> {
 		await this._sema.obtain();
 		try {
 			const url = `https://desktop.tidal.com/v1/tracks/${trackId}/playbackinfo?audioquality=${audioQuality}&playbackmode=STREAM&assetpresentation=FULL`;
@@ -69,7 +75,10 @@ export class PlaybackInfoCache {
 			switch (playbackInfo.manifestMimeType) {
 				case ManifestMimeType.Tidal: {
 					const manifest: TidalManifest = JSON.parse(atob(playbackInfo.manifest));
-					return { playbackInfo, manifestMimeType: playbackInfo.manifestMimeType, manifest };
+					const extPlaybackInfo: ExtendedPlayackInfo = { playbackInfo, manifestMimeType: playbackInfo.manifestMimeType, manifest };
+					const expires = new URL(manifest.urls[0]).searchParams.get("Expires");
+					if (expires !== null) this._store.putExpires(extPlaybackInfo, +expires * 1000);
+					return extPlaybackInfo;
 				}
 				case ManifestMimeType.Dash: {
 					const manifest = await parse(atob(playbackInfo.manifest), "https://sp-ad-cf.audio.tidal.com");
