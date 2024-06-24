@@ -13,7 +13,7 @@ const trace = Tracer("[NoBuffer]");
 let unblocking = false;
 export const onUnload = intercept("playbackControls/SET_PLAYBACK_STATE", ([state]) => {
 	const { playbackContext, latestCurrentTime } = getPlaybackControl();
-	if (latestCurrentTime !== 0 && state === "STALLED" && unblocking === false) {
+	if ((latestCurrentTime ?? 0) > 5 && state === "STALLED" && unblocking === false) {
 		unblocking = true;
 		(async () => {
 			if (playbackContext === undefined) return;
