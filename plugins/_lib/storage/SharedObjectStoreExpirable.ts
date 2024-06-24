@@ -1,31 +1,57 @@
 import { SharedObjectStore } from "./SharedObjectStore";
 
-export class SharedObjectStoreExpirable<K extends IDBValidKey, V extends Record<any, any> & { __age?: never }> extends SharedObjectStore<K, V> {
-	constructor(storeName: string, private readonly maxAge: number, storeSchema?: IDBObjectStoreParameters) {
+type ValueWithExpiry<V> = { value: V; expires: number; expired: boolean } | { value: V; expires: undefined; expired: true } | { value: undefined; expires: undefined; expired: undefined };
+export class SharedObjectStoreExpirable<K extends IDBValidKey, V extends Record<any, any> & { __expires?: never }> extends SharedObjectStore<K, V> {
+	private readonly maxAge?: number;
+	constructor(storeName: string, options?: { maxAge?: number; storeSchema?: IDBObjectStoreParameters }) {
+		const { maxAge, storeSchema } = options ?? {};
 		super(storeName, storeSchema);
+		this.maxAge = maxAge;
 	}
-	private static setAge(value: any): void {
-		value.__age = Date.now();
+	private setExpires(value: any, expires?: number): void {
+		if (expires !== undefined) value.__expires = expires;
+		else if (this.maxAge !== undefined) value.__expires = Date.now() + this.maxAge;
+		else throw new Error("maxAge or expires must be set!");
+	}
+	private clearExpires(value: any): void {
+		delete value.__expires;
 	}
 	private isTooOld(value?: V): boolean {
-		if (value?.__age === undefined) return true;
-		return Date.now() - value.__age >= this.maxAge;
+		if (value?.__expires === undefined) return true;
+		return Date.now() > value.__expires;
 	}
-	add(value: V, key?: K) {
-		SharedObjectStoreExpirable.setAge(value);
+	async add(value: V, key?: K) {
+		this.setExpires(value);
 		return super.add(value, key);
 	}
-	put(value: V, key?: K) {
-		SharedObjectStoreExpirable.setAge(value);
+	async put(value: V, key?: K) {
+		this.setExpires(value);
+		return super.put(value, key);
+	}
+	async addExpires(value: V, expires: number, key?: K) {
+		this.setExpires(value, expires);
+		return super.add(value, key);
+	}
+	async putExpires(value: V, expires: number, key?: K) {
+		this.setExpires(value, expires);
 		return super.put(value, key);
 	}
 	async get(key: K) {
 		const value = await super.get(key);
 		if (this.isTooOld(value)) return undefined;
+		this.clearExpires(value);
 		return value;
+	}
+	async getWithExpiry(key: K): Promise<ValueWithExpiry<V>> {
+		const value = await super.get(key);
+		if (value === undefined) return { value: undefined, expires: undefined, expired: undefined };
+		const expires = value.__expires;
+		const expired = this.isTooOld(value);
+		this.clearExpires(value);
+		return { value, expires, expired };
 	}
 	async getAll(key?: K | null, count?: number) {
 		const values = await super.getAll(key, count);
-		return values.filter(this.isTooOld.bind(this));
+		return values.filter(this.isTooOld.bind(this)).map(this.clearExpires.bind(this));
 	}
 }

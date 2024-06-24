@@ -22,7 +22,7 @@ export const Tracer = (source: string) => {
 		_logger.withContext =
 			(context: string) =>
 			(...data: Parameters<T>) => {
-				logger(context, ...data);
+				logger(source, context, ...data);
 				return undefined;
 			};
 		return _logger;
