@@ -1,55 +1,20 @@
 import { ItemId, TrackItem } from "neptune-types/tidal";
 import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
-import { fetchIsrcIterable } from "@inrixia/lib/api/tidal/isrc";
 import { actions, intercept, store } from "@neptune";
-import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
-import { Resource } from "@inrixia/lib/api/tidal/types/ISRC";
 import { debounce } from "@inrixia/lib/debounce";
 
 import { Tracer } from "@inrixia/lib/trace";
 import safeUnload from "@inrixia/lib/safeUnload";
+import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
+import { MaxTrack } from "./MaxTrack";
+import { ContextMenu } from "@inrixia/lib/ContextMenu";
 const trace = Tracer("[RealMAX]");
 
-const hasHiRes = (trackItem: TrackItem) => {
+export const hasHiRes = (trackItem: TrackItem) => {
 	const tags = trackItem.mediaMetadata?.tags;
 	if (tags === undefined) return false;
 	return tags.findIndex((tag) => tag === "HIRES_LOSSLESS") !== -1;
 };
-
-class MaxTrack {
-	private static readonly _idMap: Record<ItemId, Promise<Resource | false>> = {};
-	public static async fastCacheMaxId(itemId: ItemId): Promise<Resource | false> {
-		if (itemId === undefined) return false;
-		return MaxTrack._idMap[itemId];
-	}
-	public static async getMaxId(itemId: ItemId | undefined): Promise<Resource | false> {
-		if (itemId === undefined) return false;
-
-		const idMapping = MaxTrack._idMap[itemId];
-		if (idMapping !== undefined) return idMapping;
-
-		const extTrackItem = await ExtendedTrackItem.get(itemId);
-		const trackItem = extTrackItem?.trackItem;
-		if (trackItem !== undefined && hasHiRes(trackItem)) return false;
-
-		const isrcs = await extTrackItem?.isrcs();
-		if (isrcs === undefined) return (this._idMap[itemId] = Promise.resolve(false));
-
-		return (this._idMap[itemId] = (async () => {
-			for (const isrc of isrcs) {
-				for await (const { resource } of fetchIsrcIterable(isrc)) {
-					if (resource?.id !== undefined && hasHiRes(<TrackItem>resource)) {
-						if (resource.artifactType !== "track") continue;
-						const maxTrackItem = await TrackItemCache.ensure(resource?.id);
-						if (maxTrackItem !== undefined && !hasHiRes(maxTrackItem)) continue;
-						else return resource;
-					}
-				}
-			}
-			return false;
-		})());
-	}
-}
 
 const unloadIntercept = intercept(
 	"playbackControls/MEDIA_PRODUCT_TRANSITION",
@@ -71,6 +36,19 @@ const unloadIntercept = intercept(
 		MaxTrack.getMaxId(elements[currentIndex + 2]?.mediaItemId);
 	}, 125)
 );
+
+ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
+	if (trackItems.length === 0) return;
+	document.getElementById("realMax-button")?.remove();
+
+	const downloadButton = document.createElement("button");
+	downloadButton.type = "button";
+	downloadButton.role = "menuitem";
+	downloadButton.textContent = `RealMAX - Process ${trackItems.length} tracks`;
+	downloadButton.id = "realMax-button";
+	downloadButton.className = "context-button"; // Set class name for styling
+	contextMenu.appendChild(downloadButton);
+});
 
 export const onUnload = () => {
 	unloadIntercept();

@@ -19,6 +19,7 @@ const trace = Tracer("[SongDownloader]");
 import safeUnload from "@inrixia/lib/safeUnload";
 
 import { settings } from "./Settings";
+import { ContextMenu } from "@inrixia/lib/ContextMenu";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
@@ -53,87 +54,38 @@ const buttonMethods = (id: string): ButtonMethods => ({
 	},
 });
 
-const intercepts = [
-	intercept([`contextMenu/OPEN_MEDIA_ITEM`], ([mediaItem]) => queueMediaIds([mediaItem.id])),
-	intercept([`contextMenu/OPEN_MULTI_MEDIA_ITEM`], ([mediaItems]) => queueMediaIds(mediaItems.ids)),
-	intercept("contextMenu/OPEN", ([info]) => {
-		switch (info.type) {
-			case "ALBUM": {
-				onAlbum(info.id);
-				break;
-			}
-			case "PLAYLIST": {
-				onPlaylist(info.id);
-				break;
-			}
+export const onUnload = safeUnload;
+
+ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
+	if (trackItems.length === 0) return;
+	document.getElementById("download-button")?.remove();
+
+	const downloadButton = document.createElement("button");
+	downloadButton.type = "button";
+	downloadButton.role = "menuitem";
+	downloadButton.textContent = `Download ${trackItems.length}`;
+	downloadButton.id = "download-button";
+	downloadButton.className = "context-button"; // Set class name for styling
+
+	const context = JSON.stringify(trackItems.map((trackItem) => trackItem.id).sort());
+
+	if (downloadButtons[context]?.disabled === true) {
+		downloadButton.disabled = true;
+		downloadButton.classList.add("loading");
+	}
+	downloadButtons[context] = downloadButton;
+	contextMenu.appendChild(downloadButton);
+	const { prep, onProgress, clear } = buttonMethods(context);
+	downloadButton.addEventListener("click", async () => {
+		if (context === undefined) return;
+		prep();
+		for (const trackItem of trackItems) {
+			if (trackItem.id === undefined) continue;
+			await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: settings.desiredDownloadQuality }, { onProgress }).catch(trace.msg.err.withContext("Error downloading track"));
 		}
-	}),
-];
-export const onUnload = () => {
-	intercepts.forEach((unload) => unload());
-	safeUnload();
-};
-
-const onAlbum = async (albumId: ItemId) => {
-	const [{ mediaItems }] = await interceptPromise(
-		() => actions.content.loadAllAlbumMediaItems({ albumId }),
-		["content/LOAD_ALL_ALBUM_MEDIA_ITEMS_SUCCESS"],
-		["content/LOAD_ALL_ALBUM_MEDIA_ITEMS_FAIL"]
-	);
-	downloadItems(Object.values<MediaItem>(<any>mediaItems).map((mediaItem) => mediaItem.item));
-};
-const onPlaylist = async (playlistUUID: ItemId) => {
-	const [{ items }] = await interceptPromise(
-		() => actions.content.loadListItemsPage({ loadAll: true, listName: `playlists/${playlistUUID}`, listType: "mediaItems" }),
-		["content/LOAD_LIST_ITEMS_PAGE_SUCCESS"],
-		["content/LOAD_LIST_ITEMS_PAGE_FAIL"]
-	);
-	downloadItems(Object.values(items).map((mediaItem) => mediaItem?.item));
-};
-
-const queueMediaIds = (mediaIds: ItemId[]) => {
-	Promise.all(mediaIds.map(TrackItemCache.ensure.bind(TrackItemCache)))
-		.then((tracks) => tracks.filter((item) => item !== undefined))
-		.then(downloadItems);
-};
-
-const downloadItems = (items: (TrackItem | VideoItem)[]) =>
-	// Wrap in a timeout to ensure that the context menu is open
-	setTimeout(() => {
-		const trackItems = items.filter((item) => item.contentType === "track");
-		if (trackItems.length === 0) return;
-
-		const contextMenu = document.querySelector(`[data-type="list-container__context-menu"]`);
-		if (contextMenu === null) return;
-		if (document.getElementsByClassName("download-button").length >= 1) {
-			document.getElementsByClassName("download-button")[0].remove();
-		}
-
-		const downloadButton = document.createElement("button");
-		downloadButton.type = "button";
-		downloadButton.role = "menuitem";
-		downloadButton.textContent = `Download ${trackItems.length}`;
-		downloadButton.className = "download-button"; // Set class name for styling
-
-		const context = JSON.stringify(trackItems.map((trackItem) => trackItem.id));
-
-		if (downloadButtons[context]?.disabled === true) {
-			downloadButton.disabled = true;
-			downloadButton.classList.add("loading");
-		}
-		downloadButtons[context] = downloadButton;
-		contextMenu.appendChild(downloadButton);
-		const { prep, onProgress, clear } = buttonMethods(context);
-		downloadButton.addEventListener("click", async () => {
-			if (context === undefined) return;
-			prep();
-			for (const trackItem of trackItems) {
-				if (trackItem.id === undefined) continue;
-				await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: settings.desiredDownloadQuality }, { onProgress }).catch(trace.msg.err.withContext("Error downloading track"));
-			}
-			clear();
-		});
+		clear();
 	});
+});
 
 export const downloadTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
 	// Download the bytes

@@ -1,7 +1,7 @@
 import { setStyle } from "@inrixia/lib/css/setStyle";
 
 const styles = `
-.download-button {
+.context-button {
 	align-items: center;
 	display: flex;
 	font-weight: 500;
@@ -11,11 +11,11 @@ const styles = `
 	color: #b878ff;
     position: relative;
 }
-.download-button:hover {
+.context-button:hover {
 	background-color: #9e46ff;
 	color: #fff;
 }
-.download-button::before {
+.context-button::before {
     content: "";
     position: absolute;
     top: 0;
@@ -25,12 +25,12 @@ const styles = `
     background: rgba(255, 255, 255, 0.25); /* Loading bar color */
     z-index: 1;
 }
-.download-button.loading {
+.context-button.loading {
     background-color: #9e46ff;
     cursor: not-allowed;
     color: #fff;
 }
-.download-button span {
+.context-button span {
     z-index: 2;
     position: relative;
 }
