@@ -7,7 +7,7 @@ import { libTrace } from "./trace";
 import { AlbumCache } from "./Caches/AlbumCache";
 import { PlaylistCache } from "./Caches/PlaylistItemCache";
 
-type ContextSource = "ALBUM" | "PLAYLIST" | "TRACK";
+type ContextSource = { type: "TRACK" } | { type: "ALBUM"; albumId: ItemId } | { type: "PLAYLIST"; playlistId: ItemId };
 type ContextListener = (contextSource: ContextSource, contextMenu: Element, trackItems: TrackItem[]) => Promise<void>;
 export class ContextMenu {
 	private static readonly _albumsCache: Record<string, Promise<TrackItem[]> | undefined> = {};
@@ -15,25 +15,25 @@ export class ContextMenu {
 	private static readonly _intercepts = [
 		intercept([`contextMenu/OPEN_MEDIA_ITEM`], ([mediaItem]) => {
 			(async () => {
-				this._onOpen("TRACK", await this.getTrackItems([mediaItem.id]));
+				this._onOpen({ type: "TRACK" }, await this.getTrackItems([mediaItem.id]));
 			})();
 		}),
 		intercept([`contextMenu/OPEN_MULTI_MEDIA_ITEM`], ([mediaItems]) => {
 			(async () => {
-				this._onOpen("TRACK", await this.getTrackItems(mediaItems.ids));
+				this._onOpen({ type: "TRACK" }, await this.getTrackItems(mediaItems.ids));
 			})();
 		}),
 		intercept("contextMenu/OPEN", ([info]) => {
 			switch (info.type) {
 				case "ALBUM": {
 					AlbumCache.getTrackItems(info.id).then((trackItems) => {
-						if (trackItems !== undefined) this._onOpen("ALBUM", trackItems);
+						if (trackItems !== undefined) this._onOpen({ type: "ALBUM", albumId: info.id }, trackItems);
 					});
 					break;
 				}
 				case "PLAYLIST": {
 					PlaylistCache.getTrackItems(info.id).then((trackItems) => {
-						if (trackItems !== undefined) this._onOpen("PLAYLIST", trackItems);
+						if (trackItems !== undefined) this._onOpen({ type: "PLAYLIST", playlistId: info.id }, trackItems);
 					});
 					break;
 				}

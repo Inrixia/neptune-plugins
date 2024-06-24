@@ -57,8 +57,8 @@ const buttonMethods = (id: string): ButtonMethods => ({
 export const onUnload = safeUnload;
 
 ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
-	if (trackItems.length === 0) return;
 	document.getElementById("download-button")?.remove();
+	if (trackItems.length === 0) return;
 
 	const downloadButton = document.createElement("button");
 	downloadButton.type = "button";
@@ -74,7 +74,6 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		downloadButton.classList.add("loading");
 	}
 	downloadButtons[context] = downloadButton;
-	contextMenu.appendChild(downloadButton);
 	const { prep, onProgress, clear } = buttonMethods(context);
 	downloadButton.addEventListener("click", async () => {
 		if (context === undefined) return;
@@ -85,6 +84,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		}
 		clear();
 	});
+	contextMenu.appendChild(downloadButton);
 });
 
 export const downloadTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
