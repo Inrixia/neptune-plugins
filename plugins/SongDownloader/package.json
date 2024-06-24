@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "imageinfo": "^1.0.4",
-    "@inrixia/lib": "../_lib"
+    "@inrixia/lib": "../_lib",
+    "flac-stream-tagger": "^1.0.8"
   }
 }

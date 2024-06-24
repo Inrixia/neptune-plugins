@@ -138,9 +138,9 @@ const downloadItems = (items: (TrackItem | VideoItem)[]) =>
 export const downloadTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
 	// Download the bytes
 	const trackInfo = await fetchTrack(trackOptions, options);
-	const bufferWithTags = undefined; //await addMetadata(trackInfo, track);
+	const streamWithTags = await addMetadata(trackInfo, track);
 	const fileName = fileNameFromInfo(track, trackInfo);
 
-	if (settings.defaultDownloadPath !== "") return saveFileNode(trackInfo.stream, settings.defaultDownloadPath, fileName);
-	return saveFile(new Blob([bufferWithTags ?? (await toBuffer(trackInfo.stream))], { type: "application/octet-stream" }), fileName);
+	if (settings.defaultDownloadPath !== "") return saveFileNode(streamWithTags ?? trackInfo.stream, settings.defaultDownloadPath, fileName);
+	return saveFile(new Blob([(await streamWithTags?.toBuffer()) ?? (await toBuffer(trackInfo.stream))], { type: "application/octet-stream" }), fileName);
 };

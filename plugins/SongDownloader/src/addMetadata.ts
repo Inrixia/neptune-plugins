@@ -7,14 +7,16 @@ import { ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoCache";
 import { actions } from "@neptune";
 import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
 
-import { type FlacTagMap, PictureType, createFlacTagsBuffer } from "./flac-tagger";
+import { FlacStreamTagger } from "flac-stream-tagger";
+
+import { FlacTagMap, PictureType } from "flac-stream-tagger";
 import { AlbumCache } from "@inrixia/lib/Caches/AlbumCache";
 
 export async function addMetadata(trackInfo: ExtendedPlaybackInfoWithBytes, track: TrackItem) {
 	if (trackInfo.manifestMimeType === ManifestMimeType.Tidal) {
 		switch (trackInfo.manifest.codecs) {
 			case "flac": {
-				return createFlacTagsBuffer(await makeTags(track), await toBuffer(trackInfo.stream));
+				return trackInfo.stream.pipe(new FlacStreamTagger(await makeTags(track)));
 			}
 		}
 	}
