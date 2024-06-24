@@ -7,7 +7,7 @@ import { TrackItemCache } from "./TrackItemCache";
 import { AlbumCache } from "./AlbumCache";
 import { libTrace } from "../trace";
 import { store } from "@neptune";
-import currentPlaybackContext from "../currentPlaybackContext";
+import getPlaybackControl from "../getPlaybackControl";
 
 export class ExtendedTrackItem {
 	private _album?: Album;
@@ -18,7 +18,7 @@ export class ExtendedTrackItem {
 	private constructor(public readonly trackId: ItemId, public readonly trackItem: TrackItem) {}
 
 	public static current(playbackContext?: PlaybackContext) {
-		playbackContext ??= currentPlaybackContext();
+		playbackContext ??= getPlaybackControl()?.playbackContext;
 		if (playbackContext?.actualProductId === undefined) return undefined;
 		return this.get(playbackContext.actualProductId);
 	}

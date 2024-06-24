@@ -16,7 +16,7 @@ import { debounce } from "@inrixia/lib/debounce";
 import safeUnload from "@inrixia/lib/safeUnload";
 
 import { settings } from "./Settings";
-import currentPlaybackContext from "@inrixia/lib/currentPlaybackContext";
+import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 export { Settings } from "./Settings";
 
 let totalPlayTime = 0;
@@ -131,7 +131,7 @@ type CurrentTrack = {
 const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<CurrentTrack> => {
 	const playbackStart = Date.now();
 
-	playbackContext = currentPlaybackContext();
+	playbackContext ??= getPlaybackControl()?.playbackContext;
 	if (playbackContext === undefined) throw new Error("PlaybackContext is undefined");
 	const extTrackItem = await ExtendedTrackItem.current(playbackContext);
 	if (extTrackItem === undefined) throw new Error("Failed to get extTrackItem");
