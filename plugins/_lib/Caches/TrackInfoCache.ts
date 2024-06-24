@@ -30,18 +30,18 @@ export class TrackInfoCache {
 		keyPath: ["trackId", "audioQuality"],
 	});
 	public static async get(trackId: TrackInfo["trackId"], audioQuality: AudioQuality): Promise<TrackInfo | undefined> {
-		return this._store.getCache([trackId, audioQuality], tracer.err.withContext("get"));
+		return this._store.get([trackId, audioQuality]);
 	}
 
 	public static async register(trackId: TrackInfo["trackId"], audioQuality: AudioQuality, onTrackInfo: (trackInfoP: TrackInfo) => void): Promise<void> {
 		const key = `${trackId}${audioQuality}`;
 		if (this._listeners[key]?.push(onTrackInfo) === undefined) this._listeners[key] = [onTrackInfo];
-		const trackInfo = await this._store.getCache([trackId, audioQuality], tracer.err.withContext("register"));
+		const trackInfo = await this._store.get([trackId, audioQuality]);
 		if (trackInfo !== undefined) onTrackInfo(trackInfo);
 	}
 
 	private static put(trackInfo: TrackInfo): void {
-		this._store.putCache(trackInfo, [trackInfo.trackId, trackInfo.audioQuality], tracer.err.withContext("put"));
+		this._store.put(trackInfo, [trackInfo.trackId, trackInfo.audioQuality]).catch(tracer.err.withContext("put"));
 		for (const listener of TrackInfoCache._listeners[`${trackInfo.trackId}${trackInfo.audioQuality}`] ?? []) listener(trackInfo);
 	}
 
