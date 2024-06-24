@@ -16,6 +16,7 @@ import { debounce } from "@inrixia/lib/debounce";
 import safeUnload from "@inrixia/lib/safeUnload";
 
 import { settings } from "./Settings";
+import currentPlaybackContext from "@inrixia/lib/currentPlaybackContext";
 export { Settings } from "./Settings";
 
 let totalPlayTime = 0;
@@ -35,10 +36,11 @@ const isPlaying = (desiredPlaybackState?: PlaybackState) => {
 	return desiredPlaybackState === "PLAYING";
 };
 
-let currentTrack: CurrentTrack;
+let currentTrack: CurrentTrack | undefined = undefined;
 const updateNowPlaying = debounce(async (playbackContext?: PlaybackContext) => {
 	if (!isPlaying()) return;
-	currentTrack = await getCurrentTrack(playbackContext);
+	currentTrack = await getCurrentTrack(playbackContext).catch(trace.msg.err.withContext(`Failed to get current track!`));
+	if (currentTrack === undefined) return;
 	const nowPlayingParams = await getTrackParams(currentTrack);
 	trace.log("updatingNowPlaying", nowPlayingParams);
 	const res = await LastFM.updateNowPlaying(nowPlayingParams).catch(trace.msg.err.withContext(`Failed to updateNowPlaying!`));
@@ -128,10 +130,10 @@ type CurrentTrack = {
 };
 const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<CurrentTrack> => {
 	const playbackStart = Date.now();
-	playbackContext ??= <PlaybackContext>store.getState().playbackControls.playbackContext;
-	if (!playbackContext) throw new Error("No playbackContext found");
 
-	const extTrackItem = await ExtendedTrackItem.get(playbackContext.actualProductId);
+	playbackContext = currentPlaybackContext();
+	if (playbackContext === undefined) throw new Error("PlaybackContext is undefined");
+	const extTrackItem = await ExtendedTrackItem.current(playbackContext);
 	if (extTrackItem === undefined) throw new Error("Failed to get extTrackItem");
 
 	const currentTrack = { extTrackItem, playbackContext, playbackStart };

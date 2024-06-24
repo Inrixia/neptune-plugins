@@ -25,6 +25,7 @@ export interface FetchyOptions {
 	bytesWanted?: number;
 	getDecipher?: () => Promise<Decipher>;
 	requestOptions?: RequestOptions;
+	poke?: true;
 }
 
 export const rejectNotOk = (res: IncomingMessage) => {
@@ -42,8 +43,8 @@ export const toBuffer = (stream: Readable) =>
 		stream.on("error", reject);
 	});
 
-export type RequestOptionsWithBody = RequestOptions & { body?: string };
-export const requestStream = (url: string, options: RequestOptionsWithBody = {}) =>
+export type ExtendedRequestOptions = RequestOptions & { body?: string; poke?: true };
+export const requestStream = (url: string, options: ExtendedRequestOptions = {}) =>
 	new Promise<IncomingMessage>((resolve, reject) => {
 		const body = options.body;
 		delete options.body;
@@ -52,6 +53,7 @@ export const requestStream = (url: string, options: RequestOptionsWithBody = {})
 		const req = request(url, options, (res) => {
 			const statusMsg = res.statusMessage !== "" ? ` - ${res.statusMessage}` : "";
 			console.debug(`[${res.statusCode}${statusMsg}] (${req.method})`, url, res);
+			if (options.poke) req.destroy();
 			resolve(res);
 		});
 		req.on("error", reject);

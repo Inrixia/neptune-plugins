@@ -1,9 +1,16 @@
 import { store } from "@neptune";
 import type { TrackItem, MediaItem, ItemId } from "neptune-types/tidal";
 import { interceptPromise } from "../intercept/interceptPromise";
+import type { PlaybackContext } from "../AudioQualityTypes";
+import currentPlaybackContext from "../currentPlaybackContext";
 
 export class TrackItemCache {
 	private static readonly _cache: Record<ItemId, TrackItem> = {};
+	public static current(playbackContext?: PlaybackContext) {
+		playbackContext ??= currentPlaybackContext();
+		if (playbackContext?.actualProductId === undefined) return undefined;
+		return this.ensure(playbackContext.actualProductId);
+	}
 	public static async ensure(trackId?: ItemId) {
 		if (trackId === undefined) return undefined;
 

@@ -2,11 +2,11 @@ import type { Readable } from "stream";
 import { FetchyOptions, requestStream, rejectNotOk, parseTotal } from ".";
 
 import type stream from "stream";
-const { Transform, PassThrough } = <typeof stream>require("stream");
+const { Transform } = <typeof stream>require("stream");
 
 export const requestDecodedStream = async (url: string, options?: FetchyOptions): Promise<Readable> =>
 	new Promise(async (resolve, reject) => {
-		const { onProgress, bytesWanted, getDecipher } = options ?? {};
+		const { onProgress, bytesWanted, getDecipher, poke } = options ?? {};
 		const reqOptions = { ...(options?.requestOptions ?? {}) };
 		if (bytesWanted !== undefined) {
 			reqOptions.headers ??= {};
