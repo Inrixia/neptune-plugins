@@ -33,7 +33,7 @@ export class TrackInfoCache {
 	public static async register(trackId: TrackInfo["trackId"], audioQuality: AudioQuality, onTrackInfo: (trackInfoP: TrackInfo) => void): Promise<void> {
 		const key = `${trackId}${audioQuality}`;
 		if (this._listeners[key]?.push(onTrackInfo) === undefined) this._listeners[key] = [onTrackInfo];
-		const trackInfo = await this._store.get([trackId, audioQuality]);
+		const { value: trackInfo } = await this._store.getWithExpiry([trackId, audioQuality]);
 		if (trackInfo !== undefined) onTrackInfo(trackInfo);
 	}
 
