@@ -36,11 +36,15 @@ Tidal oftern has multiple versions of the same song at different qualities.
 With RealMAX when playing a song if there is a version available at a higher quality it will automatically be added as the next song in the queue and skipped to.  
 This ensures you are **always listening to the best quality of a song**
 
+## NoBuffer
+**Install Url: https://inrixia.github.io/neptune-plugins/NoBuffer/**  
+Kicks the Tidal cdn if the current playback stalls to make it stop so you never have to deal with constant stuttering or stalling again!
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/8378a9a3-2d3f-4cd7-af04-ceeac350b9e6)
+
 ## Themer
 **Install Url: https://inrixia.github.io/neptune-plugins/Themer/**  
 A simple plugin allowing realtime css injection for testing and creating themes.  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/dec1b36b-66df-4419-a7f1-9342992bd2b5)
-
 
 ## Shazam Files
 **Install Url: https://inrixia.github.io/neptune-plugins/Shazam/**  
