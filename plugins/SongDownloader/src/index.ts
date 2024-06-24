@@ -142,5 +142,5 @@ export const downloadTrack = async (track: TrackItem, trackOptions: TrackOptions
 	const fileName = fileNameFromInfo(track, trackInfo);
 
 	if (settings.defaultDownloadPath !== "") return saveFileNode(streamWithTags ?? trackInfo.stream, settings.defaultDownloadPath, fileName);
-	return saveFile(new Blob([(await streamWithTags?.toBuffer()) ?? (await toBuffer(trackInfo.stream))], { type: "application/octet-stream" }), fileName);
+	return saveFile(streamWithTags ?? trackInfo.stream, fileName);
 };

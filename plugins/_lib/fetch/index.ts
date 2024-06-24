@@ -42,6 +42,13 @@ export const toBuffer = (stream: Readable) =>
 		stream.on("end", () => resolve(Buffer.concat(chunks)));
 		stream.on("error", reject);
 	});
+export const toBlob = (stream: Readable) =>
+	new Promise<Blob>((resolve, reject) => {
+		const chunks: Buffer[] = [];
+		stream.on("data", (chunk) => chunks.push(chunk));
+		stream.on("end", () => resolve(new Blob(chunks)));
+		stream.on("error", reject);
+	});
 
 export type ExtendedRequestOptions = RequestOptions & { body?: string; poke?: true };
 export const requestStream = (url: string, options: ExtendedRequestOptions = {}) =>
