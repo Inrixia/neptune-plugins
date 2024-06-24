@@ -7,6 +7,7 @@ import { Tracer } from "../trace";
 const tracer = Tracer("TrackInfoCache");
 
 import type { parseStream as ParseStreamType } from "music-metadata";
+import { SharedObjectStoreExpirable } from "../storage/SharedObjectStoreExpirable";
 const { parseStream } = <{ parseStream: typeof ParseStreamType }>require("music-metadata/lib/core");
 
 export type TrackInfo = {
@@ -18,12 +19,11 @@ export type TrackInfo = {
 	duration: PlaybackContext["actualDuration"];
 	bytes?: number;
 	bitrate?: number;
-	age: number;
 };
 const WEEK = 7 * 24 * 60 * 60 * 1000;
 export class TrackInfoCache {
 	private static readonly _listeners: Record<string, ((trackInfo: TrackInfo) => void)[]> = {};
-	private static readonly _store: SharedObjectStore<[TrackInfo["trackId"], TrackInfo["audioQuality"]], TrackInfo> = new SharedObjectStore("TrackInfoCache", {
+	private static readonly _store: SharedObjectStoreExpirable<[TrackInfo["trackId"], TrackInfo["audioQuality"]], TrackInfo> = new SharedObjectStoreExpirable("TrackInfoCache", WEEK, {
 		keyPath: ["trackId", "audioQuality"],
 	});
 	public static async get(trackId: TrackInfo["trackId"], audioQuality: AudioQuality): Promise<TrackInfo | undefined> {
@@ -38,7 +38,7 @@ export class TrackInfoCache {
 	}
 
 	private static put(trackInfo: TrackInfo): void {
-		this._store.put(trackInfo, [trackInfo.trackId, trackInfo.audioQuality]).catch(tracer.err.withContext("put"));
+		this._store.put(trackInfo).catch(tracer.err.withContext("put"));
 		for (const listener of TrackInfoCache._listeners[`${trackInfo.trackId}${trackInfo.audioQuality}`] ?? []) listener(trackInfo);
 	}
 
@@ -48,7 +48,7 @@ export class TrackInfoCache {
 		// If a promise for this key is already in the cache, await it
 		const trackInfo = await this.get(trackId, audioQuality);
 		// Update if not found or older than a week
-		if (trackInfo !== undefined && trackInfo.age > Date.now() - WEEK) return trackInfo;
+		if (trackInfo !== undefined) return trackInfo;
 
 		// Fallback to parsing metadata if info is not in context
 		if (bitDepth === null || sampleRate === null || duration === null) {
@@ -87,7 +87,6 @@ export class TrackInfoCache {
 				duration,
 				bytes,
 				bitrate,
-				age: Date.now(),
 			};
 			this.put(trackInfo);
 			return trackInfo;
@@ -103,7 +102,6 @@ export class TrackInfoCache {
 				duration,
 				bytes,
 				bitrate: !!bytes ? (bytes / duration) * 8 : undefined,
-				age: Date.now(),
 			};
 			this.put(trackInfo);
 			return trackInfo;
