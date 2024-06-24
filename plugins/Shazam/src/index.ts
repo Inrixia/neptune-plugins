@@ -4,7 +4,7 @@ init();
 
 import { actions, store } from "@neptune";
 import { DecodedSignature } from "shazamio-core";
-import { interceptPromise } from "../../_lib/intercept/interceptPromise";
+import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
 import { fetchShazamData } from "./shazamApi/fetch";
 
 import { fetchIsrc } from "@inrixia/lib/api/tidal/isrc";

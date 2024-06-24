@@ -1,4 +1,4 @@
-import { getStyle, setStyle } from "../../_lib/css/setStyle";
+import { getStyle, setStyle } from "@inrixia/lib/css/setStyle";
 
 import { getStorage } from "@inrixia/lib/storage";
 

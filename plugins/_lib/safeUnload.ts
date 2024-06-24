@@ -1,4 +1,4 @@
-import { SharedObjectStore } from "./sharedStorage";
+import { SharedObjectStore } from "./storage/SharedObjectStore";
 
 export default async () => {
 	await SharedObjectStore.close();

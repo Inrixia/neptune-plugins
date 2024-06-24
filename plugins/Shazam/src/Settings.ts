@@ -1,6 +1,6 @@
 import { html } from "@neptune/voby";
 
-import { SwitchSetting } from "../../_lib/components/SwitchSetting";
+import { SwitchSetting } from "@inrixia/lib/components/SwitchSetting";
 import { getSettings } from "@inrixia/lib/storage";
 
 export const settings = getSettings({

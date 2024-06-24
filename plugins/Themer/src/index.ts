@@ -1,5 +1,5 @@
 import safeUnload from "@inrixia/lib/safeUnload";
-import { getStyle } from "../../_lib/css/setStyle";
+import { getStyle } from "@inrixia/lib/css/setStyle";
 import { draggableId, draggableStyleId, getDraggable } from "./getDraggable";
 
 const draggable = getDraggable();

@@ -1,4 +1,4 @@
-import { ExtendedPlayackInfo, getPlaybackInfo, ManifestMimeType, TidalManifest } from "./getPlaybackInfo";
+import { ExtendedPlayackInfo, PlaybackInfoCache, ManifestMimeType, TidalManifest } from "../Caches/PlaybackInfoCache";
 import { makeDecipheriv } from "./decryptBuffer";
 import { FetchyOptions } from "../fetch";
 import { requestDecodedStream } from "../fetch/requestDecodedStream";
@@ -33,7 +33,7 @@ const makeGetDeciper = (manifest: TidalManifest) => {
 };
 
 export const fetchTrack = async ({ trackId, desiredQuality }: TrackOptions, options?: DownloadTrackOptions): Promise<ExtendedPlaybackInfoWithBytes> => {
-	const { playbackInfo, manifest, manifestMimeType } = options?.playbackInfo ?? (await getPlaybackInfo(trackId, desiredQuality));
+	const { playbackInfo, manifest, manifestMimeType } = options?.playbackInfo ?? (await PlaybackInfoCache.ensure(trackId, desiredQuality));
 
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {

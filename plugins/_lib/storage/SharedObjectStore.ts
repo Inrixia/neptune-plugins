@@ -1,8 +1,8 @@
 import { openDB, IDBPDatabase } from "idb";
-import { Semaphore } from "./Semaphore";
+import { Semaphore } from "../Semaphore";
 
 const dbName = "@inrixia/sharedStorage";
-export class SharedObjectStore<K extends IDBValidKey, V> {
+export class SharedObjectStore<K extends IDBValidKey, V extends Record<any, any>> {
 	public static db: Promise<IDBPDatabase>;
 	private static openSema: Semaphore = new Semaphore(1);
 	private static async openDB(storeName: string, storeSchema?: IDBObjectStoreParameters) {
@@ -33,7 +33,7 @@ export class SharedObjectStore<K extends IDBValidKey, V> {
 		return this.db?.then((db) => db.close());
 	}
 
-	constructor(private readonly storeName: string, private readonly storeSchema?: IDBObjectStoreParameters) {
+	constructor(protected readonly storeName: string, storeSchema?: IDBObjectStoreParameters) {
 		SharedObjectStore.openDB(storeName, storeSchema);
 	}
 	add(value: V, key?: K) {
@@ -48,17 +48,17 @@ export class SharedObjectStore<K extends IDBValidKey, V> {
 	delete(key: K) {
 		return SharedObjectStore.db.then((db) => db.delete(this.storeName, key));
 	}
-	get(query: K) {
-		return SharedObjectStore.db.then((db) => db.get(this.storeName, query));
+	get(key: K) {
+		return SharedObjectStore.db.then((db) => db.get(this.storeName, key));
 	}
-	getAll(query?: K | null, count?: number) {
-		return SharedObjectStore.db.then((db) => db.getAll(this.storeName, query, count));
+	getAll(key?: K | null, count?: number) {
+		return SharedObjectStore.db.then((db) => db.getAll(this.storeName, key, count));
 	}
-	getAllKeys(query?: K | null, count?: number) {
-		return SharedObjectStore.db.then((db) => db.getAllKeys(this.storeName, query, count));
+	getAllKeys(key?: K | null, count?: number) {
+		return SharedObjectStore.db.then((db) => db.getAllKeys(this.storeName, key, count));
 	}
-	getKey(query: K) {
-		return SharedObjectStore.db.then((db) => db.getKey(this.storeName, query));
+	getKey(key: K) {
+		return SharedObjectStore.db.then((db) => db.getKey(this.storeName, key));
 	}
 	put(value: V, key?: K) {
 		return SharedObjectStore.db.then((db) => db.put(this.storeName, value, key));

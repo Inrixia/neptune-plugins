@@ -1,4 +1,4 @@
-import { setStyle } from "../../_lib/css/setStyle";
+import { setStyle } from "@inrixia/lib/css/setStyle";
 
 const styles = `
 .download-button {

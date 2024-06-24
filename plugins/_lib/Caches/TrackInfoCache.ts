@@ -1,15 +1,12 @@
 import { fetchTrack } from "../trackBytes/download";
-
 import { AudioQuality, PlaybackContext } from "../AudioQualityTypes";
-
-import type { parseStream as ParseStreamType } from "music-metadata";
-import { ManifestMimeType } from "../trackBytes/getPlaybackInfo";
-
-import { SharedObjectStore } from "../sharedStorage";
+import { ManifestMimeType } from "./PlaybackInfoCache";
+import { SharedObjectStore } from "../storage/SharedObjectStore";
 
 import { Tracer } from "../trace";
 const tracer = Tracer("TrackInfoCache");
 
+import type { parseStream as ParseStreamType } from "music-metadata";
 const { parseStream } = <{ parseStream: typeof ParseStreamType }>require("music-metadata/lib/core");
 
 export type TrackInfo = {

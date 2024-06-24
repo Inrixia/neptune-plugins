@@ -1,11 +1,11 @@
 import { utils } from "@neptune";
 import { TrackItem } from "neptune-types/tidal";
 import { fullTitle } from "@inrixia/lib/fullTitle";
-import { ExtendedPlaybackInfoWithBytes } from "../../_lib/trackBytes/download";
-import { rejectNotOk, requestStream, toBuffer } from "../../_lib/fetch";
-import { ManifestMimeType } from "../../_lib/trackBytes/getPlaybackInfo";
+import { ExtendedPlaybackInfoWithBytes } from "@inrixia/lib/trackBytes/download";
+import { rejectNotOk, requestStream, toBuffer } from "@inrixia/lib/fetch";
+import { ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoCache";
 import { actions } from "@neptune";
-import { interceptPromise } from "../../_lib/intercept/interceptPromise";
+import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
 
 import { type FlacTagMap, PictureType, createFlacTagsBuffer } from "./flac-tagger";
 import { AlbumCache } from "@inrixia/lib/Caches/AlbumCache";

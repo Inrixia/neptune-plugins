@@ -1,5 +1,5 @@
 import { rejectNotOk, ExtendedRequestOptions, requestStream, toJson } from "../fetch";
-import { SharedObjectStore } from "../sharedStorage";
+import { SharedObjectStore } from "../storage/SharedObjectStore";
 
 import { Tracer } from "../trace";
 const trace = Tracer("[requestCache]");

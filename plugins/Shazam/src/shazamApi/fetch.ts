@@ -1,4 +1,4 @@
-import { rejectNotOk, requestStream, toJson } from "../../../_lib/fetch";
+import { rejectNotOk, requestStream, toJson } from "@inrixia/lib/fetch";
 import { ShazamData } from "./shazamTypes";
 import { v4 } from "uuid";
 

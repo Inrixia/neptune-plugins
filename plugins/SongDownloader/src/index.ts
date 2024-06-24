@@ -2,15 +2,15 @@ import { intercept, actions, store } from "@neptune";
 
 import "./styles";
 
-import { fetchTrack, DownloadTrackOptions, TrackOptions } from "../../_lib/trackBytes/download";
+import { fetchTrack, DownloadTrackOptions, TrackOptions } from "@inrixia/lib/trackBytes/download";
 import { ItemId, MediaItem, TrackItem, VideoItem } from "neptune-types/tidal";
-import { saveFile } from "./lib/saveFile";
+import { saveFile, saveFileNode } from "./lib/saveFile";
 
-import { interceptPromise } from "../../_lib/intercept/interceptPromise";
+import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
 
 import { addMetadata } from "./addMetadata";
 import { fileNameFromInfo } from "./lib/fileName";
-import { toBuffer } from "../../_lib/fetch";
+import { toBuffer } from "@inrixia/lib/fetch";
 import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
 
 import { Tracer } from "@inrixia/lib/trace";
@@ -138,7 +138,9 @@ const downloadItems = (items: (TrackItem | VideoItem)[]) =>
 export const downloadTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
 	// Download the bytes
 	const trackInfo = await fetchTrack(trackOptions, options);
-	const bufferWithTags = await addMetadata(trackInfo, track);
+	const bufferWithTags = undefined; //await addMetadata(trackInfo, track);
+	const fileName = fileNameFromInfo(track, trackInfo);
 
-	return saveFile(new Blob([bufferWithTags ?? (await toBuffer(trackInfo.stream))], { type: "application/octet-stream" }), fileNameFromInfo(track, trackInfo));
+	if (settings.defaultDownloadPath !== "") return saveFileNode(trackInfo.stream, settings.defaultDownloadPath, fileName);
+	return saveFile(new Blob([bufferWithTags ?? (await toBuffer(trackInfo.stream))], { type: "application/octet-stream" }), fileName);
 };
