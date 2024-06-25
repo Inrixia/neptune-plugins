@@ -11,7 +11,7 @@ import safeUnload from "@inrixia/lib/safeUnload";
 import { settings } from "./Settings";
 import { ContextMenu } from "@inrixia/lib/ContextMenu";
 import { PlaybackInfoCache } from "@inrixia/lib/Caches/PlaybackInfoCache";
-import { downloadTrackStream, openDialog, saveDialog } from "@inrixia/lib/nativeBridge";
+import { startTrackDownload, openDialog, saveDialog, getDownloadProgress } from "@inrixia/lib/nativeBridge";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
@@ -104,8 +104,14 @@ const downloadTrack = async (track: TrackItem, updateMethods: ButtonMethods, fil
 		const dialogResult = await saveDialog({ defaultPath, filters: [{ name: "", extensions: [parseExtension(fileName) ?? "*"] }] });
 		filePath = dialogResult?.filePath;
 	}
-	console.log(filePath);
 	updateMethods.set("Downloading...");
-	await downloadTrackStream(playbackInfo, filePath);
-	console.log("Done!");
+	let downloadEnded = false;
+	const downloadComplete = startTrackDownload(playbackInfo, filePath).finally(() => (downloadEnded = true));
+	const updateDownloadProgress = async () => {
+		const downloadProgress = await getDownloadProgress(filePath);
+		if (downloadProgress !== undefined) updateMethods.onProgress(downloadProgress);
+		if (!downloadEnded) setTimeout(updateDownloadProgress, 100);
+	};
+	updateDownloadProgress();
+	return downloadComplete;
 };

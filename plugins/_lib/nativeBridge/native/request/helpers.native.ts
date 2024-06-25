@@ -3,7 +3,8 @@ import type { Readable } from "stream";
 import type { TidalManifest } from "../../../Caches/PlaybackInfoTypes";
 import { ExtendedRequestOptions } from "./requestStream.native";
 
-export type OnProgress = (info: { total: number; downloaded: number; percent: number }) => void;
+export type DownloadProgress = { total: number; downloaded: number; percent: number };
+type OnProgress = (progress: DownloadProgress) => void;
 export interface FetchyOptions {
 	onProgress?: OnProgress;
 	bytesWanted?: number;
