@@ -3,7 +3,7 @@ import { PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
 
 import { LastFM, ScrobbleOpts } from "./LastFM";
 
-import type { PlaybackState, TrackItem } from "neptune-types/tidal";
+import type { PlaybackState } from "neptune-types/tidal";
 
 import { fullTitle } from "@inrixia/lib/fullTitle";
 
@@ -15,9 +15,10 @@ import { debounce } from "@inrixia/lib/debounce";
 
 import safeUnload from "@inrixia/lib/safeUnload";
 
-import { settings } from "./Settings";
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
+
 export { Settings } from "./Settings";
+import { settings } from "./Settings";
 
 let totalPlayTime = 0;
 let lastPlayStart: number | null = null;

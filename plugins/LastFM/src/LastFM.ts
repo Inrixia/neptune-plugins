@@ -1,7 +1,4 @@
 import { findModuleFunction } from "@inrixia/lib/findModuleFunction";
-import type crypto from "crypto";
-const { createHash } = <typeof crypto>require("crypto");
-
 import storage from "./storage";
 
 const lastFmSecret = findModuleFunction<string>("lastFmSecret", "string");
@@ -12,7 +9,7 @@ if (lastFmApiKey === undefined) throw new Error("Last.fm API key not found");
 
 import { NowPlaying } from "./types/lastfm/NowPlaying";
 import { Scrobble } from "./types/lastfm/Scrobble";
-import { requestJson } from "@inrixia/lib/nativeBridge";
+import { hash, requestJson } from "@inrixia/lib/nativeBridge";
 
 export type NowPlayingOpts = {
 	track: string;
@@ -44,22 +41,22 @@ type ResponseType<T> =
 	  };
 
 export class LastFM {
-	private static generateApiSignature = (params: Record<string, string>) => {
+	private static async generateApiSignature(params: Record<string, string>) {
 		const sig =
 			Object.keys(params)
 				.filter((key) => key !== "format" && key !== undefined)
 				.sort()
 				.map((key) => `${key}${params[key]}`)
 				.join("") + lastFmSecret;
-		return createHash("md5").update(sig, "utf8").digest("hex");
-	};
+		return hash(sig);
+	}
 
-	private static sendRequest = async <T>(method: string, params?: Record<string, string>, reqMethod = "GET") => {
+	private static async sendRequest<T>(method: string, params?: Record<string, string>, reqMethod = "GET") {
 		params ??= {};
 		params.method = method;
 		params.api_key = lastFmApiKey!;
 		params.format = "json";
-		params.api_sig = this.generateApiSignature(params);
+		params.api_sig = await this.generateApiSignature(params);
 
 		const data = await requestJson<ResponseType<T>>(`https://ws.audioscrobbler.com/2.0/`, {
 			headers: {
@@ -72,7 +69,7 @@ export class LastFM {
 
 		if (data.message) throw new Error(data.message);
 		else return <T>data;
-	};
+	}
 
 	private static getSession = async (): Promise<LastFmSession> => {
 		if (storage.lastFmSession !== undefined) return storage.lastFmSession;

@@ -2,7 +2,7 @@ export interface Scrobble {
 	scrobbles?: Scrobbles;
 }
 
-export interface Scrobbles {
+interface Scrobbles {
 	scrobble?: ScrobbleClass;
 	"@attr"?: Attr;
 }
@@ -12,7 +12,7 @@ export interface Attr {
 	accepted?: number;
 }
 
-export interface ScrobbleClass {
+interface ScrobbleClass {
 	artist?: Album;
 	album?: Album;
 	track?: Album;
@@ -21,12 +21,12 @@ export interface ScrobbleClass {
 	timestamp?: string;
 }
 
-export interface Album {
+interface Album {
 	corrected?: string;
 	"#text"?: string;
 }
 
-export interface IgnoredMessage {
+interface IgnoredMessage {
 	code?: string;
 	"#text"?: string;
 }

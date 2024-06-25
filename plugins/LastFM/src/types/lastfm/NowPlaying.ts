@@ -2,7 +2,7 @@ export interface NowPlaying {
 	nowplaying?: Nowplaying;
 }
 
-export interface Nowplaying {
+interface Nowplaying {
 	artist?: Album;
 	track?: Album;
 	ignoredMessage?: IgnoredMessage;
@@ -10,12 +10,12 @@ export interface Nowplaying {
 	album?: Album;
 }
 
-export interface Album {
+interface Album {
 	corrected?: string;
 	"#text"?: string;
 }
 
-export interface IgnoredMessage {
+interface IgnoredMessage {
 	code?: string;
 	"#text"?: string;
 }

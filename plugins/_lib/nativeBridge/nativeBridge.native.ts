@@ -1,5 +1,7 @@
+// @ts-nocheck
 import * as nativeBridge from "./native";
-// @ts-ignore
 electron.ipcMain.removeAllListeners("___nativeBridge___");
-// @ts-ignore
-electron.ipcMain.handle("___nativeBridge___", (_, method: string, ...args) => nativeBridge[method](...args));
+electron.ipcMain.handle("___nativeBridge___", (_, method: string, ...args) => {
+	if (nativeBridge[method] === undefined) throw new Error(`Method "${method}" not found! Available methods: ${Object.keys(nativeBridge).join(", ")}.`);
+	return nativeBridge[method](...args);
+});
