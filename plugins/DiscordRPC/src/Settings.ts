@@ -4,7 +4,7 @@ import { SwitchSetting } from "@inrixia/lib/components/SwitchSetting";
 import { onTimeUpdate } from ".";
 
 export const settings = getSettings({
-	keepRpcOnPause: false,
+	keepRpcOnPause: true,
 });
 
 export const Settings = () => html`<${SwitchSetting}
