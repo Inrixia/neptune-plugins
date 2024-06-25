@@ -4,7 +4,7 @@ import{intercept as O}from"@neptune";import{actions as f}from"@neptune";var w=p=
 			<input id="switch-${a}" class="neptune-switch-checkbox" type="checkbox" checked=${p} />
 			<span onClick=${e} class="neptune-switch" />
 		</div>
-	`);var s=E({keepRpcOnPause:!1}),L=()=>R`<${b}
+	`);var s=E({keepRpcOnPause:!0}),L=()=>R`<${b}
 	checked=${s.keepRpcOnPause}
 	onClick=${()=>{h(!s.keepRpcOnPause).catch(()=>{}),s.keepRpcOnPause=!s.keepRpcOnPause}}
 	title="Keep RPC on pause"
