@@ -16,7 +16,7 @@ export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: Play
 	if (_rpcClient === undefined) return;
 
 	const activityState: Presence = {
-		buttons: [{ url: `https://tidal.com/browse/track/${currentlyPlaying.id}`, label: "Play on Tidal" }],
+		buttons: [{ url: currentlyPlaying.url ?? `https://tidal.com/browse/track/${currentlyPlaying.id}?u`, label: "Play on Tidal" }],
 	};
 
 	// Pause indicator
