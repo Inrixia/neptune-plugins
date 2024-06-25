@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@inrixia/lib": "../_lib",
-    "flac-stream-tagger": "^1.0.8"
+    "@inrixia/lib": "../_lib"
   }
 }

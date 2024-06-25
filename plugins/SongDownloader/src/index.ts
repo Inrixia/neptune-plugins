@@ -12,6 +12,7 @@ import { settings } from "./Settings";
 import { ContextMenu } from "@inrixia/lib/ContextMenu";
 import { PlaybackInfoCache } from "@inrixia/lib/Caches/PlaybackInfoCache";
 import { startTrackDownload, openDialog, saveDialog, getDownloadProgress } from "@inrixia/lib/nativeBridge";
+import { makeTags } from "./makeTags";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
@@ -92,10 +93,11 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 	});
 });
 
-const downloadTrack = async (track: TrackItem, updateMethods: ButtonMethods, filePath?: string) => {
+const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, filePath?: string) => {
+	const metaTags = makeTags(trackItem);
 	updateMethods.set("Fetching playback info...");
-	const playbackInfo = await PlaybackInfoCache.ensure(track.id!, settings.desiredDownloadQuality);
-	const fileName = parseFileName(track, playbackInfo);
+	const playbackInfo = await PlaybackInfoCache.ensure(trackItem.id!, settings.desiredDownloadQuality);
+	const fileName = parseFileName(trackItem, playbackInfo);
 	if (filePath !== undefined) {
 		filePath = `${filePath}\\${fileName}`;
 	} else {
@@ -104,9 +106,11 @@ const downloadTrack = async (track: TrackItem, updateMethods: ButtonMethods, fil
 		const dialogResult = await saveDialog({ defaultPath, filters: [{ name: "", extensions: [parseExtension(fileName) ?? "*"] }] });
 		filePath = dialogResult?.filePath;
 	}
+	updateMethods.set("Building metadata...");
+	await metaTags;
 	updateMethods.set("Downloading...");
 	let downloadEnded = false;
-	const downloadComplete = startTrackDownload(playbackInfo, filePath).finally(() => (downloadEnded = true));
+	const downloadComplete = startTrackDownload(playbackInfo, filePath, await metaTags).finally(() => (downloadEnded = true));
 	const updateDownloadProgress = async () => {
 		const downloadProgress = await getDownloadProgress(filePath);
 		if (downloadProgress !== undefined) updateMethods.onProgress(downloadProgress);
