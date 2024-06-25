@@ -1,5 +1,4 @@
-import { fetchIsrcIterable } from "@inrixia/lib/api/tidal/isrc";
-import { Resource } from "@inrixia/lib/api/tidal/types/ISRC";
+import { fetchIsrcIterable, Resource } from "@inrixia/lib/api/tidal";
 import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
 import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
 import { ItemId, TrackItem } from "neptune-types/tidal";

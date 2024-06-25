@@ -16,26 +16,12 @@ enum AudioQuality {
 	Low = "HIGH",
 	Lowest = "LOW",
 }
-interface PlaybackContext {
-	actualAssetPresentation: string;
-	actualAudioMode: string;
-	actualAudioQuality: AudioQuality;
-	actualDuration: number;
-	actualProductId: string;
-	actualStreamType: unknown;
-	actualVideoQuality: unknown;
-	assetPosition: number;
-	bitDepth: number | null;
-	codec: string;
-	playbackSessionId: string;
-	sampleRate: number | null;
-}
 export const onUnload = intercept("playbackControls/TIME_UPDATE", ([current]) => {
 	onTimeUpdate();
 });
 const onTimeUpdate = async () => {
 	const { playbackContext, playbackState, latestCurrentTime } = getPlaybackControl();
-	if (playbackState === undefined || latestCurrentTime === undefined || playbackContext === undefined) return;
+	if (!playbackState || !latestCurrentTime || !playbackContext) return;
 
 	const mediaItemId = playbackContext.actualProductId;
 	if (mediaItemId === undefined) return;

@@ -7,7 +7,7 @@ import { DecodedSignature } from "shazamio-core";
 import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
 import { fetchShazamData } from "./shazamApi/fetch";
 
-import { fetchIsrc } from "@inrixia/lib/api/tidal/isrc";
+import { fetchIsrc } from "@inrixia/lib/api/tidal";
 
 import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[Shazam]");

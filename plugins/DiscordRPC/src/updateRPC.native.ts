@@ -12,13 +12,12 @@ const formatLongString = (s?: string) => {
 const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") => (id ? "https://resources.tidal.com/images/" + id.split("-").join("/") + path : undefined);
 
 export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: PlaybackState, currentTime: number, keepRpcOnPause: boolean) => {
-	const _rpcClient = await rpcClient.ensureRPC().catch((err) => console.error("Failed to connect to DiscordRPC", err));
+	const _rpcClient = await rpcClient.ensureRPC();
 	if (_rpcClient === undefined) return;
 
 	const activityState: Presence = {
-		buttons: [],
+		buttons: [{ url: `https://tidal.com/browse/track/${currentlyPlaying.id}`, label: "Play on Tidal" }],
 	};
-	if (currentlyPlaying.url) activityState.buttons?.push({ url: currentlyPlaying.url, label: "Play on Tidal" });
 
 	// Pause indicator
 	if (playbackState === "NOT_PLAYING") {
