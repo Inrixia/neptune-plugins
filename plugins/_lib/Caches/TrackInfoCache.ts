@@ -29,17 +29,18 @@ export class TrackInfoCache {
 	}
 
 	public static async ensure(playbackContext: PlaybackContext): Promise<TrackInfo> {
-		let { actualProductId: trackId, actualAudioQuality: audioQuality, bitDepth, sampleRate, codec, actualDuration: duration } = playbackContext;
+		let { actualProductId: trackId, actualAudioQuality } = playbackContext;
 
 		// If a promise for this key is already in the cache, await it
-		const { expired, value: trackInfo } = await this._store.getWithExpiry([trackId, audioQuality]);
+		const { expired, value: trackInfo } = await this._store.getWithExpiry([trackId, actualAudioQuality]);
 
-		if (expired === true) this.update(playbackContext);
+		this.update(playbackContext);
 		if (trackInfo === undefined) return this.update(playbackContext);
 		return trackInfo;
 	}
 	private static async update(playbackContext: PlaybackContext): Promise<TrackInfo> {
-		const trackInfo = await getTrackInfo(playbackContext, await PlaybackInfoCache.ensure(+playbackContext.actualProductId, playbackContext.actualAudioQuality));
+		const extPlaybackInfo = await PlaybackInfoCache.ensure(+playbackContext.actualProductId, playbackContext.actualAudioQuality);
+		const trackInfo = await getTrackInfo(playbackContext, extPlaybackInfo);
 		this.put(trackInfo);
 		return trackInfo;
 	}

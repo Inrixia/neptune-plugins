@@ -1,5 +1,7 @@
-import type * as nativeBridge from "./native";
+import type * as nb from "./native";
 import "./nativeBridge.native";
+
+export type * from "./native";
 
 type UnsafeReturnType<T> = T extends (...args: any[]) => infer R ? R : any;
 type UnsafeParameters<T> = T extends (...args: infer P) => any ? P : never;
@@ -10,17 +12,15 @@ type PromisefulModule<M> = {
 			: (...args: UnsafeParameters<M[K]>) => Promise<UnsafeReturnType<M[K]>>
 		: () => Promise<M[K]>;
 };
-
-const invoke: (method: string, ...args: any[]) => Promise<any> = (<any>window).electron.ipcRenderer.invoke;
-module.exports = new Proxy(<PromisefulModule<typeof nativeBridge>>{}, {
-	get:
-		(_, key: string, __) =>
-		(...args: any[]) =>
-			invoke("___nativeBridge___", key, ...args).catch((err: Error) => {
-				err.message = err.message.replaceAll("Error invoking remote method '___nativeBridge___': ", "");
-				throw err;
-			}),
-	set: () => {
-		throw new Error("You cannot set properties of nativeBridge");
-	},
-});
+type NativeBridge = PromisefulModule<typeof nb>;
+const _invoke: (method: string, ...args: any[]) => Promise<any> = (<any>window).electron.ipcRenderer.invoke;
+const invoke =
+	<K extends keyof NativeBridge>(method: K) =>
+	(...args: Parameters<NativeBridge[K]>): ReturnType<NativeBridge[K]> =>
+		<any>_invoke("___nativeBridge___", method, ...args).catch((err: Error) => {
+			err.message = err.message.replaceAll("Error invoking remote method '___nativeBridge___': ", "");
+			throw err;
+		});
+export const getTrackInfo = invoke("getTrackInfo");
+export const parseDasha = invoke("parseDasha");
+export const requestJson = invoke("requestJson");
