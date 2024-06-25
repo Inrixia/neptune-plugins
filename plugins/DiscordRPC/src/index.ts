@@ -1,39 +1,38 @@
 import { intercept } from "@neptune";
-import { html } from "@neptune/voby";
 
-// @ts-expect-error Types dont include @plugin
-import { storage } from "@plugin";
+import { Tracer } from "@inrixia/lib/trace";
+const trace = Tracer("DiscordRPC");
 
-import { SwitchSetting } from "@inrixia/lib/components/SwitchSetting";
+import { settings } from "./Settings";
+export { Settings } from "./Settings";
+
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
-import { updateRPC } from "./updateRPC.native";
+import { onRpcCleanup, updateRPC } from "./updateRPC.native";
+import { type PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
 
-enum AudioQuality {
-	HiRes = "HI_RES_LOSSLESS",
-	MQA = "HI_RES",
-	High = "LOSSLESS",
-	Low = "HIGH",
-	Lowest = "LOW",
-}
-export const onUnload = intercept("playbackControls/TIME_UPDATE", ([current]) => {
-	onTimeUpdate();
-});
-const onTimeUpdate = async () => {
-	const { playbackContext, playbackState, latestCurrentTime } = getPlaybackControl();
-	if (!playbackState || !latestCurrentTime || !playbackContext) return;
+let currentPlaybackContext: PlaybackContext | undefined;
+export const onTimeUpdate = async (keepRpcOnPause: boolean, newTime?: number) => {
+	let { playbackContext, playbackState } = getPlaybackControl();
+	if (!playbackState) return;
 
-	const mediaItemId = playbackContext.actualProductId;
-	if (mediaItemId === undefined) return;
-
-	const currentlyPlaying = await TrackItemCache.ensure(mediaItemId);
+	const currentlyPlaying = await TrackItemCache.ensure((currentPlaybackContext ?? playbackContext)?.actualProductId);
 	if (currentlyPlaying === undefined) return;
 
-	updateRPC(currentlyPlaying, playbackState, latestCurrentTime, storage.keepRpcOnPause);
+	updateRPC(currentlyPlaying, playbackState, keepRpcOnPause, newTime);
 };
-onTimeUpdate();
 
-storage.keepRpcOnPause ??= false;
-export function Settings() {
-	return html` <${SwitchSetting} checked=${storage.keepRpcOnPause} onClick=${() => (storage.keepRpcOnPause = !storage.keepRpcOnPause)} title="Keep RPC on pause" /> `;
-}
+const onUnloadTimeUpdate = intercept("playbackControls/TIME_UPDATE", ([newTime]) => {
+	onTimeUpdate(settings.keepRpcOnPause, newTime).catch(trace.msg.err.withContext("Failed to update"));
+});
+const onUnloadNewTrack = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", ([{ playbackContext }]) => {
+	currentPlaybackContext = <any>playbackContext;
+	console.log("SET", currentPlaybackContext?.actualProductId);
+	onTimeUpdate(settings.keepRpcOnPause).catch(trace.msg.err.withContext("Failed to update"));
+});
+onTimeUpdate(settings.keepRpcOnPause).catch(trace.msg.err.withContext("Failed to update"));
+export const onUnload = () => {
+	onUnloadTimeUpdate();
+	onUnloadNewTrack();
+	onRpcCleanup();
+};

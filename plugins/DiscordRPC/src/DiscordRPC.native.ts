@@ -9,13 +9,29 @@ export class DiscordRPC {
 		return !!this.rpcClient?.transport?.socket;
 	}
 	async ensureRPC(): Promise<Client> {
-		if (this.rpcClient && this.isConnected()) return this.rpcClient;
-		this.rpcClient = await new Client({ transport: "ipc" }).login({ clientId: this.clientId });
-		if (!this.isConnected()) return this.ensureRPC();
-		return this.rpcClient;
+		try {
+			if (this.rpcClient && this.isConnected()) return this.rpcClient;
+			await this.cleanp(true);
+			this.rpcClient = new Client({ transport: "ipc" });
+			const ready = new Promise<void>((res, rej) => {
+				const rejTimeout = setTimeout(() => rej(new Error("Timed out waiting for RPC to be ready")), 5000);
+				this.rpcClient!.once("ready", () => {
+					clearTimeout(rejTimeout);
+					res();
+				});
+			});
+			this.rpcClient = await this.rpcClient.login({ clientId: this.clientId });
+			await ready;
+			if (!this.isConnected()) return this.ensureRPC();
+			return this.rpcClient;
+		} catch (err) {
+			await this.cleanp(true);
+			throw err;
+		}
 	}
-	async cleanp(clearActivity?: false) {
-		if (this.isConnected() && clearActivity) await this.rpcClient!.clearActivity().catch(onCleanupErr);
+	async cleanp(clearActivity: boolean = true) {
+		if (clearActivity) await this.rpcClient?.clearActivity().catch(onCleanupErr);
 		await this.rpcClient?.destroy().catch(onCleanupErr);
+		delete this.rpcClient;
 	}
 }

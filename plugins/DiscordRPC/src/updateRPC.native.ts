@@ -11,9 +11,10 @@ const formatLongString = (s?: string) => {
 };
 const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") => (id ? "https://resources.tidal.com/images/" + id.split("-").join("/") + path : undefined);
 
-export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: PlaybackState, currentTime: number, keepRpcOnPause: boolean) => {
+export const onRpcCleanup = () => rpcClient.cleanp();
+export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: PlaybackState, keepRpcOnPause: boolean, currentTime?: number) => {
 	const _rpcClient = await rpcClient.ensureRPC();
-	if (_rpcClient === undefined) return;
+	if (_rpcClient === undefined) throw new Error("Failed to obtain RPC client");
 
 	const activityState: Presence = {
 		buttons: [{ url: currentlyPlaying.url ?? `https://tidal.com/browse/track/${currentlyPlaying.id}?u`, label: "Play on Tidal" }],
