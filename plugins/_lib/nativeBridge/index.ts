@@ -20,3 +20,7 @@ export const getTrackInfo = invoke("getTrackInfo");
 export const parseDasha = invoke("parseDasha");
 export const requestJson = invoke("requestJson");
 export const hash = invoke("hash");
+export const voidTrack = invoke("voidTrack");
+export const downloadTrackStream = invoke("downloadTrackStream");
+export const saveDialog = invoke("saveDialog");
+export const openDialog = invoke("openDialog");

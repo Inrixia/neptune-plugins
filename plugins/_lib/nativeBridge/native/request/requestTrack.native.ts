@@ -6,7 +6,7 @@ import { requestDecodedStream } from "./requestDecodedStream.native";
 import { requestSegmentsStream } from "./requestSegmentsStream.native";
 
 export type ExtendedPlaybackInfoWithBytes = ExtendedPlayackInfo & { stream: Readable };
-export const requestTrackStream = async ({ manifestMimeType, manifest }: ExtendedPlayackInfo, fetchyOptions: FetchyOptions): Promise<Readable> => {
+export const requestTrackStream = async ({ manifestMimeType, manifest }: ExtendedPlayackInfo, fetchyOptions: FetchyOptions = {}): Promise<Readable> => {
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
 			const stream = await requestDecodedStream(manifest.urls[0], { ...fetchyOptions, manifest });

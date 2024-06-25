@@ -1,10 +1,7 @@
 import "./styles";
 
 import { TrackItem } from "neptune-types/tidal";
-import { saveFile, saveFileNode } from "./lib/saveFile";
-
-import { addMetadata } from "./addMetadata";
-import { fileNameFromInfo } from "./lib/fileName";
+import { parseExtension, parseFileName } from "./parseFileName";
 
 import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[SongDownloader]");
@@ -13,6 +10,8 @@ import safeUnload from "@inrixia/lib/safeUnload";
 
 import { settings } from "./Settings";
 import { ContextMenu } from "@inrixia/lib/ContextMenu";
+import { PlaybackInfoCache } from "@inrixia/lib/Caches/PlaybackInfoCache";
+import { downloadTrackStream, openDialog, saveDialog } from "@inrixia/lib/nativeBridge";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
@@ -21,6 +20,7 @@ const downloadButtons: DownloadButtoms = {};
 interface ButtonMethods {
 	prep(): void;
 	onProgress(info: { total: number; downloaded: number; percent: number }): void;
+	set(textContent: string): void;
 	clear(): void;
 }
 
@@ -37,6 +37,10 @@ const buttonMethods = (id: string): ButtonMethods => ({
 		const downloadedMB = (downloaded / 1048576).toFixed(0);
 		const totalMB = (total / 1048576).toFixed(0);
 		downloadButton.textContent = `Downloading... ${downloadedMB}/${totalMB}MB ${percent.toFixed(0)}%`;
+	},
+	set: (textContent: string) => {
+		const downloadButton = downloadButtons[id];
+		downloadButton.textContent = textContent;
 	},
 	clear: () => {
 		const downloadButton = downloadButtons[id];
@@ -67,24 +71,41 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		downloadButton.classList.add("loading");
 	}
 	downloadButtons[context] = downloadButton;
-	const { prep, onProgress, clear } = buttonMethods(context);
+	const updateMethods = buttonMethods(context);
+	contextMenu.appendChild(downloadButton);
+
 	downloadButton.addEventListener("click", async () => {
 		if (context === undefined) return;
-		prep();
+		let filePath: string | undefined;
+		const defaultPath = settings.defaultDownloadPath !== "" ? settings.defaultDownloadPath : undefined;
+		if (trackItems.length > 1 && !(settings.alwaysUseDefaultPath && defaultPath !== undefined)) {
+			updateMethods.set("Prompting for download folder...");
+			const dialogResult = await openDialog({ properties: ["openDirectory", "createDirectory"], defaultPath });
+			filePath = dialogResult.filePaths[0];
+		}
+		updateMethods.prep();
 		for (const trackItem of trackItems) {
 			if (trackItem.id === undefined) continue;
-			// await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: settings.desiredDownloadQuality }, { onProgress }).catch(trace.msg.err.withContext("Error downloading track"));
+			await downloadTrack(trackItem, updateMethods, filePath).catch(trace.msg.err.withContext("Error downloading track"));
 		}
-		clear();
+		updateMethods.clear();
 	});
-	contextMenu.appendChild(downloadButton);
 });
 
-// export const downloadTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
-// 	// Download the bytes
-// 	const trackInfo = await fetchTrack(trackOptions, options);
-// 	const streamWithTags = await addMetadata(trackInfo, track);
-// 	const fileName = fileNameFromInfo(track, trackInfo);
-// 	if (settings.defaultDownloadPath !== "") return saveFileNode(streamWithTags ?? trackInfo.stream, settings.defaultDownloadPath, fileName);
-// 	return saveFile(streamWithTags ?? trackInfo.stream, fileName);
-// };
+const downloadTrack = async (track: TrackItem, updateMethods: ButtonMethods, filePath?: string) => {
+	updateMethods.set("Fetching playback info...");
+	const playbackInfo = await PlaybackInfoCache.ensure(track.id!, settings.desiredDownloadQuality);
+	const fileName = parseFileName(track, playbackInfo);
+	if (filePath !== undefined) {
+		filePath = `${filePath}\\${fileName}`;
+	} else {
+		updateMethods.set("Prompting for download path...");
+		const defaultPath = settings.defaultDownloadPath !== "" ? `${settings.defaultDownloadPath}\\${fileName}` : `${fileName}`;
+		const dialogResult = await saveDialog({ defaultPath, filters: [{ name: "", extensions: [parseExtension(fileName) ?? "*"] }] });
+		filePath = dialogResult?.filePath;
+	}
+	console.log(filePath);
+	updateMethods.set("Downloading...");
+	await downloadTrackStream(playbackInfo, filePath);
+	console.log("Done!");
+};

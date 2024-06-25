@@ -2,7 +2,11 @@ import { TrackItem } from "neptune-types/tidal";
 import { type ExtendedPlayackInfo, ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoTypes";
 import { fullTitle } from "@inrixia/lib/fullTitle";
 
-export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
+const unsafeCharacters = /[\/:*?"<>|]/g;
+const sanitizeFilename = (filename: string): string => filename.replace(unsafeCharacters, "_");
+
+export const parseExtension = (filename: string) => filename.match(/\.([0-9a-z]+)(?:[\?#]|$)/i)?.[1] ?? undefined;
+const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
 	const artistName = track.artists?.[0].name ?? "Unknown Artist";
 	const albumName = track.album?.title ?? "Unknown Album";
 	const title = fullTitle(track);
@@ -20,3 +24,4 @@ export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType 
 		}
 	}
 };
+export const parseFileName = (track: TrackItem, extPlaybackInfo: ExtendedPlayackInfo) => sanitizeFilename(fileNameFromInfo(track, extPlaybackInfo));
