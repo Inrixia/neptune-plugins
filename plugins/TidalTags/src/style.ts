@@ -1,9 +1,6 @@
 import { setStyle } from "@inrixia/lib/css/setStyle";
 
 const styles = `
-span[class^="titleText--"] {
-	max-width: 190px;
-}
 .quality-tag-container {
 	display: inline-flex;
 	height: 24px;
