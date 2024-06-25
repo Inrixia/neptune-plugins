@@ -1,7 +1,6 @@
 import { findModuleFunction } from "@inrixia/lib/findModuleFunction";
 import type crypto from "crypto";
 const { createHash } = <typeof crypto>require("crypto");
-import { requestStream, toJson } from "@inrixia/lib/fetch";
 
 import storage from "./storage";
 
@@ -13,6 +12,7 @@ if (lastFmApiKey === undefined) throw new Error("Last.fm API key not found");
 
 import { NowPlaying } from "./types/lastfm/NowPlaying";
 import { Scrobble } from "./types/lastfm/Scrobble";
+import { requestJson } from "@inrixia/lib/nativeBridge";
 
 export type NowPlayingOpts = {
 	track: string;
@@ -61,14 +61,14 @@ export class LastFM {
 		params.format = "json";
 		params.api_sig = this.generateApiSignature(params);
 
-		const data = await requestStream(`https://ws.audioscrobbler.com/2.0/`, {
+		const data = await requestJson<ResponseType<T>>(`https://ws.audioscrobbler.com/2.0/`, {
 			headers: {
 				"Content-type": "application/x-www-form-urlencoded",
 				"Accept-Charset": "utf-8",
 			},
 			method: "POST",
 			body: new URLSearchParams(params).toString(),
-		}).then(toJson<ResponseType<T>>);
+		});
 
 		if (data.message) throw new Error(data.message);
 		else return <T>data;

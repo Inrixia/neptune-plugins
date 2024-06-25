@@ -1,5 +1,5 @@
 import { TrackItem } from "neptune-types/tidal";
-import { ExtendedPlayackInfo, ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoCache";
+import { type ExtendedPlayackInfo, ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoTypes";
 import { fullTitle } from "@inrixia/lib/fullTitle";
 
 export const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {

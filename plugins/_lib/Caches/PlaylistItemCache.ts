@@ -2,7 +2,6 @@ import { actions } from "@neptune";
 import type { ItemId, MediaItem, TrackItem } from "neptune-types/tidal";
 import { interceptPromise } from "../intercept/interceptPromise";
 import { SharedObjectStoreExpirable } from "../storage/SharedObjectStoreExpirable";
-import { retryPending } from "./retryPending";
 
 import { libTrace } from "../trace";
 

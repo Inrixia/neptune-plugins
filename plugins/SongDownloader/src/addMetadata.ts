@@ -1,9 +1,8 @@
 import { utils } from "@neptune";
 import { TrackItem } from "neptune-types/tidal";
 import { fullTitle } from "@inrixia/lib/fullTitle";
-import { ExtendedPlaybackInfoWithBytes } from "@inrixia/lib/trackBytes/download";
-import { rejectNotOk, requestStream, toBuffer } from "@inrixia/lib/fetch";
-import { ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoCache";
+import type { ExtendedPlaybackInfoWithBytes } from "@inrixia/lib/trackBytes/download";
+import { ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoTypes";
 import { actions } from "@neptune";
 import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
 
@@ -58,13 +57,13 @@ async function makeTags(track: TrackItem) {
 	}
 
 	let picture;
-	if (cover !== undefined) {
-		try {
-			picture = {
-				pictureType: PictureType.FrontCover,
-				buffer: await requestStream(utils.getMediaURLFromID(cover)).then(rejectNotOk).then(toBuffer),
-			};
-		} catch {}
-	}
+	// if (cover !== undefined) {
+	// 	try {
+	// 		picture = {
+	// 			pictureType: PictureType.FrontCover,
+	// 			buffer: await requestStream(utils.getMediaURLFromID(cover)).then(rejectNotOk).then(toBuffer),
+	// 		};
+	// 	} catch {}
+	// }
 	return { tagMap, picture };
 }

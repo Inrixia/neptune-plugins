@@ -19,7 +19,7 @@ export interface ReleaseData {
 	title?: string;
 }
 
-export interface CoverArtArchive {
+interface CoverArtArchive {
 	count?: number;
 	darkened?: boolean;
 	artwork?: boolean;
@@ -27,7 +27,7 @@ export interface CoverArtArchive {
 	back?: boolean;
 }
 
-export interface Media {
+interface Media {
 	"format-id"?: string;
 	title?: string;
 	format?: string;
@@ -37,7 +37,7 @@ export interface Media {
 	"track-count"?: number;
 }
 
-export interface Track {
+interface Track {
 	position?: number;
 	length?: number;
 	number?: string;
@@ -46,12 +46,12 @@ export interface Track {
 	id?: string;
 }
 
-export interface ReleaseEvent {
+interface ReleaseEvent {
 	date?: Date;
 	area?: Area;
 }
 
-export interface Area {
+interface Area {
 	"sort-name"?: string;
 	"iso-3166-1-codes"?: string[];
 	name?: string;
@@ -61,7 +61,7 @@ export interface Area {
 	disambiguation?: string;
 }
 
-export interface TextRepresentation {
+interface TextRepresentation {
 	script?: string;
 	language?: string;
 }

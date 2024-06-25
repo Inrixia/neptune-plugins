@@ -1,45 +1,13 @@
-import { getHeaders } from "../fetch";
 import { audioQualities, AudioQuality } from "../AudioQualityTypes";
-import { TrackItem } from "neptune-types/tidal";
-import type { Manifest as DashManifest } from "dasha";
-
 import { Semaphore } from "../Semaphore";
-import { SharedObjectStore } from "../storage/SharedObjectStore";
 
-import type * as dasha from "dasha";
 import { SharedObjectStoreExpirable } from "../storage/SharedObjectStoreExpirable";
-const { parse } = <typeof dasha>require("dasha");
+import { parseDasha } from "../nativeBridge";
+import { findModuleFunction } from "../findModuleFunction";
+import { ExtendedPlayackInfo, PlaybackInfo, ManifestMimeType, TidalManifest } from "./PlaybackInfoTypes";
 
-export enum ManifestMimeType {
-	Tidal = "application/vnd.tidal.bts",
-	Dash = "application/dash+xml",
-}
-
-export type PlaybackInfo = {
-	trackId: number;
-	assetPresentation: string;
-	audioMode: NonNullable<TrackItem["audioModes"]>;
-	audioQuality: NonNullable<TrackItem["audioQuality"]>;
-	manifestMimeType: ManifestMimeType;
-	manifestHash: string;
-	manifest: string;
-	albumReplayGain: number;
-	albumPeakAmplitude: number;
-	trackReplayGain: number;
-	trackPeakAmplitude: number;
-};
-
-export type TidalManifest = {
-	mimeType: string;
-	codecs: string;
-	encryptionType: string;
-	keyId: string;
-	urls: string[];
-};
-
-export type ExtendedPlayackInfo =
-	| { playbackInfo: PlaybackInfo; manifestMimeType: ManifestMimeType.Dash; manifest: DashManifest }
-	| { playbackInfo: PlaybackInfo; manifestMimeType: ManifestMimeType.Tidal; manifest: TidalManifest };
+const getCredentials = findModuleFunction<() => Promise<{ token: string; clientId: string }>>("getCredentials", "function");
+if (getCredentials === undefined) throw new Error("getCredentials method not found");
 
 export class PlaybackInfoCache {
 	private static readonly _store: SharedObjectStoreExpirable<[ExtendedPlayackInfo["playbackInfo"]["trackId"], ExtendedPlayackInfo["playbackInfo"]["audioQuality"]], ExtendedPlayackInfo> =
@@ -62,8 +30,12 @@ export class PlaybackInfoCache {
 		try {
 			const url = `https://desktop.tidal.com/v1/tracks/${trackId}/playbackinfo?audioquality=${audioQuality}&playbackmode=STREAM&assetpresentation=FULL`;
 
+			const { clientId, token } = await getCredentials!();
 			const playbackInfo: PlaybackInfo = await fetch(url, {
-				headers: await getHeaders(),
+				headers: {
+					Authorization: `Bearer ${token}`,
+					"x-tidal-token": clientId,
+				},
 			}).then((r) => {
 				if (r.status === 401) {
 					alert("Failed to fetch Stream Info... Invalid OAuth Access Token!");
@@ -81,7 +53,7 @@ export class PlaybackInfoCache {
 					return extPlaybackInfo;
 				}
 				case ManifestMimeType.Dash: {
-					const manifest = await parse(atob(playbackInfo.manifest), "https://sp-ad-cf.audio.tidal.com");
+					const manifest = await parseDasha(atob(playbackInfo.manifest), "https://sp-ad-cf.audio.tidal.com");
 					return { playbackInfo, manifestMimeType: playbackInfo.manifestMimeType, manifest };
 				}
 				default: {

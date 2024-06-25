@@ -1,7 +1,7 @@
 import { requestCached } from "../requestCache";
-import type { ISRCData } from "./types/ISRCData";
-import type { ReleaseData } from "./types/ReleaseData";
-import type { UPCData, Release } from "./types/UPCData";
+import type { ISRCData, UPCData, ReleaseData } from "./types";
+
+export * from "./types";
 
 export class MusicBrainz {
 	public static async getRecording(isrc?: string) {

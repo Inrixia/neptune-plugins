@@ -1,17 +1,10 @@
-import { intercept, actions, store } from "@neptune";
-
 import "./styles";
 
-import { fetchTrack, DownloadTrackOptions, TrackOptions } from "@inrixia/lib/trackBytes/download";
-import { ItemId, MediaItem, TrackItem, VideoItem } from "neptune-types/tidal";
+import { TrackItem } from "neptune-types/tidal";
 import { saveFile, saveFileNode } from "./lib/saveFile";
-
-import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
 
 import { addMetadata } from "./addMetadata";
 import { fileNameFromInfo } from "./lib/fileName";
-import { toBuffer } from "@inrixia/lib/fetch";
-import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
 
 import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[SongDownloader]");
@@ -80,19 +73,18 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		prep();
 		for (const trackItem of trackItems) {
 			if (trackItem.id === undefined) continue;
-			await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: settings.desiredDownloadQuality }, { onProgress }).catch(trace.msg.err.withContext("Error downloading track"));
+			// await downloadTrack(trackItem, { trackId: trackItem.id, desiredQuality: settings.desiredDownloadQuality }, { onProgress }).catch(trace.msg.err.withContext("Error downloading track"));
 		}
 		clear();
 	});
 	contextMenu.appendChild(downloadButton);
 });
 
-export const downloadTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
-	// Download the bytes
-	const trackInfo = await fetchTrack(trackOptions, options);
-	const streamWithTags = await addMetadata(trackInfo, track);
-	const fileName = fileNameFromInfo(track, trackInfo);
-
-	if (settings.defaultDownloadPath !== "") return saveFileNode(streamWithTags ?? trackInfo.stream, settings.defaultDownloadPath, fileName);
-	return saveFile(streamWithTags ?? trackInfo.stream, fileName);
-};
+// export const downloadTrack = async (track: TrackItem, trackOptions: TrackOptions, options?: DownloadTrackOptions) => {
+// 	// Download the bytes
+// 	const trackInfo = await fetchTrack(trackOptions, options);
+// 	const streamWithTags = await addMetadata(trackInfo, track);
+// 	const fileName = fileNameFromInfo(track, trackInfo);
+// 	if (settings.defaultDownloadPath !== "") return saveFileNode(streamWithTags ?? trackInfo.stream, settings.defaultDownloadPath, fileName);
+// 	return saveFile(streamWithTags ?? trackInfo.stream, fileName);
+// };

@@ -1,4 +1,4 @@
-import { rejectNotOk, requestStream, toJson } from "../../fetch";
+import { requestJson } from "../../nativeBridge";
 import { Semaphore } from "../../Semaphore";
 
 const CLIENT_ID = "tzecdDS3Bbx00rMP";
@@ -19,7 +19,7 @@ export const getToken = async () => {
 	await authSema.obtain();
 	try {
 		if (tokenStore.expiresAt > Date.now()) return tokenStore.token;
-		const { access_token, expires_in } = await requestStream("https://auth.tidal.com/v1/oauth2/token", {
+		const { access_token, expires_in } = await requestJson<TokenInfo>("https://auth.tidal.com/v1/oauth2/token", {
 			method: "POST",
 			headers: {
 				Authorization: `Basic ${btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)}`,
@@ -28,9 +28,7 @@ export const getToken = async () => {
 			body: new URLSearchParams({
 				grant_type: "client_credentials",
 			}).toString(),
-		})
-			.then(rejectNotOk)
-			.then(toJson<TokenInfo>);
+		});
 
 		tokenStore.token = access_token;
 		tokenStore.expiresAt = Date.now() + (expires_in - 60) * 1000;

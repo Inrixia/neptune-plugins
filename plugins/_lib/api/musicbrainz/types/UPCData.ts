@@ -29,34 +29,34 @@ export interface Release {
 	tags?: Tag[];
 }
 
-export interface ArtistCredit {
+interface ArtistCredit {
 	name?: string;
 	artist?: Artist;
 }
 
-export interface Artist {
+interface Artist {
 	id?: string;
 	name?: string;
 	"sort-name"?: string;
 	disambiguation?: string;
 }
 
-export interface LabelInfo {
+interface LabelInfo {
 	label?: Label;
 }
 
-export interface Label {
+interface Label {
 	id?: string;
 	name?: string;
 }
 
-export interface Media {
+interface Media {
 	format?: string;
 	"disc-count"?: number;
 	"track-count"?: number;
 }
 
-export interface ReleaseGroup {
+interface ReleaseGroup {
 	id?: string;
 	"type-id"?: string;
 	"primary-type-id"?: string;
@@ -64,12 +64,12 @@ export interface ReleaseGroup {
 	"primary-type"?: string;
 }
 
-export interface Tag {
+interface Tag {
 	count?: number;
 	name?: string;
 }
 
-export interface TextRepresentation {
+interface TextRepresentation {
 	language?: string;
 	script?: string;
 }

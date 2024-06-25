@@ -1,8 +1,6 @@
-import type { Readable } from "stream";
-import { FetchyOptions, requestStream, rejectNotOk, parseTotal } from ".";
-
-import type stream from "stream";
-const { Transform, PassThrough } = <typeof stream>require("stream");
+import { type Readable, PassThrough } from "stream";
+import { FetchyOptions, rejectNotOk, parseTotal } from "./helpers.native";
+import { requestStream } from "./requestStream.native";
 
 export const requestSegmentsStream = async (segments: string[], options: FetchyOptions = {}) =>
 	new Promise<Readable>(async (resolve, reject) => {

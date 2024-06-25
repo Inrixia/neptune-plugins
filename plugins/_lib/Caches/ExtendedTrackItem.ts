@@ -1,12 +1,9 @@
 import type { ItemId, TrackItem, Album } from "neptune-types/tidal";
 import type { PlaybackContext } from "../AudioQualityTypes";
-import { MusicBrainz } from "../api/musicbrainz";
-import { Recording } from "../api/musicbrainz/types/Recording";
-import { Release } from "../api/musicbrainz/types/UPCData";
+import { MusicBrainz, Release, Recording } from "../api/musicbrainz";
 import { TrackItemCache } from "./TrackItemCache";
 import { AlbumCache } from "./AlbumCache";
 import { libTrace } from "../trace";
-import { store } from "@neptune";
 import getPlaybackControl from "../getPlaybackControl";
 
 export class ExtendedTrackItem {

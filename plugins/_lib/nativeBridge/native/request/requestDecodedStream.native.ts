@@ -1,12 +1,13 @@
 import type { Readable } from "stream";
-import { FetchyOptions, requestStream, rejectNotOk, parseTotal } from ".";
+import { FetchyOptions, rejectNotOk, parseTotal } from "./helpers.native";
+import { requestStream } from "./requestStream.native";
 
-import type stream from "stream";
-const { Transform } = <typeof stream>require("stream");
+import { Transform } from "stream";
+import { makeDecipher } from "./decrypt.native";
 
 export const requestDecodedStream = async (url: string, options?: FetchyOptions): Promise<Readable> =>
 	new Promise(async (resolve, reject) => {
-		const { onProgress, bytesWanted, getDecipher, poke } = options ?? {};
+		const { onProgress, bytesWanted, manifest } = options ?? {};
 		const reqOptions = { ...(options?.requestOptions ?? {}) };
 		if (bytesWanted !== undefined) {
 			reqOptions.headers ??= {};
@@ -14,14 +15,16 @@ export const requestDecodedStream = async (url: string, options?: FetchyOptions)
 		}
 
 		const res = await requestStream(url, reqOptions).then(rejectNotOk);
+
 		res.on("error", reject);
 
 		let downloaded = 0;
 		const total = parseTotal(res.headers);
 		if (total !== -1) onProgress?.({ total, downloaded, percent: (downloaded / total) * 100 });
 
-		if (getDecipher !== undefined) {
-			const decipher = await getDecipher();
+		const decipher = manifest ? makeDecipher(manifest) : undefined;
+
+		if (decipher !== undefined) {
 			resolve(
 				res.pipe(
 					new Transform({
