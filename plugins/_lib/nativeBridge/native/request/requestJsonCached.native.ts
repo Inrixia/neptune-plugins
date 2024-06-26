@@ -1,4 +1,4 @@
-import { requestJson, ExtendedRequestOptions } from "./";
+import { requestJson, ExtendedRequestOptions } from ".";
 
 import { libTrace } from "../../trace.native";
 
