@@ -56,8 +56,23 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 	maxButton.textContent = `RealMAX - Process ${trackItems.length} tracks`;
 	maxButton.id = "realMax-button";
 	maxButton.className = "context-button"; // Set class name for styling
+	contextMenu.appendChild(maxButton);
 	maxButton.addEventListener("click", async () => {
 		maxButton.remove();
+		const maxIds: number[] = [];
+		for (const index in trackItems) {
+			const trackItem = trackItems[index];
+			let itemId = trackItem.id!;
+			const maxItem = await MaxTrack.getMaxId(trackItem.id);
+			if (maxItem !== false && maxItem.id !== undefined) {
+				trace.msg.log(`Found Max quality for ${maxItem.title} while processing playist ${sourceName}!`);
+				trace.msg.log(`Processing tracks for RealMAX playlist ${sourceName}... ${index}/${trackItems.length - 1} done.`);
+				itemId = +maxItem.id;
+			}
+			trace.msg.log(`Processing tracks for RealMAX playlist ${sourceName}, ${index}/${trackItems.length - 1} done. `);
+			await TrackItemCache.ensure(itemId);
+			maxIds.push(itemId);
+		}
 		const [{ playlist }] = await interceptPromise(
 			() =>
 				actions.folders.createPlaylist({
@@ -66,6 +81,8 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 					fromPlaylist: undefined,
 					isPublic: false,
 					title: sourceName,
+					// @ts-expect-error This works lol
+					ids: maxIds,
 				}),
 			["content/LOAD_PLAYLIST_SUCCESS"],
 			["content/LOAD_PLAYLIST_FAIL"]
@@ -73,31 +90,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		if (playlist?.uuid === undefined) {
 			return trace.msg.err(`Failed to create playlist "${sourceName}"`);
 		}
-		for (const index in trackItems) {
-			const trackItem = trackItems[index];
-			let itemId = trackItem.id!;
-			const maxItem = await MaxTrack.getMaxId(trackItem.id);
-			if (maxItem !== false && maxItem.id !== undefined) {
-				trace.msg.log(`Found Max quality for ${maxItem.title}! Adding to playlsit ${sourceName}...`);
-				itemId = +maxItem.id;
-			}
-			await TrackItemCache.ensure(itemId);
-			await interceptPromise(
-				() =>
-					actions.content.addMediaItemsToPlaylist({
-						addToIndex: +index,
-						mediaItemIdsToAdd: [itemId],
-						onArtifactNotFound: "FAIL",
-						onDupes: "ADD",
-						playlistUUID: playlist.uuid!,
-						showNotification: false,
-					}),
-				["content/ADD_MEDIA_ITEMS_TO_PLAYLIST_SUCCESS"],
-				["content/ADD_MEDIA_ITEMS_TO_PLAYLIST_FAIL"]
-			);
-		}
 	});
-	contextMenu.appendChild(maxButton);
 });
 
 export const onUnload = () => {
