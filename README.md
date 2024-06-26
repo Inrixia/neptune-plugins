@@ -1,11 +1,13 @@
-## My Tidal Plugins
+## My [Tidal Neptune Client](https://github.com/uwu/neptune-installer/releases/latest) Plugins
 This is a repository containing plugins I have made for the [Tidal Neptune Client](https://github.com/uwu/neptune-installer/releases/latest).  
 
 Want to chat, ask questions or hang out? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**  
 
 If you like the project, and want to support me can to throw some bits at my [Sponsor Page](https://github.com/sponsors/Inrixia) ❤️   
 
-To install any of these plugins you need to have the [Neptune](https://github.com/uwu/neptune) app installed, then just paste the **Install Url** into the plugins page and hit enter.
+To install any of these plugins you need to have the [Tidal Neptune Client](https://github.com/uwu/neptune-installer/releases/latest) installed. 
+
+Then just paste the **Install Url** into the plugins page and hit enter.
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/a997156c-a281-46ec-992a-397a742dd146)
 
 # My Public Plugins
@@ -56,7 +58,7 @@ When enabled any files you drag onto your client will be run through [**Shazam**
 
 ## NoBuffer
 **Install Url: `https://inrixia.github.io/neptune-plugins/NoBuffer/`**  
-Kicks the Tidal cdn if the current playback stalls to make it stop so you never have to deal with constant stuttering or stalling again!
+Kicks the Tidal cdn if the current playback stalls to make it stop so you never have to deal with constant stuttering or stalling again!  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/8378a9a3-2d3f-4cd7-af04-ceeac350b9e6) 
 
 ## Downloader
