@@ -56,13 +56,13 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		for (const index in trackItems) {
 			const trackItem = trackItems[index];
 			let itemId = trackItem.id!;
-			const maxItem = await MaxTrack.getMaxTrack(trackItem.id);
+			const maxItem = await MaxTrack.getMaxTrack(trackItem.id).catch(trace.msg.err.withContext(`Failed to create ${sourceName}`));
+			if (maxItem === undefined) return;
 			if (maxItem !== false && maxItem.id !== undefined) {
-				trace.msg.log(`Found Max quality for ${maxItem.title} while processing playist ${sourceName}!`);
-				trace.msg.log(`Processing tracks for RealMAX playlist ${sourceName}... ${index}/${trackItems.length - 1} done.`);
+				trace.msg.log(`Found Max quality for ${maxItem.title} in ${sourceName}! ${index}/${trackItems.length - 1} done.`);
 				itemId = +maxItem.id;
 			}
-			trace.msg.log(`Processing tracks for RealMAX playlist ${sourceName}, ${index}/${trackItems.length - 1} done. `);
+			trace.msg.log(`${sourceName} - ${index}/${trackItems.length - 1} done. `);
 			await TrackItemCache.ensure(itemId);
 			maxIds.push(itemId);
 		}

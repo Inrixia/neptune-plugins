@@ -4,25 +4,25 @@ import { TrackItemCache } from "./Caches/TrackItemCache";
 import { ItemId, TrackItem } from "neptune-types/tidal";
 
 export class MaxTrack {
-	private static readonly _idMap: Record<ItemId, Promise<Resource | false>> = {};
+	private static readonly _maxTrackMap: Record<ItemId, Promise<Resource | false>> = {};
 	public static async fastCacheMaxId(itemId: ItemId): Promise<Resource | false> {
 		if (itemId === undefined) return false;
-		return MaxTrack._idMap[itemId];
+		return MaxTrack._maxTrackMap[itemId];
 	}
 	public static async getMaxTrack(itemId: ItemId | undefined): Promise<Resource | false> {
 		if (itemId === undefined) return false;
 
-		const idMapping = MaxTrack._idMap[itemId];
-		if (idMapping !== undefined) return idMapping;
+		const maxTrack = MaxTrack._maxTrackMap[itemId];
+		if (maxTrack !== undefined) return maxTrack;
 
 		const extTrackItem = await ExtendedTrackItem.get(itemId);
 		const trackItem = extTrackItem?.trackItem;
 		if (trackItem !== undefined && this.hasHiRes(trackItem)) return false;
 
 		const isrcs = await extTrackItem?.isrcs();
-		if (isrcs === undefined) return (this._idMap[itemId] = Promise.resolve(false));
+		if (isrcs === undefined) return (this._maxTrackMap[itemId] = Promise.resolve(false));
 
-		return (this._idMap[itemId] = (async () => {
+		return (this._maxTrackMap[itemId] = (async () => {
 			for (const isrc of isrcs) {
 				for await (const { resource } of fetchIsrcIterable(isrc)) {
 					if (resource?.id !== undefined && this.hasHiRes(<TrackItem>resource)) {
