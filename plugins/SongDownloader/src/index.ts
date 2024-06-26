@@ -12,7 +12,8 @@ import { settings } from "./Settings";
 import { ContextMenu } from "@inrixia/lib/ContextMenu";
 import { PlaybackInfoCache } from "@inrixia/lib/Caches/PlaybackInfoCache";
 import { startTrackDownload, openDialog, saveDialog, getDownloadProgress } from "@inrixia/lib/nativeBridge";
-import { makeTags } from "./makeTags";
+import { makeTags } from "@inrixia/lib/makeTags";
+import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
@@ -94,10 +95,10 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 });
 
 const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, filePath?: string) => {
-	const metaTags = makeTags(trackItem);
-	updateMethods.set("Fetching playback info...");
+	const metaTags = makeTags((await ExtendedTrackItem.get(trackItem.id))!);
+	updateMethods.set("Fetching playback info & making tags...");
 	const playbackInfo = await PlaybackInfoCache.ensure(trackItem.id!, settings.desiredDownloadQuality);
-	const fileName = parseFileName(trackItem, playbackInfo);
+	const fileName = parseFileName(await metaTags, playbackInfo);
 	if (filePath !== undefined) {
 		filePath = `${filePath}\\${fileName}`;
 	} else {
@@ -107,8 +108,6 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 		if (dialogResult.canceled) return updateMethods.clear();
 		filePath = dialogResult?.filePath;
 	}
-	updateMethods.set("Building metadata...");
-	await metaTags;
 	updateMethods.set("Downloading...");
 	let downloadEnded = false;
 	const downloadComplete = startTrackDownload(playbackInfo, filePath, await metaTags).finally(() => (downloadEnded = true));

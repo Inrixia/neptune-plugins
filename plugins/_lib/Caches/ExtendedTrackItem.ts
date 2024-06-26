@@ -20,7 +20,7 @@ export class ExtendedTrackItem {
 		return this.get(playbackContext.actualProductId);
 	}
 
-	public static async get(trackId: ItemId) {
+	public static async get(trackId?: ItemId) {
 		if (trackId === undefined) return undefined;
 		const trackItem = await TrackItemCache.ensure(trackId);
 		if (trackItem === undefined) return undefined;

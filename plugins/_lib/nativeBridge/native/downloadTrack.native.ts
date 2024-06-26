@@ -4,13 +4,12 @@ import { rejectNotOk, toBuffer, type DownloadProgress } from "./request/helpers.
 import { requestTrackStream } from "./request/requestTrack.native";
 import { createWriteStream } from "fs";
 
-import { FlacStreamTagger, PictureType, type FlacTagMap } from "flac-stream-tagger";
+import { FlacStreamTagger, PictureType } from "flac-stream-tagger";
 import { requestStream } from "./request/requestStream.native";
+import type { MetaTags } from "../../makeTags";
 
 export type { DownloadProgress } from "./request/helpers.native";
-export type { FlacTagMap } from "flac-stream-tagger";
 
-export type MetaTags = { tags: FlacTagMap; coverUrl?: string };
 const addTags = async (extPlaybackInfo: ExtendedPlayackInfo, stream: Readable, metaTags?: MetaTags) => {
 	if (metaTags === undefined) return stream;
 	const { tags, coverUrl } = metaTags;

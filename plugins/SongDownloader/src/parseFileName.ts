@@ -1,16 +1,16 @@
 import { TrackItem } from "neptune-types/tidal";
 import { type ExtendedPlayackInfo, ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoTypes";
-import { fullTitle } from "@inrixia/lib/fullTitle";
+import { fullTitle, MetaTags } from "@inrixia/lib/makeTags";
 
 const unsafeCharacters = /[\/:*?"<>|]/g;
 const sanitizeFilename = (filename: string): string => filename.replace(unsafeCharacters, "_");
 
 export const parseExtension = (filename: string) => filename.match(/\.([0-9a-z]+)(?:[\?#]|$)/i)?.[1] ?? undefined;
-const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
-	const artistName = track.artists?.[0].name ?? "Unknown Artist";
-	const albumName = track.album?.title ?? "Unknown Album";
-	const title = fullTitle(track);
-	const base = title !== albumName ? `${artistName} - ${albumName} - ${title}` : `${artistName} - ${title}`;
+const fileNameFromInfo = ({ tags }: MetaTags, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
+	const artist = tags.artist;
+	const album = tags.album;
+	const title = tags.title;
+	const base = title !== album ? `${artist} - ${album} - ${title}` : `${artist} - ${title}`;
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
 			if (manifest.codecs === "mqa") {
@@ -24,4 +24,4 @@ const fileNameFromInfo = (track: TrackItem, { manifest, manifestMimeType }: Exte
 		}
 	}
 };
-export const parseFileName = (track: TrackItem, extPlaybackInfo: ExtendedPlayackInfo) => sanitizeFilename(fileNameFromInfo(track, extPlaybackInfo));
+export const parseFileName = (metaTags: MetaTags, extPlaybackInfo: ExtendedPlayackInfo) => sanitizeFilename(fileNameFromInfo(metaTags, extPlaybackInfo));

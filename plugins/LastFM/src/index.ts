@@ -5,20 +5,18 @@ import { LastFM, ScrobbleOpts } from "./LastFM";
 
 import type { PlaybackState } from "neptune-types/tidal";
 
-import { fullTitle } from "@inrixia/lib/fullTitle";
-
 import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[last.fm]");
 
 import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
 import { debounce } from "@inrixia/lib/debounce";
-
 import safeUnload from "@inrixia/lib/safeUnload";
-
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 
 export { Settings } from "./Settings";
 import { settings } from "./Settings";
+
+import { makeTags, type MetaTags } from "@inrixia/lib/makeTags";
 
 let totalPlayTime = 0;
 let lastPlayStart: number | null = null;
@@ -42,9 +40,7 @@ const updateNowPlaying = debounce(async (playbackContext?: PlaybackContext) => {
 	if (!isPlaying()) return;
 	currentTrack = await getCurrentTrack(playbackContext).catch(trace.msg.err.withContext(`Failed to get current track!`));
 	if (currentTrack === undefined) return;
-	const nowPlayingParams = await getTrackParams(currentTrack);
-	trace.log("updatingNowPlaying", nowPlayingParams);
-	const res = await LastFM.updateNowPlaying(nowPlayingParams).catch(trace.msg.err.withContext(`Failed to updateNowPlaying!`));
+	const res = await LastFM.updateNowPlaying(currentTrack.scrobbleParams).catch(trace.msg.err.withContext(`Failed to updateNowPlaying!`));
 	if (res?.nowplaying) trace.log("updatedNowPlaying", res?.nowplaying);
 }, 250);
 
@@ -71,11 +67,11 @@ const intercepters = [
 			const minPlayTime = +currentTrack.playbackContext.actualDuration * MIN_SCROBBLE_PERCENTAGE * 1000;
 			const moreThan50Percent = totalPlayTime >= minPlayTime;
 			if (longerThan4min || moreThan50Percent) {
-				getTrackParams(currentTrack).then(async (scrobbleParams) => {
-					trace.log("scrobbling", scrobbleParams);
-					const res = await LastFM.scrobble(scrobbleParams).catch(trace.msg.err.withContext(`last.fm - Failed to scrobble!`));
-					if (res?.scrobbles) trace.log("scrobbled", res?.scrobbles["@attr"], res.scrobbles.scrobble);
-				});
+				LastFM.scrobble(currentTrack.scrobbleParams)
+					.catch(trace.msg.err.withContext(`last.fm - Failed to scrobble!`))
+					.then((res) => {
+						if (res?.scrobbles) trace.log("scrobbled", res?.scrobbles["@attr"], res.scrobbles.scrobble);
+					});
 			} else {
 				const trackTitle = currentTrack.extTrackItem.trackItem.title;
 				const noScrobbleMessage = `skipped scrobbling ${trackTitle} - Listened for ${(totalPlayTime / 1000).toFixed(0)}s, need ${(minPlayTime / 1000).toFixed(0)}s`;
@@ -89,45 +85,12 @@ const intercepters = [
 	}),
 ];
 
-const getTrackParams = async ({ extTrackItem, playbackContext, playbackStart }: CurrentTrack) => {
-	const { trackItem, releaseAlbum, recording, album } = await extTrackItem.everything();
-
-	let artist;
-	const sharedAlbumArtist = trackItem.artists?.find((artist) => artist?.id === album?.artist?.id);
-	if (sharedAlbumArtist?.name !== undefined) artist = formatArtists([sharedAlbumArtist.name]);
-	else if (trackItem.artist?.name !== undefined) artist = formatArtists([trackItem.artist.name]);
-	else if ((trackItem.artists?.length ?? -1) > 0) artist = formatArtists(trackItem.artists?.map(({ name }) => name));
-
-	const params: ScrobbleOpts = {
-		track: recording?.title ?? fullTitle(trackItem),
-		artist: artist!,
-		timestamp: (playbackStart / 1000).toFixed(0),
-	};
-
-	if (!!recording?.id) params.mbid = recording.id;
-
-	if (!!album?.artist?.name) params.albumArtist = album.artist.name;
-	else if ((album?.artists?.length ?? -1) > 0) params.albumArtist = formatArtists(album?.artists?.map(({ name }) => name));
-
-	if (!!releaseAlbum?.title) {
-		params.album = releaseAlbum?.title;
-		if (!!releaseAlbum.disambiguation) params.album += ` (${releaseAlbum.disambiguation})`;
-	} else if (!!trackItem.album?.title) params.album = trackItem.album.title;
-
-	if (!!trackItem.trackNumber) params.trackNumber = trackItem.trackNumber.toString();
-	if (!!playbackContext.actualDuration) params.duration = playbackContext.actualDuration.toFixed(0);
-
-	return params;
-};
-const formatArtists = (artists?: (string | undefined)[]) => {
-	const artist = artists?.filter((name) => name !== undefined)?.[0] ?? "";
-	return artist.split(", ")[0];
-};
-
 type CurrentTrack = {
 	extTrackItem: ExtendedTrackItem;
 	playbackContext: PlaybackContext;
 	playbackStart: number;
+	metaTags: MetaTags;
+	scrobbleParams: ScrobbleOpts;
 };
 const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<CurrentTrack> => {
 	const playbackStart = Date.now();
@@ -137,8 +100,24 @@ const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<Curre
 	const extTrackItem = await ExtendedTrackItem.current(playbackContext);
 	if (extTrackItem === undefined) throw new Error("Failed to get extTrackItem");
 
-	const currentTrack = { extTrackItem, playbackContext, playbackStart };
-	trace.log("getCurrentTrack", currentTrack);
+	const metaTags = await makeTags(extTrackItem);
+
+	const tags = metaTags.tags;
+	const scrobbleParams = {
+		track: tags.title!,
+		artist: tags.artist?.[0]!,
+		album: tags.album,
+		albumArtist: tags.albumArtist?.[0],
+		trackNumber: tags.trackNumber,
+		mbid: tags.musicbrainz_trackid,
+		timestamp: (playbackStart / 1000).toFixed(0),
+		duration: playbackContext.actualDuration.toFixed(0),
+	};
+	// @ts-expect-error TS really hates iterating keys cuz its unsafe
+	for (const key in scrobbleParams) if (scrobbleParams[key] === undefined) delete scrobbleParams[key];
+
+	const currentTrack = { extTrackItem, playbackContext, playbackStart, metaTags, scrobbleParams };
+	trace.log("currentTrack", currentTrack);
 
 	return currentTrack;
 };
