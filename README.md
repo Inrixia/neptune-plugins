@@ -1,11 +1,9 @@
-## My [Tidal Neptune](https://github.com/uwu/neptune) Plugins
-This is a repository containing plugins I have made for the [Tidal Neptune](https://github.com/uwu/neptune) app.  
+## My Tidal Plugins
+This is a repository containing plugins I have made for the [Tidal Neptune Client](https://github.com/uwu/neptune-installer/releases/latest).  
 
-Want to chat? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**  
+Want to chat, ask questions or hang out? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**  
 
-If you like the project, and want to support me can to throw some bits at my [Sponsor Page](https://github.com/sponsors/Inrixia) ❤️  
-
-You can find some **more plugins** such as **Discord RPC** at  [twnlink/neptune-plugins](https://github.com/twnlink/neptune-plugins)  
+If you like the project, and want to support me can to throw some bits at my [Sponsor Page](https://github.com/sponsors/Inrixia) ❤️   
 
 To install any of these plugins you need to have the [Neptune](https://github.com/uwu/neptune) app installed, then just paste the **Install Url** into the plugins page and hit enter.
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/a997156c-a281-46ec-992a-397a742dd146)
@@ -24,6 +22,11 @@ Adds
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/3883d3f5-c340-4653-beda-ac5971237ee3)  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/2b30406c-d2e0-4268-92f2-5ae4cc3262af)
 
+## DiscordRPC
+**Install Url: `https://inrixia.github.io/neptune-plugins/DiscordRPC/`**  
+Exactly what you think! Show off what you are listening to in your Discord status.  
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/5dc644a5-1645-4344-b925-09ee2062f8b2) 
+
 ## Last.fm
 **Install Url: `https://inrixia.github.io/neptune-plugins/LastFM/`**  
 Scrobbles and sets currently playing for [**last.fm**](https://www.last.fm/).  
@@ -36,30 +39,25 @@ Tidal oftern has multiple versions of the same song at different qualities.
 With RealMAX when playing a song if there is a version available at a higher quality it will automatically be added as the next song in the queue and skipped to.  
 This ensures you are **always listening to the best quality of a song**
 
-## NoBuffer
-**Install Url: `https://inrixia.github.io/neptune-plugins/NoBuffer/`**  
-Kicks the Tidal cdn if the current playback stalls to make it stop so you never have to deal with constant stuttering or stalling again!
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/8378a9a3-2d3f-4cd7-af04-ceeac350b9e6)
+## Themer
+**Install Url: `https://inrixia.github.io/neptune-plugins/Themer/`**  
+A simple plugin allowing realtime css injection for testing and creating themes.  
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/dec1b36b-66df-4419-a7f1-9342992bd2b5) 
 
 ## Always Exclusive
 **Install Url: `https://inrixia.github.io/neptune-plugins/AlwaysExclusive/`**  
 While enabled will ensure that audio output is set to exclusive mode  
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/32ff8e55-728c-4a77-9e9e-50b53e90541c)
-
-## DiscordRPC
-**Install Url: `https://inrixia.github.io/neptune-plugins/DiscordRPC/`**  
-Exactly what you think! Show off what you are listening to in your Discord status.  
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/5dc644a5-1645-4344-b925-09ee2062f8b2)  
-
-## Themer
-**Install Url: `https://inrixia.github.io/neptune-plugins/Themer/`**  
-A simple plugin allowing realtime css injection for testing and creating themes.  
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/dec1b36b-66df-4419-a7f1-9342992bd2b5)
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/32ff8e55-728c-4a77-9e9e-50b53e90541c)  
 
 ## Shazam Files
 **Install Url: `https://inrixia.github.io/neptune-plugins/Shazam/`**  
 When enabled any files you drag onto your client will be run through [**Shazam**](https://www.shazam.com/) and added to the current playlist!  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/f637d5a0-fea0-4ba4-984e-ccddb81341b9)  
+
+## NoBuffer
+**Install Url: `https://inrixia.github.io/neptune-plugins/NoBuffer/`**  
+Kicks the Tidal cdn if the current playback stalls to make it stop so you never have to deal with constant stuttering or stalling again!
+![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/8378a9a3-2d3f-4cd7-af04-ceeac350b9e6) 
 
 ## Downloader
 **Install Url: `https://inrixia.github.io/neptune-plugins/SongDownloader/`**  
@@ -108,3 +106,7 @@ Replay gain peak       : 0.710358
 Stream size            : 525 MiB (100%)
 MD5 of the unencoded content: 1401A5C520F16BADDEA6670EFF08200B
 ```
+
+## Other Plugin Repositories
+
+- **[twnlink/neptune-plugins](https://github.com/twnlink/neptune-plugins)**
