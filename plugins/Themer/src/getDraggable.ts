@@ -1,6 +1,7 @@
 import { getStyle, setStyle } from "@inrixia/lib/css/setStyle";
 
 import { getStorage } from "@inrixia/lib/storage";
+import { settings } from "./Settings";
 
 const storage = getStorage({
 	css: "",
@@ -49,5 +50,6 @@ export const getDraggable = () => {
 		draggable.appendChild(textarea);
 		document.body.appendChild(draggable);
 	}
+	draggable.style.display = settings.showEditor ? "" : "none";
 	return draggable;
 };
