@@ -34,7 +34,6 @@ export class TrackInfoCache {
 		// If a promise for this key is already in the cache, await it
 		const { expired, value: trackInfo } = await this._store.getWithExpiry([trackId, actualAudioQuality]);
 
-		this.update(playbackContext);
 		if (trackInfo === undefined) return this.update(playbackContext);
 		return trackInfo;
 	}

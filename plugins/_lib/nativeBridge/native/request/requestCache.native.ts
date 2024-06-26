@@ -2,13 +2,12 @@ import { requestJson, ExtendedRequestOptions } from "./";
 
 import { libTrace } from "../../trace.native";
 
-const requestCache: Record<string, any> = {};
+const requestCache: Record<string, Promise<unknown>> = {};
 export const requestJsonCached = async <T>(url: string, options?: ExtendedRequestOptions): Promise<T> => {
-	let apiRes = requestCache[url];
-	if (apiRes !== undefined) {
+	const _cachedRes = requestCache[url];
+	if (_cachedRes !== undefined) {
 		libTrace.debug("[CACHE HIT]", url);
-		return <T>apiRes;
+		return <T>_cachedRes;
 	}
-	apiRes = await requestJson(url, options);
-	return (requestCache[url] = apiRes);
+	return (requestCache[url] = requestJson<T>(url, options));
 };
