@@ -31,6 +31,7 @@ export const Tracer = (source: string) => {
 	const log = createLogger(console.log);
 	const warn = createLogger(console.warn);
 	const err = createLogger(console.error);
+	const debug = createLogger(console.debug);
 
 	const createMessager = (logger: Logger, messager: MessengerFunc, severity: Severity): Messenger => {
 		const _messager = (message: unknown) => {
@@ -54,6 +55,7 @@ export const Tracer = (source: string) => {
 		log,
 		warn,
 		err,
+		debug,
 		msg: {
 			log: createMessager(log, actions.message.messageInfo, "INFO"),
 			warn: createMessager(warn, actions.message.messageWarn, "WARN"),

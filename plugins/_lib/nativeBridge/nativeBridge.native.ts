@@ -8,7 +8,6 @@ type PromisefulModule<M> = {
 };
 
 export type NativeBridge = PromisefulModule<typeof nativeBridge>;
-
 ipcMain.removeHandler("___nativeBridge___");
 ipcMain.handle("___nativeBridge___", (_, method: keyof NativeBridge, ...args) => {
 	if (nativeBridge[method] === undefined) throw new Error(`Method "${method}" not found! Available methods: ${Object.keys(nativeBridge).join(", ")}.`);

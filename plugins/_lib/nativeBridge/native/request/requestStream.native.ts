@@ -1,5 +1,6 @@
 import type { IncomingMessage } from "http";
 import { RequestOptions, request } from "https";
+import { libTrace } from "../../trace.native";
 
 let defaultUserAgent: string | undefined = undefined;
 export const setDefaultUserAgent = (userAgent: string) => (defaultUserAgent = userAgent);
@@ -13,7 +14,7 @@ export const requestStream = (url: string, options: ExtendedRequestOptions = {})
 		options.headers["user-agent"] = defaultUserAgent;
 		const req = request(url, options, (res) => {
 			const statusMsg = res.statusMessage !== "" ? ` - ${res.statusMessage}` : "";
-			console.debug(`[${res.statusCode}${statusMsg}] (${req.method})`, url, res);
+			libTrace.debug(`[${res.statusCode}${statusMsg}] (${req.method})`, url);
 			if (options.poke) req.destroy();
 			resolve(res);
 		});

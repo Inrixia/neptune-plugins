@@ -1,4 +1,3 @@
-import type * as nb from "./native";
 import "./nativeBridge.native";
 
 export type * from "./native";
@@ -26,3 +25,4 @@ export const openDialog = invoke("openDialog");
 export const getDownloadProgress = invoke("getDownloadProgress");
 export const updateRPC = invoke("updateRPC");
 export const onRpcCleanup = invoke("onRpcCleanup");
+export const requestJsonCached = invoke("requestJsonCached");
