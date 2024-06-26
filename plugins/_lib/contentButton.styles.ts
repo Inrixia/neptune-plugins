@@ -1,4 +1,4 @@
-import { setStyle } from "@inrixia/lib/css/setStyle";
+import { setStyle } from "./css/setStyle";
 
 const styles = `
 .context-button {
@@ -7,6 +7,7 @@ const styles = `
 	font-weight: 500;
 	padding: 20px 16px;
 	width: 100%;
+    height: 45px;
 	flex-grow: 1;
 	color: #b878ff;
     position: relative;
@@ -34,25 +35,6 @@ const styles = `
     z-index: 2;
     position: relative;
 }
-
-#qualityDropdown {
-    padding: 10px;
-    width: 200px;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    appearance: none;
-    background-color: #2f2f2f;
-    color: #ffffff;
-    cursor: pointer;
-}
-#qualityDropdown:hover {
-    border-color: #b0b0b0;
-}
-#qualityDropdown:focus {
-    outline: none;
-    border-color: #4f4f4f;
-}
 `;
 
-setStyle(styles, "neptune-downloader");
+setStyle(styles, "content-button");
