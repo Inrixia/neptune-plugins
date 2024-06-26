@@ -7,4 +7,9 @@ export const getStorage = <T extends Storage>(defaultValue: T): T => {
 	Object.keys(defaultValue).forEach((key) => (storage[key] ??= defaultValue[key]));
 	return storage;
 };
-export const getSettings = <T extends StorageSettings>(defaultValue: T): T => storage.settings ?? (storage.settings = defaultValue);
+export const getSettings = <T extends StorageSettings>(defaultValue: T): T => {
+	for (const key of Object.keys(defaultValue)) {
+		storage.settings[key] ??= defaultValue[key];
+	}
+	return storage.settings;
+};

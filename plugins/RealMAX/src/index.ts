@@ -1,4 +1,3 @@
-import { TrackItem } from "neptune-types/tidal";
 import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
 import { actions, intercept, store } from "@neptune";
 import { debounce } from "@inrixia/lib/debounce";
@@ -6,17 +5,11 @@ import { debounce } from "@inrixia/lib/debounce";
 import { Tracer } from "@inrixia/lib/trace";
 import safeUnload from "@inrixia/lib/safeUnload";
 import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
-import { MaxTrack } from "./MaxTrack";
+import { MaxTrack } from "@inrixia/lib/MaxTrack";
 import { ContextMenu } from "@inrixia/lib/ContextMenu";
 import { AlbumCache } from "@inrixia/lib/Caches/AlbumCache";
 import { settings } from "./Settings";
 const trace = Tracer("[RealMAX]");
-
-export const hasHiRes = (trackItem: TrackItem) => {
-	const tags = trackItem.mediaMetadata?.tags;
-	if (tags === undefined) return false;
-	return tags.findIndex((tag) => tag === "HIRES_LOSSLESS") !== -1;
-};
 
 export { Settings } from "./Settings";
 
@@ -27,7 +20,7 @@ const unloadIntercept = intercept(
 		const queueId = elements[currentIndex]?.mediaItemId;
 		const nextQueueId = elements[currentIndex + 1]?.mediaItemId;
 
-		const maxItem = await MaxTrack.getMaxId(queueId);
+		const maxItem = await MaxTrack.getMaxTrack(queueId);
 		if (maxItem === false) return;
 		if (maxItem.id !== undefined && nextQueueId !== maxItem.id) {
 			await TrackItemCache.ensure(maxItem.id);
@@ -36,8 +29,8 @@ const unloadIntercept = intercept(
 			actions.playQueue.moveNext();
 		}
 		// Preload next two
-		MaxTrack.getMaxId(elements[currentIndex + 1]?.mediaItemId);
-		MaxTrack.getMaxId(elements[currentIndex + 2]?.mediaItemId);
+		MaxTrack.getMaxTrack(elements[currentIndex + 1]?.mediaItemId);
+		MaxTrack.getMaxTrack(elements[currentIndex + 2]?.mediaItemId);
 	}, 125)
 );
 
@@ -63,7 +56,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		for (const index in trackItems) {
 			const trackItem = trackItems[index];
 			let itemId = trackItem.id!;
-			const maxItem = await MaxTrack.getMaxId(trackItem.id);
+			const maxItem = await MaxTrack.getMaxTrack(trackItem.id);
 			if (maxItem !== false && maxItem.id !== undefined) {
 				trace.msg.log(`Found Max quality for ${maxItem.title} while processing playist ${sourceName}!`);
 				trace.msg.log(`Processing tracks for RealMAX playlist ${sourceName}... ${index}/${trackItems.length - 1} done.`);

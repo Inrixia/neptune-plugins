@@ -11,7 +11,6 @@ const fileNameFromInfo = ({ tags }: MetaTags, { manifest, manifestMimeType }: Ex
 		.split(" ")
 		.map((part) => {
 			const tagPart = (<any>tags)[part];
-			console.log(tagPart, part);
 			if (tagPart === undefined) return part;
 			if (Array.isArray(tagPart)) return tagPart[0];
 			return tagPart;

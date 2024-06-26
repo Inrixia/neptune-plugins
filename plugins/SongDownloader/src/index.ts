@@ -14,6 +14,8 @@ import { PlaybackInfoCache } from "@inrixia/lib/Caches/PlaybackInfoCache";
 import { startTrackDownload, openDialog, saveDialog, getDownloadProgress } from "@inrixia/lib/nativeBridge";
 import { makeTags } from "@inrixia/lib/makeTags";
 import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
+import { MaxTrack } from "@inrixia/lib/MaxTrack";
+import { AudioQuality } from "@inrixia/lib/AudioQualityTypes";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
@@ -95,9 +97,19 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 });
 
 const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, filePath?: string) => {
+	let trackId = trackItem.id!;
+	if (settings.useRealMAX && settings.desiredDownloadQuality === AudioQuality.HiRes) {
+		updateMethods.set("Checking RealMAX for better quality...");
+		const maxTrack = await MaxTrack.getMaxTrack(trackId);
+		if (maxTrack !== false) {
+			console.log(maxTrack);
+			trackId = +maxTrack.id!;
+		}
+	}
+
 	updateMethods.set("Fetching playback info & tags...");
-	const playbackInfo = PlaybackInfoCache.ensure(trackItem.id!, settings.desiredDownloadQuality);
-	const metaTags = makeTags((await ExtendedTrackItem.get(trackItem.id))!);
+	const playbackInfo = PlaybackInfoCache.ensure(trackId, settings.desiredDownloadQuality);
+	const metaTags = makeTags((await ExtendedTrackItem.get(trackId))!);
 	const fileName = parseFileName(await metaTags, await playbackInfo);
 
 	if (filePath === undefined) {
