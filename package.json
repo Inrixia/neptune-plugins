@@ -8,6 +8,7 @@
 		"postinstall": "node postinstall.js"
 	},
 	"devDependencies": {
+		"@types/discord-rpc": "^4.0.8",
 		"@types/node": "^20.12.7",
 		"concurrently": "^8.2.2",
 		"electron": "^31.0.2",
@@ -20,7 +21,10 @@
 	"dependencies": {
 		"@inrixia/helpers": "^2.0.10",
 		"dasha": "^3.0.2",
-		"music-metadata": "^8.3.0"
+		"discord-rpc": "^4.0.1",
+		"flac-stream-tagger": "^1.0.9",
+		"idb": "^8.0.0",
+		"music-metadata": "^7.14.0"
 	},
 	"nodemonConfig": {
 		"watch": [
