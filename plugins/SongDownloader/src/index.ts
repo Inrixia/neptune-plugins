@@ -1,4 +1,4 @@
-import "./styles";
+import "@inrixia/lib/contentButton.styles";
 
 import { TrackItem } from "neptune-types/tidal";
 import { parseExtension, parseFileName } from "./parseFileName";
@@ -82,6 +82,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		if (trackItems.length > 1 && !(settings.alwaysUseDefaultPath && defaultPath !== undefined)) {
 			updateMethods.set("Prompting for download folder...");
 			const dialogResult = await openDialog({ properties: ["openDirectory", "createDirectory"], defaultPath });
+			if (dialogResult.canceled) return updateMethods.set("Cancelled...");
 			filePath = dialogResult.filePaths[0];
 		}
 		updateMethods.prep();
@@ -104,6 +105,7 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 		updateMethods.set("Prompting for download path...");
 		const defaultPath = settings.defaultDownloadPath !== "" ? `${settings.defaultDownloadPath}\\${fileName}` : `${fileName}`;
 		const dialogResult = await saveDialog({ defaultPath, filters: [{ name: "", extensions: [parseExtension(fileName) ?? "*"] }] });
+		if (dialogResult.canceled) return updateMethods.set("Cancelled...");
 		filePath = dialogResult?.filePath;
 	}
 	updateMethods.set("Building metadata...");
