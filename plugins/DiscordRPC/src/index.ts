@@ -8,7 +8,7 @@ export { Settings } from "./Settings";
 
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
-import { onRpcCleanup, updateRPC } from "./updateRPC.native";
+import { onRpcCleanup, updateRPC } from "@inrixia/lib/nativeBridge";
 import { type PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
 
 let currentPlaybackContext: PlaybackContext | undefined;
@@ -27,7 +27,6 @@ const onUnloadTimeUpdate = intercept("playbackControls/TIME_UPDATE", ([newTime])
 });
 const onUnloadNewTrack = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", ([{ playbackContext }]) => {
 	currentPlaybackContext = <any>playbackContext;
-	console.log("SET", currentPlaybackContext?.actualProductId);
 	onTimeUpdate(settings.keepRpcOnPause).catch(trace.msg.err.withContext("Failed to update"));
 });
 onTimeUpdate(settings.keepRpcOnPause).catch(trace.msg.err.withContext("Failed to update"));

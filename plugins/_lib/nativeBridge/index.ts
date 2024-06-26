@@ -30,3 +30,5 @@ export const startTrackDownload = invoke("startTrackDownload");
 export const saveDialog = invoke("saveDialog");
 export const openDialog = invoke("openDialog");
 export const getDownloadProgress = invoke("getDownloadProgress");
+export const updateRPC = invoke("updateRPC");
+export const onRpcCleanup = invoke("onRpcCleanup");

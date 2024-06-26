@@ -1,8 +1,12 @@
 {
   "name": "@inrixia/lib",
   "dependencies": {
+    "discord-rpc": "^4.0.1",
     "flac-stream-tagger": "^1.0.9",
     "idb": "^8.0.0",
     "music-metadata": "^7.14.0"
+  },
+  "devDependencies": {
+    "@types/discord-rpc": "^4.0.8"
   }
 }

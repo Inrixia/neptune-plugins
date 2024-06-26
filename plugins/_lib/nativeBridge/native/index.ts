@@ -1,4 +1,5 @@
 export * from "./request";
+export * from "./discordRPC";
 export * from "./dasha.native";
 export * from "./getTrackInfo.native";
 export * from "./crypto.native";
