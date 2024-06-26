@@ -1,6 +1,7 @@
-// @ts-nocheck
+import { BrowserWindow } from "electron";
+
 export const broadcast = (channel: string, ...args: any[]) => {
-	for (const window of electron.BrowserWindow.getAllWindows()) {
+	for (const window of BrowserWindow.getAllWindows()) {
 		window.webContents.send(channel, ...args);
 	}
 };

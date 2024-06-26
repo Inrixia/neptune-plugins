@@ -8,8 +8,6 @@ import { ExtendedPlayackInfo, PlaybackInfo, ManifestMimeType, TidalManifest } fr
 
 const getCredentials = findModuleFunction<() => Promise<{ token: string; clientId: string }>>("getCredentials", "function");
 if (getCredentials === undefined) throw new Error("getCredentials method not found");
-// @ts-ignore
-window.getCredentials = getCredentials;
 
 export class PlaybackInfoCache {
 	private static readonly _store: SharedObjectStoreExpirable<[ExtendedPlayackInfo["playbackInfo"]["trackId"], ExtendedPlayackInfo["playbackInfo"]["audioQuality"]], ExtendedPlayackInfo> =
