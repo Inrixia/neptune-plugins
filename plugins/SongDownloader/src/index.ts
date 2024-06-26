@@ -95,22 +95,24 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 });
 
 const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, filePath?: string) => {
+	updateMethods.set("Fetching playback info & tags...");
+	const playbackInfo = PlaybackInfoCache.ensure(trackItem.id!, settings.desiredDownloadQuality);
 	const metaTags = makeTags((await ExtendedTrackItem.get(trackItem.id))!);
-	updateMethods.set("Fetching playback info & making tags...");
-	const playbackInfo = await PlaybackInfoCache.ensure(trackItem.id!, settings.desiredDownloadQuality);
-	const fileName = parseFileName(await metaTags, playbackInfo);
-	if (filePath !== undefined) {
-		filePath = `${filePath}\\${fileName}`;
-	} else {
+	const fileName = parseFileName(await metaTags, await playbackInfo);
+
+	if (filePath === undefined) {
 		updateMethods.set("Prompting for download path...");
 		const defaultPath = settings.defaultDownloadPath !== "" ? `${settings.defaultDownloadPath}\\${fileName}` : `${fileName}`;
 		const dialogResult = await saveDialog({ defaultPath, filters: [{ name: "", extensions: [parseExtension(fileName) ?? "*"] }] });
 		if (dialogResult.canceled) return updateMethods.clear();
 		filePath = dialogResult?.filePath;
+	} else {
+		filePath = `${filePath}\\${fileName}`;
 	}
+
 	updateMethods.set("Downloading...");
 	let downloadEnded = false;
-	const downloadComplete = startTrackDownload(playbackInfo, filePath, await metaTags).finally(() => (downloadEnded = true));
+	const downloadComplete = startTrackDownload(await playbackInfo, filePath, await metaTags).finally(() => (downloadEnded = true));
 	const updateDownloadProgress = async () => {
 		const downloadProgress = await getDownloadProgress(filePath);
 		if (downloadProgress !== undefined) updateMethods.onProgress(downloadProgress);
