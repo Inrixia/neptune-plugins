@@ -25,12 +25,21 @@ export const getDraggable = () => {
 		draggable.style.padding = "10px";
 		draggable.style.cursor = "move";
 		draggable.style.zIndex = "1000";
+		draggable.style.borderRadius = "8px";
+		draggable.style.backgroundColor = "#5b5b5b";
+		draggable.style.borderWidth = "0px";
 
 		// Create and style the textarea
 		let textarea = document.createElement("textarea");
 		textarea.style.width = "100%";
 		textarea.style.height = "100%";
 		textarea.style.boxSizing = "border-box";
+		textarea.style.borderRadius = "8px";
+		textarea.style.borderWidth = "0px";
+		textarea.style.backgroundColor = "#181818";
+		textarea.style.color = "white";
+		textarea.style.padding = "10px";
+		textarea.style.boxShadow = "inset 0 0 20px 0px rgba(0, 0, 0, 0.5)";
 		textarea.rows = 10;
 		textarea.cols = 50;
 		textarea.placeholder = "Enter css styles here...";
