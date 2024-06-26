@@ -8,6 +8,7 @@ export const getStorage = <T extends Storage>(defaultValue: T): T => {
 	return storage;
 };
 export const getSettings = <T extends StorageSettings>(defaultValue: T): T => {
+ storage.settings ??= {};
 	for (const key of Object.keys(defaultValue)) {
 		storage.settings[key] ??= defaultValue[key];
 	}
