@@ -44,7 +44,7 @@ export const getDraggable = () => {
 		textarea.rows = 10;
 		textarea.cols = 50;
 		textarea.placeholder = "Enter css styles here...";
-		textarea.value = storage.css;
+		setStyle((textarea.value = storage.css), draggableStyleId);
 		textarea.addEventListener("keyup", (e) => setStyle((storage.css = (<HTMLTextAreaElement>e.target).value), draggableStyleId));
 
 		draggable.appendChild(textarea);
