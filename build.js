@@ -2,14 +2,16 @@ const esbuild = require("esbuild");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const repl = require("repl");
+
+const nativeExternals = ["@neptune", "@plugin", "electron"];
 
 const plugins = fs.readdirSync("./plugins");
 for (const plugin of plugins) {
 	if (plugin === "_lib") continue;
-	const pluginPath = path.join("./plugins/", plugin);
+	let pluginPath = path.join("./plugins/", plugin);
 	const pluginManifest = JSON.parse(fs.readFileSync(path.join(pluginPath, "plugin.json")));
 	const outfile = path.join(pluginPath, "dist/index.js");
+
 	esbuild
 		.build({
 			entryPoints: ["./" + path.join(pluginPath, pluginManifest.main ?? "index.js")],
@@ -26,6 +28,7 @@ for (const plugin of plugins) {
 								format: "iife",
 								globalName: "neptuneExports",
 								write: false,
+								external: nativeExternals,
 							});
 
 							const outputCode = result.outputFiles[0].text;
@@ -36,6 +39,8 @@ for (const plugin of plugins) {
 								platform: "node",
 								write: false,
 								metafile: true,
+								bundle: true,
+								external: nativeExternals,
 							});
 
 							const builtExports = Object.values(metafile.outputs)[0].exports;
@@ -52,10 +57,12 @@ for (const plugin of plugins) {
 			bundle: true,
 			minify: true,
 			format: "esm",
-			// Make every node builtin external while still bundling for browsers.
-			external: [...repl._builtinLibs, ...repl._builtinLibs.map((m) => "node:" + m), "@neptune", "@plugin"],
+			external: ["@neptune", "@plugin"],
 			platform: "browser",
 			outfile,
+			logOverride: {
+				"import-is-undefined": "silent",
+			},
 		})
 		.then(() => {
 			fs
@@ -72,6 +79,7 @@ for (const plugin of plugins) {
 							hash: this.read(),
 						})
 					);
+
 					console.log("Built " + pluginManifest.name + "!");
 				});
 		});
