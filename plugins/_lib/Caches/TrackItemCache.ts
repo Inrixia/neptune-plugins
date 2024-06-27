@@ -4,6 +4,8 @@ import { interceptPromise } from "../intercept/interceptPromise";
 import type { PlaybackContext } from "../AudioQualityTypes";
 import getPlaybackControl from "../getPlaybackControl";
 
+import { libTrace } from "../trace";
+
 export class TrackItemCache {
 	private static readonly _cache: Record<ItemId, TrackItem> = {};
 	public static current(playbackContext?: PlaybackContext) {
@@ -26,7 +28,9 @@ export class TrackItemCache {
 
 		if (this._cache[trackId] === undefined) {
 			const currentPage = window.location.pathname;
-			await interceptPromise(() => neptune.actions.router.replace(<any>`/track/${trackId}`), ["page/IS_DONE_LOADING"], []);
+			await interceptPromise(() => neptune.actions.router.replace(<any>`/track/${trackId}`), ["page/IS_DONE_LOADING"], []).catch(
+				libTrace.warn.withContext(`TrackItemCache.ensure failed to load track ${trackId}`)
+			);
 			neptune.actions.router.replace(<any>currentPage);
 			const mediaItems: Record<number, MediaItem> = store.getState().content.mediaItems;
 			const trackItem = mediaItems[+trackId]?.item;
