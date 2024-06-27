@@ -24,7 +24,7 @@ export const interceptPromise = <RESAT extends ActionType, REJAT extends ActionT
 		true
 	);
 	const unloadRej = intercept(rejActionType, rej!, true);
-	const timeout = setTimeout(() => rej(`${rejActionType}_TIMEOUT`), timeoutMs);
+	const timeout = setTimeout(() => rej(`${rejActionType ?? resActionType}_TIMEOUT`), timeoutMs);
 	trigger();
 	return p.finally(() => {
 		clearTimeout(timeout);
