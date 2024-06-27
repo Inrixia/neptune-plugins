@@ -55,16 +55,20 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		const maxIds: number[] = [];
 		for (const index in trackItems) {
 			const trackItem = trackItems[index];
-			let itemId = trackItem.id!;
+			const trackId = trackItem.id!;
 			const maxItem = await MaxTrack.getMaxTrack(trackItem.id).catch(trace.msg.err.withContext(`Failed to create ${sourceName}`));
-			if (maxItem === undefined) return;
-			if (maxItem !== false && maxItem.id !== undefined) {
-				trace.msg.log(`Found Max quality for ${maxItem.title} in ${sourceName}! ${index}/${trackItems.length - 1} done.`);
-				itemId = +maxItem.id;
+			if (maxItem !== false && maxItem?.id !== undefined) {
+				if ((await TrackItemCache.ensure(trackId)) !== undefined) {
+					trace.msg.log(`Found Max quality for ${maxItem.title} in ${sourceName}! ${index}/${trackItems.length - 1} done.`);
+					maxIds.push(+maxItem.id);
+					continue;
+				}
+				trace.msg.log(`Found Max quality for ${maxItem.title} in ${sourceName}, but track is unavailable... Skipping! ${index}/${trackItems.length - 1} done.`);
+				maxIds.push(trackId);
+				continue;
 			}
 			trace.msg.log(`${sourceName} - ${index}/${trackItems.length - 1} done. `);
-			await TrackItemCache.ensure(itemId);
-			maxIds.push(itemId);
+			maxIds.push(trackId);
 		}
 		const [{ playlist }] = await interceptPromise(
 			() =>
