@@ -16,7 +16,7 @@ type TokenInfo = {
 };
 const authSema = new Semaphore(1);
 export const getToken = async () => {
-	await authSema.obtain();
+	const release = await authSema.obtain();
 	try {
 		if (tokenStore.expiresAt > Date.now()) return tokenStore.token;
 		const { access_token, expires_in } = await requestJson<TokenInfo>("https://auth.tidal.com/v1/oauth2/token", {
@@ -34,6 +34,6 @@ export const getToken = async () => {
 		tokenStore.expiresAt = Date.now() + (expires_in - 60) * 1000;
 		return tokenStore.token;
 	} finally {
-		await authSema.release();
+		release();
 	}
 };

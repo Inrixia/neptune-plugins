@@ -26,7 +26,7 @@ export class PlaybackInfoCache {
 		return this.update(trackId, audioQuality);
 	}
 	static async update(trackId: number, audioQuality: AudioQuality): Promise<ExtendedPlayackInfo> {
-		await this._sema.obtain();
+		const release = await this._sema.obtain();
 		try {
 			const url = `https://desktop.tidal.com/v1/tracks/${trackId}/playbackinfo?audioquality=${audioQuality}&playbackmode=STREAM&assetpresentation=FULL`;
 
@@ -63,7 +63,7 @@ export class PlaybackInfoCache {
 		} catch (e) {
 			throw new Error(`Failed to decode Stream Info! ${(<Error>e)?.message}`);
 		} finally {
-			await this._sema.release();
+			release();
 		}
 	}
 }

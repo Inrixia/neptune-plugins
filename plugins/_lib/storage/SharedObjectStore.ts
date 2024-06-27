@@ -6,7 +6,7 @@ export class SharedObjectStore<K extends IDBValidKey, V extends Record<any, any>
 	public static db: Promise<IDBPDatabase>;
 	private static openSema: Semaphore = new Semaphore(1);
 	private static async openDB(storeName: string, storeSchema?: IDBObjectStoreParameters) {
-		await this.openSema.obtain();
+		const release = await this.openSema.obtain();
 		try {
 			const reOpen = (db: IDBPDatabase) => async () => {
 				await db.close();
@@ -26,7 +26,7 @@ export class SharedObjectStore<K extends IDBValidKey, V extends Record<any, any>
 			const _db = await this.db;
 			_db.addEventListener("versionchange", reOpen(_db));
 		} finally {
-			this.openSema.release();
+			release();
 		}
 	}
 	public static close() {

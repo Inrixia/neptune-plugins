@@ -39,8 +39,8 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 	if (trackItems.length === 0 || !settings.displayMaxContextButton) return;
 
 	let sourceName = trackItems[0].title;
-	if (contextSource.type === "PLAYLIST") sourceName = store.getState().content.playlists.find((playlist) => playlist.uuid === contextSource.playlistId)?.title;
-	else if (contextSource.type === "ALBUM") sourceName = (await AlbumCache.get(+contextSource.albumId))?.title;
+	if (contextSource.type === "PLAYLIST") sourceName = store.getState().content.playlists.find((playlist) => playlist.uuid === contextSource.playlistId)?.title ?? sourceName;
+	else if (contextSource.type === "ALBUM") sourceName = (await AlbumCache.get(+contextSource.albumId))?.title ?? sourceName;
 	sourceName = `${sourceName} - RealMAX`;
 
 	const maxButton = document.createElement("button");
@@ -52,7 +52,8 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 	contextMenu.appendChild(maxButton);
 	maxButton.addEventListener("click", async () => {
 		maxButton.remove();
-		const maxIds: number[] = [];
+		const trackIds: number[] = [];
+		let maxIdsFound = 0;
 		for (const index in trackItems) {
 			const trackItem = trackItems[index];
 			const trackId = trackItem.id!;
@@ -60,15 +61,16 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 			if (maxItem !== false && maxItem?.id !== undefined) {
 				if ((await TrackItemCache.ensure(trackId)) !== undefined) {
 					trace.msg.log(`Found Max quality for ${maxItem.title} in ${sourceName}! ${index}/${trackItems.length - 1} done.`);
-					maxIds.push(+maxItem.id);
+					trackIds.push(+maxItem.id);
+					maxIdsFound++;
 					continue;
 				}
 				trace.msg.log(`Found Max quality for ${maxItem.title} in ${sourceName}, but track is unavailable... Skipping! ${index}/${trackItems.length - 1} done.`);
-				maxIds.push(trackId);
+				trackIds.push(trackId);
 				continue;
 			}
 			trace.msg.log(`${sourceName} - ${index}/${trackItems.length - 1} done. `);
-			maxIds.push(trackId);
+			trackIds.push(trackId);
 		}
 		const [{ playlist }] = await interceptPromise(
 			() =>
@@ -79,7 +81,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 					isPublic: false,
 					title: sourceName,
 					// @ts-expect-error This works lol
-					ids: maxIds,
+					ids: trackIds,
 				}),
 			["content/LOAD_PLAYLIST_SUCCESS"],
 			["content/LOAD_PLAYLIST_FAIL"]
@@ -87,6 +89,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		if (playlist?.uuid === undefined) {
 			return trace.msg.err(`Failed to create playlist "${sourceName}"`);
 		}
+		trace.msg.err(`Successfully created RealMAX playlist "${sourceName}" - Found ${maxIdsFound} RealMAX replacements!`);
 	});
 });
 
