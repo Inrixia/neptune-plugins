@@ -1,6 +1,6 @@
 import { AudioQuality, PlaybackContext } from "../AudioQualityTypes";
 import { Tracer } from "../trace";
-const tracer = Tracer("TrackInfoCache");
+const tracer = Tracer("[TrackInfoCache]");
 
 import { SharedObjectStoreExpirable } from "../storage/SharedObjectStoreExpirable";
 import { type TrackInfo, getTrackInfo } from "../nativeBridge";
@@ -35,6 +35,8 @@ export class TrackInfoCache {
 		const { expired, value: trackInfo } = await this._store.getWithExpiry([trackId, actualAudioQuality]);
 
 		if (trackInfo === undefined) return this.update(playbackContext);
+		// If trackInfo exists but is expired, then update it in the background
+		else if (expired) this.update(playbackContext).catch(tracer.err.withContext("background update"));
 		return trackInfo;
 	}
 	private static async update(playbackContext: PlaybackContext): Promise<TrackInfo> {
