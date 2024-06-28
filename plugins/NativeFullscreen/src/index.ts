@@ -16,7 +16,7 @@ const onKeyDown = (event: KeyboardEvent) => {
 		event.preventDefault();
 		document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
 
-		if (!settings.useTidalFullscreen) {
+		if (!settings.useTidalFullscreen && !document.fullscreenElement) {
 			const bar = document.querySelector<HTMLElement>("div[class^='bar--']");
 			const contentContainer = document.querySelector<HTMLElement>("div[class^='mainContainer--'] > div[class^='containerRow--']");
 
