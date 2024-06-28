@@ -41,6 +41,10 @@ Tidal oftern has multiple versions of the same song at different qualities.
 With RealMAX when playing a song if there is a version available at a higher quality it will automatically be added as the next song in the queue and skipped to.  
 This ensures you are **always listening to the best quality of a song**
 
+## Native Fullscreen
+**Install Url: `https://inrixia.github.io/neptune-plugins/NativeFullscreen/`**  
+Add F11 hotkey for fullscreen and allow entering fullscreen in the normal Tidal UI.    
+
 ## Themer
 **Install Url: `https://inrixia.github.io/neptune-plugins/Themer/`**  
 A simple plugin allowing realtime css injection for testing and creating themes.  
