@@ -6,7 +6,8 @@ const rpcClient = new DiscordRPC("1130698654987067493");
 
 const STR_MAX_LEN = 127;
 const formatLongString = (s?: string) => {
-	if (s === undefined) return "";
+	if (s === undefined) return undefined;
+	if (s.length < 2) s += " ";
 	return s.length >= STR_MAX_LEN ? s.slice(0, STR_MAX_LEN - 3) + "..." : s;
 };
 const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") => (id ? "https://resources.tidal.com/images/" + id.split("-").join("/") + path : undefined);
