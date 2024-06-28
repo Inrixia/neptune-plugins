@@ -1,0 +1,6 @@
+{
+  "name": "Native Fullscreen",
+  "description": "Allows entering fullscreen normally using F11",
+  "author": "Inrixia",
+  "main": "./src/index.js"
+}
