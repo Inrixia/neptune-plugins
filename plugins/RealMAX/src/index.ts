@@ -3,13 +3,16 @@ import { actions, intercept, store } from "@neptune";
 import { debounce } from "@inrixia/lib/debounce";
 
 import { Tracer } from "@inrixia/lib/trace";
+const trace = Tracer("[RealMAX]");
+
+import { chunkArray } from "@inrixia/helpers/object";
+
 import safeUnload from "@inrixia/lib/safeUnload";
 import { interceptPromise } from "@inrixia/lib/intercept/interceptPromise";
 import { MaxTrack } from "@inrixia/lib/MaxTrack";
 import { ContextMenu } from "@inrixia/lib/ContextMenu";
 import { AlbumCache } from "@inrixia/lib/Caches/AlbumCache";
 import { settings } from "./Settings";
-const trace = Tracer("[RealMAX]");
 
 export { Settings } from "./Settings";
 
@@ -81,11 +84,26 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 					isPublic: false,
 					title: sourceName,
 					// @ts-expect-error This works lol
-					ids: trackIds,
+					ids: trackIds.length > 450 ? undefined : trackIds,
 				}),
 			["content/LOAD_PLAYLIST_SUCCESS"],
 			["content/LOAD_PLAYLIST_FAIL"]
 		);
+		if (trackIds.length > 500) {
+			for (const trackIdsChunk of chunkArray(trackIds, 450)) {
+				await interceptPromise(
+					() =>
+						actions.content.addMediaItemsToPlaylist({
+							addToIndex: -1,
+							mediaItemIdsToAdd: trackIdsChunk,
+							onDupes: "ADD",
+							playlistUUID: playlist.uuid!,
+						}),
+					["content/ADD_MEDIA_ITEMS_TO_PLAYLIST_SUCCESS"],
+					["content/ADD_MEDIA_ITEMS_TO_PLAYLIST_FAIL"]
+				);
+			}
+		}
 		if (playlist?.uuid === undefined) {
 			return trace.msg.err(`Failed to create playlist "${sourceName}"`);
 		}

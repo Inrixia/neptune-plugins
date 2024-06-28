@@ -11,8 +11,6 @@ import { PlaylistCache } from "./Caches/PlaylistItemCache";
 type ContextSource = { type: "TRACK" } | { type: "ALBUM"; albumId: ItemId } | { type: "PLAYLIST"; playlistId: ItemId };
 type ContextListener = (contextSource: ContextSource, contextMenu: Element, trackItems: TrackItem[]) => Promise<void>;
 export class ContextMenu {
-	private static readonly _albumsCache: Record<string, Promise<TrackItem[]> | undefined> = {};
-	private static readonly _playlistsCache: Record<ItemId, Promise<TrackItem[]> | undefined> = {};
 	private static readonly _intercepts = [
 		intercept([`contextMenu/OPEN_MEDIA_ITEM`], ([mediaItem]) => {
 			(async () => {
