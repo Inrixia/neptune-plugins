@@ -37,12 +37,14 @@ export class TrackInfoCache {
 		if (trackInfo === undefined) return this.update(playbackContext);
 		// If trackInfo exists but is expired, then update it in the background
 		else if (expired) this.update(playbackContext).catch(tracer.err.withContext("background update"));
+		tracer.log("ensure", trackInfo);
 		return trackInfo;
 	}
 	private static async update(playbackContext: PlaybackContext): Promise<TrackInfo> {
 		const extPlaybackInfo = await PlaybackInfoCache.ensure(+playbackContext.actualProductId, playbackContext.actualAudioQuality);
 		const trackInfo = await getTrackInfo(playbackContext, extPlaybackInfo);
 		this.put(trackInfo);
+		tracer.log("update", trackInfo);
 		return trackInfo;
 	}
 }
