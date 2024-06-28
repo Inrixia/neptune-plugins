@@ -1,4 +1,4 @@
-import { requestJson } from "../../nativeBridge";
+import { requestJson } from "../../nativeBridge/request";
 import { Semaphore } from "../../Semaphore";
 
 const CLIENT_ID = "tzecdDS3Bbx00rMP";

@@ -1,4 +1,4 @@
-import { requestJsonCached } from "../../nativeBridge";
+import { requestJsonCached } from "../../nativeBridge/request";
 import type { ISRCData, UPCData, ReleaseData } from "./types";
 
 export * from "./types";

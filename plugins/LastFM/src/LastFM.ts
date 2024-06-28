@@ -9,7 +9,8 @@ if (lastFmApiKey === undefined) throw new Error("Last.fm API key not found");
 
 import { NowPlaying } from "./types/lastfm/NowPlaying";
 import { Scrobble } from "./types/lastfm/Scrobble";
-import { hash, requestJson } from "@inrixia/lib/nativeBridge";
+import { hash } from "@inrixia/lib/nativeBridge";
+import { requestJson } from "@inrixia/lib/nativeBridge/request";
 
 export type NowPlayingOpts = {
 	track: string;

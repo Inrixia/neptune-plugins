@@ -1,4 +1,4 @@
-import { requestJsonCached } from "@inrixia/lib/nativeBridge";
+import { requestJsonCached } from "@inrixia/lib/nativeBridge/request";
 import { ShazamData } from "./shazamTypes";
 import { v4 } from "uuid";
 

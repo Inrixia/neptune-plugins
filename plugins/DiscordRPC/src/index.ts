@@ -8,7 +8,7 @@ export { Settings } from "./Settings";
 
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
-import { onRpcCleanup, updateRPC } from "@inrixia/lib/nativeBridge";
+import { onRpcCleanup, updateRPC } from "@inrixia/lib/nativeBridge/discordRPC";
 import { type PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
 
 let currentPlaybackContext: PlaybackContext | undefined;

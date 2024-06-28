@@ -1,6 +1,6 @@
 import { Datum, ISRCResponse } from "./types";
 import { getToken } from "./auth";
-import { requestJsonCached } from "../../nativeBridge";
+import { requestJsonCached } from "../../nativeBridge/request";
 
 type ISRCOptions = {
 	offset: number;
