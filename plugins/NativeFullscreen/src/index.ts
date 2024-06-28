@@ -25,10 +25,12 @@ const onKeyDown = (event: KeyboardEvent) => {
 					// Exiting fullscreen
 					contentContainer.style.maxHeight = "";
 					bar.style.display = "";
+					document.body.removeAttribute("is-fullscreen");
 				} else {
 					// Entering fullscreen
 					contentContainer.style.maxHeight = `100%`;
 					bar.style.display = "none";
+					document.body.setAttribute("is-fullscreen", "");
 				}
 			}
 		}
