@@ -9,16 +9,14 @@ export type ExtendedPlaybackInfoWithBytes = ExtendedPlayackInfo & { stream: Read
 export const requestTrackStream = async ({ manifestMimeType, manifest }: ExtendedPlayackInfo, fetchyOptions: FetchyOptions = {}): Promise<Readable> => {
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
-			const stream = await requestDecodedStream(manifest.urls[0], { ...fetchyOptions, manifest });
-			return stream;
+			return requestDecodedStream(manifest.urls[0], { ...fetchyOptions, manifest });
 		}
 		case ManifestMimeType.Dash: {
 			const trackManifest = manifest.tracks.audios[0];
-			const stream = await requestSegmentsStream(
+			return requestSegmentsStream(
 				trackManifest.segments.map((segment) => segment.url),
 				fetchyOptions
 			);
-			return stream;
 		}
 		default: {
 			throw new Error(`Unsupported Stream Info manifest mime type: ${manifestMimeType}`);

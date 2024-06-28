@@ -1,6 +1,6 @@
 import type { IncomingMessage } from "http";
 import { RequestOptions, request } from "https";
-import { libTrace } from "../../trace.native";
+import { libTrace } from "../../helpers/trace.native";
 import { Semaphore } from "../../../Semaphore";
 
 let defaultUserAgent: string | undefined = undefined;

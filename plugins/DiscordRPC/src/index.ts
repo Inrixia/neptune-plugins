@@ -1,7 +1,7 @@
 import { intercept } from "@neptune";
 
 import { Tracer } from "@inrixia/lib/trace";
-const trace = Tracer("DiscordRPC");
+const trace = Tracer("[DiscordRPC]");
 
 import { settings } from "./Settings";
 export { Settings } from "./Settings";

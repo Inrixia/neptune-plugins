@@ -23,7 +23,6 @@ export const requestDecodedStream = async (url: string, options?: FetchyOptions)
 		if (total !== -1) onProgress?.({ total, downloaded, percent: (downloaded / total) * 100 });
 
 		const decipher = manifest ? makeDecipher(manifest) : undefined;
-
 		if (decipher !== undefined) {
 			resolve(
 				res.pipe(
