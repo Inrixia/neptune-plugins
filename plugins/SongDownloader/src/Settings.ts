@@ -4,6 +4,7 @@ import { AudioQuality, validQualitiesSettings } from "@inrixia/lib/AudioQualityT
 import { DropdownSelect } from "@inrixia/lib/components/DropdownSelect";
 import { TextInput } from "@inrixia/lib/components/TextInput";
 import { SwitchSetting } from "@inrixia/lib/components/SwitchSetting";
+import { availableTags } from "@inrixia/lib/makeTags";
 
 const defaultFilenameFormat = "artist - album - title";
 export const settings = getSettings({
@@ -35,5 +36,6 @@ export const Settings = () => html`<div>
 			else settings.filenameFormat = text;
 		}}
 		title="Filename format"
+		tooltip="Availble tags: ${availableTags.join(", ")}"
 	/>
 </div>`;

@@ -42,6 +42,26 @@ export type FlacTags = {
 	totalTracks?: string;
 	lyrics?: string;
 };
+export const availableTags: (keyof FlacTags)[] = [
+	"title",
+	"trackNumber",
+	"date",
+	"copyright",
+	"REPLAYGAIN_TRACK_GAIN",
+	"REPLAYGAIN_TRACK_PEAK",
+	"comment",
+	"isrc",
+	"upc",
+	"musicbrainz_trackid",
+	"musicbrainz_albumid",
+	"artist",
+	"album",
+	"albumArtist",
+	"genres",
+	"organization",
+	"totalTracks",
+	"lyrics",
+];
 
 export type MetaTags = {
 	tags: FlacTags;
