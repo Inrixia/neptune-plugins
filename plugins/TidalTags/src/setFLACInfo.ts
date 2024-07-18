@@ -67,6 +67,8 @@ const progressBarP = retryPromise(() => {
 
 const Loading_Bitrate = `Loading Bitrate...`;
 
+export const hideFlacInfo = async () => (flacInfoElem.style.display = "none");
+export const displayFlacInfo = async () => (flacInfoElem.style.display = "");
 export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: PlaybackContext }]) => {
 	if (!playbackContext) return;
 	flacInfoElem.textContent = `Loading...`;
