@@ -13,7 +13,12 @@ import{intercept as ra,store as pa}from"@neptune";var k=(p=>(p.HiRes="HI_RES_LOS
 	<${S} checked=${m.displayInfoColumns} onClick=${()=>m.displayInfoColumns=!m.displayInfoColumns} title="Display FLAC info columns" />
 	<${S} checked=${m.infoColumnColors} onClick=${()=>m.infoColumnColors=!m.infoColumnColors} title="Display FLAC info columns in color" />
 </div>`;var be=C("[TidalTags]"),l=document.createElement("span");l.className="bitInfo";l.style.maxWidth="100px";l.style.textAlign="center";l.style.padding="4px";l.style.fontSize="13px";l.style.borderRadius="8px";l.textContent="";l.style.border="";var x=(t,e={})=>{e.maxRetries??=200,e.interval??=250;let a,i=0;return new Promise((r,p)=>{a=setInterval(async()=>{try{r(await t())}catch(d){if(i>=(e.maxRetries??40))return p(d);i++}},e.interval??250)}).finally(()=>clearTimeout(a))},ye=x(()=>{let t=document.querySelector("[data-test-media-state-indicator-streaming-quality]");if(t==null)throw new Error("Failed to find tidal media-state-indicator element!");return t}),Ke=x(async()=>{let t=(await ye).firstChild;if(t===null)throw new Error("Failed to find tidal media-state-indicator element children!");return t}),Qe=x(async()=>{let t=(await ye).parentElement;if(t==null)throw new Error("Failed to find tidal media-state-indicator element parent!");return t.querySelectorAll(".bitInfo").forEach(e=>e.remove()),t.prepend(l),t.style.setProperty("grid-auto-columns","auto"),t}),Ze=x(()=>{let t=document.getElementById("progressBar");if(t===null)throw new Error("Failed to find tidal progressBar element!");return t}),Y="Loading Bitrate...",K=async([{playbackContext:t}])=>{if(!t)return;l.textContent="Loading...",l.style.maxWidth="100px";let[e,a]=await Promise.all([Ze,Ke]);await Qe;let{actualAudioQuality:i,bitDepth:r,sampleRate:p}=t;switch(i){case"HI_RES":case"LOSSLESS":case"HI_RES_LOSSLESS":let d=a.style.color=e.style.color=f[ie[i]].color;m.showFLACInfoBorder&&(l.style.border=`solid 1px ${ve(d,.3)}`);break;default:a.style.color=e.style.color="#cfcfcf",m.showFLACInfoBorder&&(l.style.border="solid 1px #cfcfcf");break}p!==null&&r!==null&&(l.textContent="",p&&(l.textContent+=`${p/1e3}kHz `),r&&(l.textContent+=`${r}bit `),l.textContent+=Y);try{await b.ensure(t),await b.register(t.actualProductId,t.actualAudioQuality,({sampleRate:d,bitDepth:n,bitrate:s})=>{l.textContent="",d&&(l.textContent+=`${d/1e3}kHz `),n&&(l.textContent+=`${n}bit `),s&&(l.textContent+=`${Math.floor(s/1e3).toLocaleString()}kb/s`)})}catch(d){l.style.maxWidth="256px",l.style.border="solid 1px red";let n=d.message.substring(0,64);if(l.textContent.includes(Y)){let s="Error Loading Bitrate",o=`${s} - ${n}`;l.textContent=l.textContent?.replace(Y,o)??"",be.msg.err.withContext(s)(d)}else{let s="Error Loading TrackInfo",o=`${s} - ${n}`;l.textContent=o,be.msg.err.withContext(s)(d)}}l.textContent.length===0&&(l.textContent="Unknown")};var B=(t,e)=>{let a=document.getElementById(e);a||(a=document.createElement("style"),a.id=e,document.head.appendChild(a)),a.innerHTML=t};var Je=`
+div[class*="titleCell--"] {
+    width: auto; !important
+}
+
 .quality-tag-container {
+	overflow: none;
 	display: inline-flex;
 	height: 24px;
 	font-size: 12px;
@@ -28,52 +33,6 @@ import{intercept as ra,store as pa}from"@neptune";var k=(p=>(p.HiRes="HI_RES_LOS
 	box-sizing: border-box;
 	transition: background-color 0.2s;
 	margin-left: 5px;
-}
-
-/* Toggle Switch Styles */
-.switch {
-	position: relative;
-	display: inline-block;
-	width: 60px;
-	height: 34px;
-}
-
-.switch input {
-	opacity: 0;
-	width: 0;
-	height: 0;
-}
-
-.slider {
-	position: absolute;
-	cursor: pointer;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: #ccc;
-	transition: 0.4s;
-	border-radius: 17px; /* Rounded corners */
-}
-
-.slider:before {
-	position: absolute;
-	content: "";
-	height: 26px;
-	width: 26px;
-	left: 4px;
-	bottom: 4px;
-	background-color: white;
-	transition: 0.4s;
-	border-radius: 50%;  /* Fully rounded corners */
-}
-
-input:checked + .slider {
-	background-color: #2196F3;
-}
-
-input:checked + .slider:before {
-	transform: translateX(26px);
 }
 `;B(Je,"tidal-tags-styles");var _e=(t,e,a)=>{let i=a.mediaMetadata?.tags;if(i===void 0)return;let r=a.audioQuality==="HIGH"||a.audioQuality==="LOW";if(i.length===1&&i[0]==="LOSSLESS"&&!r)return;let p=t.querySelector('[data-test="table-row-title"]');if(p===null)return;let d=p.querySelector(".quality-tag-container")??document.createElement("span");if(d.getAttribute("track-id")!==e){if(d.className="quality-tag-container",d.setAttribute("track-id",e),r){let n=document.createElement("span");n.className="quality-tag",n.textContent=f.LOW.textContent,n.style.color=f.LOW.color,d.appendChild(n)}for(let n of i){if(n==="LOSSLESS"||!m.showAtmosQuality&&n==="DOLBY_ATMOS")continue;let s=f[n];if(s===void 0)continue;let o=document.createElement("span");o.className="quality-tag",o.textContent=s.textContent,o.style.color=s.color,d.appendChild(o)}p.appendChild(d)}};var P=t=>t?.nodeType===Node.ELEMENT_NODE;var Q=(t,e,a,i,r)=>{let p=t.querySelector(`div[data-test="${e}"]`);if(p!==null)return;let d=t.querySelector(a);if(d!==null&&(p=d?.cloneNode(!0),P(p)))return p.setAttribute("data-test",e),p.innerHTML="",p.appendChild(i),d.parentElement.insertBefore(p,r instanceof Element?r:r?t.querySelector(r):d)},Z=(t,e,a,i)=>{let r=t.querySelector(`span[data-test="${e}"][role="columnheader"]`);if(r!==null)return;let p=t.querySelector(a);if(p instanceof HTMLElement)return r=p.cloneNode(!0),(r.firstChild?.childNodes?.length??-1)>1&&r.firstChild?.lastChild?.remove(),r.setAttribute("data-test",e),r.firstChild.firstChild.textContent=e,p.parentElement.insertBefore(r,i instanceof Element?i:i?t.querySelector(i):p)},Ee=()=>{for(let t of document.querySelectorAll('div[aria-label="Tracklist"]')){let e=Z(t,"Depth",'span[class^="timeColumn--"][role="columnheader"]','span[class^="timeColumn--"][role="columnheader"]');e?.style.setProperty("min-width","40px");let a=Z(t,"Sample Rate",'span[class^="timeColumn--"][role="columnheader"]',e);a?.style.setProperty("min-width","110px"),Z(t,"Bitrate",'span[class^="timeColumn--"][role="columnheader"]',a)?.style.setProperty("min-width","100px")}},Se=(t,e,a)=>{let i=re(a.mediaMetadata?.tags)[0]??"LOW",r=te(i,a.audioQuality);if(r===void 0)return;let p=document.createElement("span"),d=Q(t,"Depth",'div[data-test="duration"]',p,'div[data-test="duration"]');d?.style.setProperty("min-width","40px");let n=document.createElement("span"),s=Q(t,"Sample Rate",'div[data-test="duration"]',n,d);s?.style.setProperty("min-width","110px");let o=document.createElement("span");if(Q(t,"Bitrate",'div[data-test="duration"]',o,s)?.style.setProperty("min-width","100px"),m.infoColumnColors){let u=f[i]?.color??"";p.style.color=u,n.style.color=u,o.style.color=u}b.register(e,r,async u=>{u?.sampleRate&&(n.textContent=`${u.sampleRate/1e3}kHz`),u?.bitDepth&&(p.textContent=`${u.bitDepth}bit`),u?.bitrate&&(o.textContent=`${Math.floor(u.bitrate/1e3).toLocaleString()}kbps`)})};import{store as Ce}from"@neptune";import{intercept as Ie}from"@neptune";var y=(t,e,a,{timeoutMs:i,cancel:r}={})=>{i??=5e3,r??=!1;let p,d,n=new Promise((u,M)=>{p=u,d=M}),s=Ie(e,u=>{if(p(u),r)return!0},!0),o=Ie(a,d,!0),h=setTimeout(()=>d(`${a??e}_TIMEOUT`),i);return t(),n.finally(()=>{clearTimeout(h),s(),o()})};import{store as ea}from"@neptune";var ke=()=>ea.getState()?.playbackControls??{};var _=class{static _cache={};static current(e){if(e??=ke()?.playbackContext,e?.actualProductId!==void 0)return this.ensure(e.actualProductId)}static async ensure(e){if(e===void 0)return;let a=this._cache[e];if(a!==void 0)return a;let i=Ce.getState().content.mediaItems;for(let r in i){let p=i[r]?.item;p?.contentType==="track"&&(this._cache[r]=p)}if(this._cache[e]===void 0){let r=window.location.pathname;await y(()=>neptune.actions.router.replace(`/track/${e}`),["page/IS_DONE_LOADING"],[]).catch(c.warn.withContext(`TrackItemCache.ensure failed to load track ${e}`)),neptune.actions.router.replace(r);let d=Ce.getState().content.mediaItems[+e]?.item;d?.contentType==="track"&&(this._cache[e]=d)}return this._cache[e]}};import{intercept as J}from"@neptune";var aa=`
 .context-button {
