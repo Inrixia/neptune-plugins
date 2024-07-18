@@ -71,6 +71,10 @@ export const hideFlacInfo = async () => (flacInfoElem.style.display = "none");
 export const displayFlacInfo = async () => (flacInfoElem.style.display = "");
 export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: PlaybackContext }]) => {
 	if (!playbackContext) return;
+	if (!settings.displayFlacInfo) {
+		hideFlacInfo();
+		if (!settings.displayInfoColumns) return;
+	}
 	flacInfoElem.textContent = `Loading...`;
 	flacInfoElem.style.maxWidth = "100px";
 	const [progressBar, tidalQualityElement] = await Promise.all([progressBarP, tidalQualityElementP]);
