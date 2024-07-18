@@ -111,16 +111,17 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 	updateMethods.set("Fetching playback info & tags...");
 	const playbackInfo = PlaybackInfoCache.ensure(trackId, settings.desiredDownloadQuality);
 	const metaTags = makeTags((await ExtendedTrackItem.get(trackId))!);
-	const fileName = parseFileName(await metaTags, await playbackInfo);
+	const pathParts = parseFileName(await metaTags, await playbackInfo);
 
 	if (filePath === undefined) {
 		updateMethods.set("Prompting for download path...");
+		const fileName = pathParts.pop() ?? "";
 		const defaultPath = settings.defaultDownloadPath !== "" ? `${settings.defaultDownloadPath}\\${fileName}` : `${fileName}`;
-		const dialogResult = await saveDialog({ defaultPath, filters: [{ name: "", extensions: [parseExtension(fileName) ?? "*"] }] });
+		const dialogResult = await saveDialog({ defaultPath, filters: [{ name: "", extensions: [fileName ?? "*"] }] });
 		if (dialogResult.canceled) return updateMethods.clear();
 		filePath = dialogResult?.filePath;
 	} else {
-		filePath = `${filePath}\\${fileName}`;
+		filePath = `${filePath}\\${pathParts.join("\\")}`;
 	}
 
 	updateMethods.set("Downloading...");

@@ -1,21 +1,19 @@
 import { type ExtendedPlayackInfo, ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoTypes";
-import { MetaTags } from "@inrixia/lib/makeTags";
+import { availableTags, MetaTags } from "@inrixia/lib/makeTags";
 import { settings } from "./Settings";
 
 const unsafeCharacters = /[\/:*?"<>|]/g;
 const sanitizeFilename = (filename: string): string => filename.replace(unsafeCharacters, "_");
 
 export const parseExtension = (filename: string) => filename.match(/\.([0-9a-z]+)(?:[\?#]|$)/i)?.[1] ?? undefined;
-const fileNameFromInfo = ({ tags }: MetaTags, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
-	const base = settings.filenameFormat
-		.split(" ")
-		.map((part) => {
-			const tagPart = (<any>tags)[part];
-			if (tagPart === undefined) return part;
-			if (Array.isArray(tagPart)) return tagPart[0];
-			return tagPart;
-		})
-		.join(" ");
+const filePathFromInfo = ({ tags }: MetaTags, { manifest, manifestMimeType }: ExtendedPlayackInfo): string => {
+	let base = settings.filenameFormat;
+	for (const tag of availableTags) {
+		let tagValue = tags[tag];
+		if (Array.isArray(tagValue)) tagValue = tagValue[0];
+		if (tagValue === undefined) continue;
+		base = base.replaceAll(tag, tagValue);
+	}
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
 			if (manifest.codecs === "mqa") {
@@ -30,4 +28,9 @@ const fileNameFromInfo = ({ tags }: MetaTags, { manifest, manifestMimeType }: Ex
 	}
 };
 
-export const parseFileName = (metaTags: MetaTags, extPlaybackInfo: ExtendedPlayackInfo) => sanitizeFilename(fileNameFromInfo(metaTags, extPlaybackInfo));
+export const parseFileName = (metaTags: MetaTags, extPlaybackInfo: ExtendedPlayackInfo) => {
+	const filePath = filePathFromInfo(metaTags, extPlaybackInfo);
+	let pathParts = filePath.replaceAll("/", "\\").split("\\");
+	pathParts[pathParts.length - 1] = sanitizeFilename(pathParts[pathParts.length - 1]);
+	return pathParts;
+};

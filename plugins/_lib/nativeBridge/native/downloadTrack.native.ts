@@ -3,6 +3,7 @@ import { ManifestMimeType, type ExtendedPlayackInfo } from "../../Caches/Playbac
 import { rejectNotOk, toBuffer, type DownloadProgress } from "./request/helpers.native";
 import { requestTrackStream } from "./request/requestTrack.native";
 import { createWriteStream } from "fs";
+import { mkdir } from "fs/promises";
 
 import { FlacStreamTagger, PictureType } from "flac-stream-tagger";
 import { requestStream } from "./request/requestStream.native";
@@ -41,6 +42,8 @@ const downloadStatus: Record<string, DownloadProgress> = {};
 export const startTrackDownload = async (extPlaybackInfo: ExtendedPlayackInfo, filePath: string, metaTags?: MetaTags): Promise<void> => {
 	if (downloadStatus[filePath] !== undefined) throw new Error(`Something is already downloading to ${filePath}`);
 	try {
+		const folderPath = filePath.split("\\").slice(0, -1).join("\\");
+		await mkdir(folderPath, { recursive: true });
 		const stream = await requestTrackStream(extPlaybackInfo, { onProgress: (progress) => (downloadStatus[filePath] = progress) });
 		const metaStream = await addTags(extPlaybackInfo, stream, metaTags);
 		return new Promise((res) =>
