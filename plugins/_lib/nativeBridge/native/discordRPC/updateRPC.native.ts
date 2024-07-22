@@ -13,13 +13,15 @@ const formatLongString = (s?: string) => {
 const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") => (id ? "https://resources.tidal.com/images/" + id.split("-").join("/") + path : undefined);
 
 export const onRpcCleanup = () => rpcClient.cleanp();
-export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: PlaybackState, keepRpcOnPause: boolean, currentTime?: number) => {
+export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: PlaybackState, settings: { keepRpcOnPause: boolean; displayPlayButton: boolean }, currentTime?: number) => {
 	const _rpcClient = await rpcClient.ensureRPC();
 	if (_rpcClient === undefined) throw new Error("Failed to obtain RPC client");
 
-	const activityState: Presence = {
-		buttons: [{ url: currentlyPlaying.url ?? `https://tidal.com/browse/track/${currentlyPlaying.id}?u`, label: "Play on Tidal" }],
-	};
+	const activityState: Presence = {};
+
+	const { keepRpcOnPause, displayPlayButton } = settings;
+
+	if (displayPlayButton) activityState.buttons = [{ url: currentlyPlaying.url ?? `https://tidal.com/browse/track/${currentlyPlaying.id}?u`, label: "Play on Tidal" }];
 
 	// Pause indicator
 	if (playbackState === "NOT_PLAYING") {
