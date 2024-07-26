@@ -40,7 +40,7 @@ export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: Play
 		}
 
 		// Artist image
-		if (currentlyPlaying.artist) {
+		if (currentlyPlaying.artist && settings.displayArtistImage) {
 			activityState.smallImageKey = getMediaURLFromID(currentlyPlaying.artist.picture, "/320x320.jpg");
 			activityState.smallImageText = formatLongString(currentlyPlaying.artist.name);
 		}
