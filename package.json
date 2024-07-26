@@ -9,22 +9,22 @@
 	},
 	"devDependencies": {
 		"@types/discord-rpc": "^4.0.8",
-		"@types/node": "^20.12.7",
+		"@types/node": "^20.14.12",
 		"concurrently": "^8.2.2",
-		"electron": "^31.0.2",
-		"esbuild": "^0.20.2",
+		"electron": "^31.3.0",
+		"esbuild": "^0.23.0",
 		"http-server": "^14.1.1",
-		"neptune-types": "^1.0.0",
+		"neptune-types": "^1.0.1",
 		"nodemon": "^3.1.4",
-		"typescript": "^5.4.5"
+		"typescript": "^5.5.4"
 	},
 	"dependencies": {
 		"@inrixia/helpers": "^2.0.11",
-		"dasha": "^3.0.2",
+		"dasha": "^3.0.3",
 		"discord-rpc": "^4.0.1",
 		"flac-stream-tagger": "^1.0.9",
 		"idb": "^8.0.0",
-		"music-metadata": "^7.14.0"
+		"music-metadata": "^10.0.0"
 	},
 	"nodemonConfig": {
 		"watch": [

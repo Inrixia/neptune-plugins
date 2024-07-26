@@ -1,3 +1,4 @@
+// @ts-expect-error I think this thinks its in browser?
 import { parseStream } from "music-metadata";
 import { AudioQuality, PlaybackContext } from "../../AudioQualityTypes";
 import { type ExtendedPlayackInfo, ManifestMimeType } from "../../Caches/PlaybackInfoTypes";
