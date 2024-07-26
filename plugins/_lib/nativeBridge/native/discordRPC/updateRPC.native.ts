@@ -13,7 +13,7 @@ const formatLongString = (s?: string) => {
 const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") => (id ? "https://resources.tidal.com/images/" + id.split("-").join("/") + path : undefined);
 
 export const onRpcCleanup = () => rpcClient.cleanp();
-export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: PlaybackState, settings: { keepRpcOnPause: boolean; displayPlayButton: boolean }, currentTime?: number) => {
+export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: PlaybackState, settings: { keepRpcOnPause: boolean; displayPlayButton: boolean; displayArtistImage: boolean }, currentTime?: number) => {
 	const _rpcClient = await rpcClient.ensureRPC();
 	if (_rpcClient === undefined) throw new Error("Failed to obtain RPC client");
 
@@ -32,11 +32,19 @@ export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: Play
 		if (keepRpcOnPause === false) return _rpcClient.clearActivity();
 		activityState.smallImageKey = "paused-icon";
 		activityState.smallImageText = "Paused";
-	} else if (currentlyPlaying.duration !== undefined && currentTime !== undefined) {
+	} else {
 		// Playback/Time
-		activityState.startTimestamp = Math.floor(Date.now() / 1000);
-		activityState.endTimestamp = Math.floor((Date.now() + (currentlyPlaying.duration - currentTime) * 1000) / 1000);
-	}
+		if (currentlyPlaying.duration !== undefined && currentTime !== undefined) {
+			activityState.startTimestamp = Math.floor(Date.now() / 1000);
+			activityState.endTimestamp = Math.floor((Date.now() + (currentlyPlaying.duration - currentTime) * 1000) / 1000);
+		}
+
+		// Artist image
+		if (currentlyPlaying.artist) {
+			activityState.smallImageKey = getMediaURLFromID(currentlyPlaying.artist.picture, "/320x320.jpg");
+			activityState.smallImageText = formatLongString(currentlyPlaying.artist.name);
+		}
+	} 
 
 	// Album
 	if (currentlyPlaying.album !== undefined) {
