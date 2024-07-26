@@ -17,7 +17,11 @@ export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: Play
 	const _rpcClient = await rpcClient.ensureRPC();
 	if (_rpcClient === undefined) throw new Error("Failed to obtain RPC client");
 
-	const activityState: Presence = {};
+	const activityState: Presence = {
+		// TODO: Import this as a constant from `discord-rpc` once https://github.com/discordjs/RPC/pull/149 is merged
+		// @ts-expect-error Not added to library yet
+		type: 2,
+	};
 
 	const { keepRpcOnPause, displayPlayButton } = settings;
 
@@ -41,14 +45,10 @@ export const updateRPC = async (currentlyPlaying: TrackItem, playbackState: Play
 	}
 
 	// Title/Artist
-	const artist = `by ${currentlyPlaying?.artist?.name ?? currentlyPlaying.artists?.[0]?.name ?? "Unknown Artist"}`;
-	const desc = `${currentlyPlaying.title} ${artist}`;
-	if (desc.length >= 32) {
-		activityState.details = formatLongString(currentlyPlaying.title);
-		activityState.state = formatLongString(artist);
-	} else {
-		activityState.details = formatLongString(desc);
-	}
+	const artist = currentlyPlaying.artists?.map((a) => a.name).join(", ") ?? "Unknown Artist";
+
+	activityState.details = formatLongString(currentlyPlaying.title);
+	activityState.state = formatLongString(artist);
 
 	return _rpcClient.setActivity(activityState);
 };
