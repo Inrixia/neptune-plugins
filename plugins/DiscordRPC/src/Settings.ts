@@ -9,8 +9,6 @@ export const settings = getSettings({
 	displayArtistImage: true,
 });
 
-export type Settings = typeof settings;
-
 export const Settings = () => html`<${SwitchSetting}
 		checked=${settings.keepRpcOnPause}
 		onClick=${() => {
