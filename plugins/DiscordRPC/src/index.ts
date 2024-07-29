@@ -36,7 +36,7 @@ export const onTimeUpdate = async (currentTime?: number) => {
 		? true // If the track is loading, it's about to play, so we shouldn't show the pause icon
 		: playbackState === "PLAYING";
 
-	if (!playing && settings.keepRpcOnPause === false) return updateRPC({});
+	if (!playing && !settings.keepRpcOnPause) return updateRPC({});
 
 	const activity: SetActivity = { type: 2 }; // Listening type
 
