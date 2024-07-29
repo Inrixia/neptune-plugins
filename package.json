@@ -8,7 +8,6 @@
 		"postinstall": "node postinstall.js"
 	},
 	"devDependencies": {
-		"@types/discord-rpc": "^4.0.8",
 		"@types/node": "^20.14.12",
 		"concurrently": "^8.2.2",
 		"electron": "^31.3.0",
@@ -20,8 +19,8 @@
 	},
 	"dependencies": {
 		"@inrixia/helpers": "^2.0.11",
+		"@xhayper/discord-rpc": "^1.1.4",
 		"dasha": "^3.0.3",
-		"discord-rpc": "^4.0.1",
 		"flac-stream-tagger": "^1.0.9",
 		"idb": "^8.0.0",
 		"music-metadata": "^10.0.0"

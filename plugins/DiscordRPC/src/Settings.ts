@@ -6,6 +6,7 @@ import { onTimeUpdate } from ".";
 export const settings = getSettings({
 	keepRpcOnPause: true,
 	displayPlayButton: true,
+	displayArtistImage: true,
 });
 
 export const Settings = () => html`<${SwitchSetting}
@@ -23,4 +24,12 @@ export const Settings = () => html`<${SwitchSetting}
 			settings.displayPlayButton = !settings.displayPlayButton;
 		}}
 		title="Display play button"
+	/>
+	<${SwitchSetting}
+		checked=${settings.displayArtistImage}
+		onClick=${() => {
+			onTimeUpdate(!settings).catch(() => {});
+			settings.displayArtistImage = !settings.displayArtistImage;
+		}}
+		title="Display artist image"
 	/>`;
