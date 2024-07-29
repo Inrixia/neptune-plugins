@@ -5,6 +5,8 @@ const crypto = require("crypto");
 
 const nativeExternals = ["@neptune", "@plugin", "electron"];
 
+const minify = true;
+
 const plugins = fs.readdirSync("./plugins");
 for (const plugin of plugins) {
 	if (plugin === "_lib") continue;
@@ -23,7 +25,7 @@ for (const plugin of plugins) {
 							const result = await esbuild.build({
 								entryPoints: [args.path],
 								bundle: true,
-								minify: true,
+								minify,
 								platform: "node",
 								format: "iife",
 								globalName: "neptuneExports",
@@ -40,6 +42,7 @@ for (const plugin of plugins) {
 								write: false,
 								metafile: true,
 								bundle: true,
+								minify,
 								external: nativeExternals,
 							});
 
@@ -55,7 +58,7 @@ for (const plugin of plugins) {
 				},
 			],
 			bundle: true,
-			minify: true,
+			minify,
 			format: "esm",
 			external: ["@neptune", "@plugin"],
 			platform: "browser",
