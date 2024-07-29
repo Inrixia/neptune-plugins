@@ -21,10 +21,6 @@ export const onTimeUpdate = async (currentTime?: number, loading?: boolean) => {
 		? true // If the track is loading, it's about to play, so we shouldn't show the pause icon
 		: playbackState === "PLAYING";
 
-	if (!settings) {
-		trace.msg.warn("Settings not loaded");
-	}
-
 	updateRPC({
 		track,
 		playing,
