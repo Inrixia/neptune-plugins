@@ -1,8 +1,15 @@
 import { ipcMain, IpcMainEvent } from "electron";
+import { ClientMessageChannelEnum } from "./player.native";
+
 import { Tracer } from "../helpers/trace.native";
 const trace = Tracer("[test.native]");
 
-export const AppEventEnum: Promise<Record<string, string>> = Function(`return import("../original.asar/app/shared/AppEventEnum.js")`)().then((module: any) => module.default.default);
+export const _default = (module: any) => module.default.default;
+export const importNative = (path: string) => Function(`return import("${path}")`)();
+
+export const AppEventEnum: Promise<Record<string, string>> = importNative("../original.asar/app/shared/AppEventEnum.js").then(_default);
+export const getClientMessageChannelEnum = () => ClientMessageChannelEnum;
+
 const ipcListeners: Record<string, (_: IpcMainEvent, ...args: any[]) => void> = {};
 export const startNativeIpcLogging = async () => {
 	for (const eventName of Object.values(await AppEventEnum)) {
