@@ -1,37 +1,42 @@
-import { Client } from "discord-rpc";
-const onCleanupErr = (err: Error) => console.warn("Encountered error while cleaning up DiscordRPC", err);
-export class DiscordRPC {
-	public rpcClient?: Client;
-	constructor(private readonly clientId: string) {}
+import { Client } from "@xhayper/discord-rpc";
+const onCleanupErr = (err: Error) =>
+	console.warn("Encountered error while cleaning up DiscordRPC", err);
 
-	public isConnected() {
-		// @ts-expect-error Types dont include internals like transport
-		return !!this.rpcClient?.transport?.socket;
+type ClientWithUser = Client & { user: NonNullable<Client["user"]> };
+
+export class DiscordRPC {
+	private rpcClient: Client;
+
+	constructor(private readonly clientId: string) {
+		this.rpcClient = new Client({
+			transport: { type: "ipc" },
+			clientId,
+		});
 	}
-	async ensureRPC(): Promise<Client> {
+
+	async getClient(): Promise<ClientWithUser> {
 		try {
-			if (this.rpcClient && this.isConnected()) return this.rpcClient;
-			await this.cleanp(true);
-			this.rpcClient = new Client({ transport: "ipc" });
-			const ready = new Promise<void>((res, rej) => {
-				const rejTimeout = setTimeout(() => rej(new Error("Timed out waiting for RPC to be ready")), 5000);
-				this.rpcClient!.once("ready", () => {
-					clearTimeout(rejTimeout);
-					res();
-				});
-			});
-			this.rpcClient = await this.rpcClient.login({ clientId: this.clientId });
-			await ready;
-			if (!this.isConnected()) return this.ensureRPC();
-			return this.rpcClient;
+			if (this.rpcClient.transport.isConnected && this.rpcClient.user)
+				return this.rpcClient as ClientWithUser;
+
+			await this.rpcClient.connect();
+
+			if (!this.rpcClient.user || !this.rpcClient.transport.isConnected) {
+				throw new Error("Failed to obtain RPC client or user");
+			}
+
+			return this.rpcClient as ClientWithUser;
 		} catch (err) {
-			await this.cleanp(true);
+			await this.cleanup(true);
 			throw err;
 		}
 	}
-	async cleanp(clearActivity: boolean = true) {
-		if (clearActivity) await this.rpcClient?.clearActivity().catch(onCleanupErr);
-		await this.rpcClient?.destroy().catch(onCleanupErr);
-		delete this.rpcClient;
+
+	async cleanup(clearActivity: boolean = true) {
+		if (clearActivity) {
+			await this.rpcClient.user?.clearActivity().catch(onCleanupErr);
+		}
+
+		await this.rpcClient.destroy().catch(onCleanupErr);
 	}
 }

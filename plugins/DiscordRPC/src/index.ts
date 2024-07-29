@@ -16,19 +16,31 @@ export const onTimeUpdate = async (settings: any, newTime?: number) => {
 	let { playbackContext, playbackState } = getPlaybackControl();
 	if (!playbackState) return;
 
-	const currentlyPlaying = await TrackItemCache.ensure((currentPlaybackContext ?? playbackContext)?.actualProductId);
+	const currentlyPlaying = await TrackItemCache.ensure(
+		(currentPlaybackContext ?? playbackContext)?.actualProductId
+	);
 	if (currentlyPlaying === undefined) return;
 
 	updateRPC(currentlyPlaying, playbackState, { ...settings }, newTime);
 };
 
-const onUnloadTimeUpdate = intercept("playbackControls/TIME_UPDATE", ([newTime]) => {
-	onTimeUpdate(settings, newTime).catch(trace.msg.err.withContext("Failed to update"));
-});
-const onUnloadNewTrack = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", ([{ playbackContext }]) => {
-	currentPlaybackContext = <any>playbackContext;
-	onTimeUpdate(settings).catch(trace.msg.err.withContext("Failed to update"));
-});
+const onUnloadTimeUpdate = intercept(
+	"playbackControls/TIME_UPDATE",
+	([newTime]) => {
+		onTimeUpdate(settings, newTime).catch(
+			trace.msg.err.withContext("Failed to update")
+		);
+	}
+);
+const onUnloadNewTrack = intercept(
+	"playbackControls/MEDIA_PRODUCT_TRANSITION",
+	([{ playbackContext }]) => {
+		currentPlaybackContext = <any>playbackContext;
+		onTimeUpdate(settings).catch(
+			trace.msg.err.withContext("Failed to update")
+		);
+	}
+);
 onTimeUpdate(settings).catch(trace.msg.err.withContext("Failed to update"));
 export const onUnload = () => {
 	onUnloadTimeUpdate();
