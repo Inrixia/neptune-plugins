@@ -4,7 +4,8 @@ import { DiscordRPC } from "./DiscordRPC.native";
 const rpc = new DiscordRPC("1130698654987067493");
 
 export const onRpcCleanup = () => rpc.cleanup();
-export const updateRPC = async (activity: SetActivity) => {
+export const updateRPC = async (activity?: SetActivity) => {
 	const client = await rpc.getClient();
-	return client.user.setActivity(activity);
+	if (!activity) return client.user.clearActivity();
+	client.user.setActivity(activity);
 };
