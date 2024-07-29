@@ -10,13 +10,14 @@ import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
 import { onRpcCleanup, updateRPC } from "@inrixia/lib/nativeBridge/discordRPC";
 
-export const onTimeUpdate = async (currentTime?: number, loading?: boolean) => {
+export const onTimeUpdate = async (currentTime?: number) => {
 	let { playbackContext, playbackState } = getPlaybackControl();
 	if (!playbackState) return;
 
 	const track = await TrackItemCache.ensure(playbackContext?.actualProductId);
 	if (track === undefined) return;
 
+	const loading = playbackState === "IDLE" || currentTime === 0;
 	const playing = loading
 		? true // If the track is loading, it's about to play, so we shouldn't show the pause icon
 		: playbackState === "PLAYING";
@@ -34,9 +35,7 @@ export const onTimeUpdate = async (currentTime?: number, loading?: boolean) => {
 const onUnloadTimeUpdate = intercept(
 	"playbackControls/TIME_UPDATE",
 	([newTime]) => {
-		const { playbackState } = getPlaybackControl();
-		const loading = playbackState === "IDLE" || newTime === 0;
-		onTimeUpdate(newTime, loading).catch(
+		onTimeUpdate(newTime).catch(
 			trace.msg.err.withContext("Failed to update")
 		);
 	}
