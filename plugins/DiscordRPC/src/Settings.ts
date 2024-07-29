@@ -9,27 +9,29 @@ export const settings = getSettings({
 	displayArtistImage: true,
 });
 
+export type Settings = typeof settings;
+
 export const Settings = () => html`<${SwitchSetting}
 		checked=${settings.keepRpcOnPause}
 		onClick=${() => {
-			onTimeUpdate(!settings).catch(() => {});
 			settings.keepRpcOnPause = !settings.keepRpcOnPause;
+			onTimeUpdate().catch(() => {});
 		}}
 		title="Keep RPC on pause"
 	/>
 	<${SwitchSetting}
 		checked=${settings.displayPlayButton}
 		onClick=${() => {
-			onTimeUpdate(!settings).catch(() => {});
 			settings.displayPlayButton = !settings.displayPlayButton;
+			onTimeUpdate().catch(() => {});
 		}}
 		title="Display play button"
 	/>
 	<${SwitchSetting}
 		checked=${settings.displayArtistImage}
 		onClick=${() => {
-			onTimeUpdate(!settings).catch(() => {});
 			settings.displayArtistImage = !settings.displayArtistImage;
+			onTimeUpdate().catch(() => {});
 		}}
 		title="Display artist image"
 	/>`;
