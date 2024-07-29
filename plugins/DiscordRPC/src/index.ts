@@ -12,7 +12,7 @@ import { onRpcCleanup, updateRPC } from "@inrixia/lib/nativeBridge/discordRPC";
 import { type PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
 
 let currentPlaybackContext: PlaybackContext | undefined;
-export const onTimeUpdate = async (settings: any, newTime?: number) => {
+export const onTimeUpdate = async (newTime?: number, loading?: boolean) => {
 	let { playbackContext, playbackState } = getPlaybackControl();
 	if (!playbackState) return;
 
@@ -21,29 +21,25 @@ export const onTimeUpdate = async (settings: any, newTime?: number) => {
 	);
 	if (currentlyPlaying === undefined) return;
 
-	updateRPC(currentlyPlaying, playbackState, { ...settings }, newTime);
+	updateRPC(
+		currentlyPlaying,
+		loading ? "PLAYING" : playbackState, // If loading, it's about to play, so we'll say it's playing
+		{ ...settings },
+		newTime
+	);
 };
 
 const onUnloadTimeUpdate = intercept(
 	"playbackControls/TIME_UPDATE",
 	([newTime]) => {
-		onTimeUpdate(settings, newTime).catch(
+		onTimeUpdate(newTime, newTime === 0).catch(
 			trace.msg.err.withContext("Failed to update")
 		);
 	}
 );
-const onUnloadNewTrack = intercept(
-	"playbackControls/MEDIA_PRODUCT_TRANSITION",
-	([{ playbackContext }]) => {
-		currentPlaybackContext = <any>playbackContext;
-		onTimeUpdate(settings).catch(
-			trace.msg.err.withContext("Failed to update")
-		);
-	}
-);
-onTimeUpdate(settings).catch(trace.msg.err.withContext("Failed to update"));
+
+onTimeUpdate().catch(trace.msg.err.withContext("Failed to update"));
 export const onUnload = () => {
 	onUnloadTimeUpdate();
-	onUnloadNewTrack();
 	onRpcCleanup();
 };
