@@ -1,4 +1,4 @@
-import { importNative, _default } from "./test.native";
+import { importNative, _default } from "./helpers.native";
 
 // const RepeatModeEnum: Promise<Record<string, string>> = importNative("../original.asar/app/shared/playback/RepeatModeEnum.js").then(_default);
 // const clientDispatcher: Promise<Record<string, string>> = importNative("../original.asar/app/main/client/clientDispatcher.js").then(_default);
