@@ -65,7 +65,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 	const downloadButton = document.createElement("button");
 	downloadButton.type = "button";
 	downloadButton.role = "menuitem";
-	downloadButton.textContent = `Download ${trackItems.length}`;
+	downloadButton.textContent = trackItems.length > 1 ? `Download ${trackItems.length} tracks` : "Download track";
 	downloadButton.id = "download-button";
 	downloadButton.className = "context-button"; // Set class name for styling
 
