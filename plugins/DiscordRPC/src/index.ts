@@ -22,7 +22,7 @@ const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") =>
 		? "https://resources.tidal.com/images/" + id.split("-").join("/") + path
 		: undefined;
 
-let previousActivity: SetActivity | undefined;
+let previousActivity: string | undefined;
 
 export const onTimeUpdate = async (currentTime?: number) => {
 	let { playbackContext, playbackState } = getPlaybackControl();
@@ -44,7 +44,7 @@ export const onTimeUpdate = async (currentTime?: number) => {
 		activity.buttons = [
 			{
 				url: `https://tidal.com/browse/track/${track.id}?u`,
-				label: "Play song",
+				label: "Play Song",
 			},
 		];
 
@@ -85,15 +85,11 @@ export const onTimeUpdate = async (currentTime?: number) => {
 	activity.state = formatLongString(artist);
 
 	// Check if the activity actually changed
-	if (
-		previousActivity &&
-		JSON.stringify(previousActivity) === JSON.stringify(activity)
-	)
-		return;
+	const json = JSON.stringify(activity);
+	if (previousActivity === json) return;
+	previousActivity = json;
 
 	updateRPC(activity);
-
-	previousActivity = activity;
 };
 
 const onUnloadTimeUpdate = intercept(
