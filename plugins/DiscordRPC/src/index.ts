@@ -31,7 +31,8 @@ export const onTimeUpdate = async (currentTime?: number) => {
 	const track = await TrackItemCache.ensure(playbackContext?.actualProductId);
 	if (track === undefined) return;
 
-	const loading = playbackState === "IDLE" || currentTime === 0;
+	const loading =
+		previousActivity && (playbackState === "IDLE" || currentTime === 0);
 	const playing = loading
 		? true // If the track is loading, it's about to play, so we shouldn't show the pause icon
 		: playbackState === "PLAYING";
