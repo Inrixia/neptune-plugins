@@ -25,14 +25,18 @@ const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") =>
 let previousActivity: string | undefined;
 
 export const onTimeUpdate = async (currentTime?: number) => {
-	let { playbackContext, playbackState } = getPlaybackControl();
+	const { playbackContext, playbackState } = getPlaybackControl();
 	if (!playbackState) return;
 
 	const track = await TrackItemCache.ensure(playbackContext?.actualProductId);
 	if (track === undefined) return;
 
-	const loading =
-		previousActivity && (playbackState === "IDLE" || currentTime === 0);
+	const idle =
+		playbackState === "IDLE" || // Loading next track
+		playbackState === "STALLED" || // Seeking in the track
+		currentTime === 0; // Loading current track
+	const loading = previousActivity && idle; // On the initial load, the state will be idle, but it is not loading
+
 	const playing = loading
 		? true // If the track is loading, it's about to play, so we shouldn't show the pause icon
 		: playbackState === "PLAYING";
