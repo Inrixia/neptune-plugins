@@ -31,15 +31,8 @@ export const onTimeUpdate = async (currentTime?: number) => {
 	const track = await TrackItemCache.ensure(playbackContext?.actualProductId);
 	if (track === undefined) return;
 
-	const idle =
-		playbackState === "IDLE" || // Loading next track
-		playbackState === "STALLED" || // Seeking in the track
-		currentTime === 0; // Loading current track
-	const loading = previousActivity && idle; // On the initial load, the state will be idle, but it is not loading
-
-	const playing = loading
-		? true // If the track is loading, it's about to play, so we shouldn't show the pause icon
-		: playbackState === "PLAYING";
+	const loading = currentTime === 0 && previousActivity;
+	const playing = playbackState !== "NOT_PLAYING" || loading;
 
 	if (!playing && !settings.keepRpcOnPause) return updateRPC();
 
