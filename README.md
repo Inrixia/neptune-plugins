@@ -113,6 +113,10 @@ Stream size            : 525 MiB (100%)
 MD5 of the unencoded content: 1401A5C520F16BADDEA6670EFF08200B
 ```
 
+## NoBuffer
+**Install Url: `https://inrixia.github.io/neptune-plugins/VolumeScroll/`**  
+Lets you scroll on the volume icon to change the volume.
+
 ## Other Plugin Repositories
 
 - **[twnlink/neptune-plugins](https://github.com/twnlink/neptune-plugins)**
