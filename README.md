@@ -65,6 +65,10 @@ When enabled any files you drag onto your client will be run through [**Shazam**
 Kicks the Tidal cdn if the current playback stalls to make it stop so you never have to deal with constant stuttering or stalling again!  
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/8378a9a3-2d3f-4cd7-af04-ceeac350b9e6) 
 
+## Volume Scroll
+**Install Url: `https://inrixia.github.io/neptune-plugins/VolumeScroll/`**  
+Lets you scroll on the volume icon to change the volume.
+
 ## Downloader
 **Install Url: `https://inrixia.github.io/neptune-plugins/SongDownloader/`**  
 Adds a Download button to **Songs**, **Playlists** & **Albums** context menus.  
@@ -112,10 +116,6 @@ Replay gain peak       : 0.710358
 Stream size            : 525 MiB (100%)
 MD5 of the unencoded content: 1401A5C520F16BADDEA6670EFF08200B
 ```
-
-## Volume Scroll
-**Install Url: `https://inrixia.github.io/neptune-plugins/VolumeScroll/`**  
-Lets you scroll on the volume icon to change the volume.
 
 ## Other Plugin Repositories
 
