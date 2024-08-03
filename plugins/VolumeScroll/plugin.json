@@ -1,0 +1,6 @@
+{
+	"name": "Volume Scroll",
+	"description": "Scroll on the volume icon to change volume.",
+	"author": "Nick Oates",
+	"main": "./src/index.js"
+}
