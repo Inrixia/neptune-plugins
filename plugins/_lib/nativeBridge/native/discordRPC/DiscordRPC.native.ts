@@ -24,8 +24,7 @@ export class DiscordRPC {
 
 		this.connectingPromise = this.connect();
 		try {
-			const client = await this.connectingPromise;
-			return client;
+			return await this.connectingPromise;
 		} finally {
 			this.connectingPromise = null;
 		}
