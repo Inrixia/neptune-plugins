@@ -7,7 +7,7 @@ export const TextInput = ({ text, onText, title, tooltip }: TextInputProps) => {
 	return html`
 		<${DivWithTooltip} tooltip=${tooltip}>
 			<label for="text-${title}" style="font-size: 1.2em;margin-right: 16px;">${title}</label>
-			<input id="text-${title}" value=${text} onChange=${onChange} style="flex-grow: 1 background: var(--wave-color-solid-base-brighter, var(--wave-color-opacity-contrast-fill-ultra-thick));border-bottom: 1px solid var(--wave-color-opacity-contrast-fill-ultra-thin); color: var(--wave-color-opacity-contrast-fill-t);" />
+			<input id="text-${title}" value=${text} onChange=${onChange} style="flex-grow: 1 background: var(--wave-color-solid-base-brighter);border-bottom: 1px solid var(--wave-color-opacity-contrast-fill-ultra-thin);border-right: 1px solid var(--wave-color-opacity-contrast-fill-ultra-thin); color: var(--wave-color-opacity-contrast-fill-t);" />
 		<//>
 	`;
 };
