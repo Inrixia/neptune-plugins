@@ -67,7 +67,7 @@ Kicks the Tidal cdn if the current playback stalls to make it stop so you never 
 
 ## Volume Scroll
 **Install Url: `https://inrixia.github.io/neptune-plugins/VolumeScroll/`**  
-Lets you scroll on the volume icon to change the volume.
+Lets you scroll on the volume icon to change the volume. Hold shift to change faster.
 
 ## Downloader
 **Install Url: `https://inrixia.github.io/neptune-plugins/SongDownloader/`**  
