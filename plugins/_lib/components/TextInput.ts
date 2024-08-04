@@ -7,7 +7,7 @@ export const TextInput = ({ text, onText, title, tooltip }: TextInputProps) => {
 	return html`
 		<${DivWithTooltip} tooltip=${tooltip}>
 			<label for="text-${title}" style="font-size: 1.2em;margin-right: 16px;">${title}</label>
-			<input id="text-${title}" value=${text} onChange=${onChange} style="flex-grow: 1;" />
+			<input id="text-${title}" class="neptune-text-input" value=${text} onChange=${onChange} style="flex-grow: 1;" />
 		<//>
 	`;
 };
