@@ -46,13 +46,6 @@ export class DiscordRPC {
 	}
 
 	async cleanup() {
-		try {
-			await this.rpcClient.destroy();
-		} catch (error) {
-			console.warn(
-				"Encountered error while cleaning up DiscordRPC",
-				error
-			);
-		}
+		await this.rpcClient.destroy();
 	}
 }
