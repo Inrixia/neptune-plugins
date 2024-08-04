@@ -18,13 +18,11 @@ export class DiscordRPC {
 			return this.rpcClient as ClientWithUser;
 		}
 
-		if (this.connectingPromise) {
-			return this.connectingPromise;
-		}
+		if (this.connectingPromise) return this.connectingPromise;
 
 		this.connectingPromise = this.connect();
 		try {
-			return await this.connectingPromise;
+			return this.connectingPromise;
 		} finally {
 			this.connectingPromise = null;
 		}
