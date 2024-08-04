@@ -15,7 +15,7 @@ export const settings = getSettings({
 	useRealMAX: true,
 });
 if (settings.filenameFormat === "") settings.filenameFormat = defaultFilenameFormat;
-export const Settings = () => html`<div>
+export const Settings = () => html`<div style="display: grid; grid-gap: 20px; margin-top: 20px;">
 	<${DropdownSelect}
 		selected=${settings.desiredDownloadQuality}
 		onSelect=${(selected: AudioQuality) => (settings.desiredDownloadQuality = selected)}
