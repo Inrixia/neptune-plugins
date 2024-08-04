@@ -19,7 +19,7 @@
 	},
 	"dependencies": {
 		"@inrixia/helpers": "^2.0.11",
-		"@xhayper/discord-rpc": "^1.1.4",
+		"@xhayper/discord-rpc": "^1.2.0",
 		"dasha": "^3.0.3",
 		"flac-stream-tagger": "^1.0.9",
 		"idb": "^8.0.0",

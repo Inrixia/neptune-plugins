@@ -1,11 +1,10 @@
 import { Client } from "@xhayper/discord-rpc";
-const onCleanupErr = (err: Error) =>
-	console.warn("Encountered error while cleaning up DiscordRPC", err);
 
 type ClientWithUser = Client & { user: NonNullable<Client["user"]> };
 
 export class DiscordRPC {
 	private rpcClient: Client;
+	private connectingPromise: Promise<ClientWithUser> | null = null;
 
 	constructor(private readonly clientId: string) {
 		this.rpcClient = new Client({
@@ -15,10 +14,25 @@ export class DiscordRPC {
 	}
 
 	async getClient(): Promise<ClientWithUser> {
-		try {
-			if (this.rpcClient.transport.isConnected && this.rpcClient.user)
-				return this.rpcClient as ClientWithUser;
+		if (this.rpcClient.transport.isConnected && this.rpcClient.user) {
+			return this.rpcClient as ClientWithUser;
+		}
 
+		if (this.connectingPromise) {
+			return this.connectingPromise;
+		}
+
+		this.connectingPromise = this.connect();
+		try {
+			const client = await this.connectingPromise;
+			return client;
+		} finally {
+			this.connectingPromise = null;
+		}
+	}
+
+	private async connect(): Promise<ClientWithUser> {
+		try {
 			await this.rpcClient.connect();
 
 			if (!this.rpcClient.user || !this.rpcClient.transport.isConnected) {
@@ -27,16 +41,19 @@ export class DiscordRPC {
 
 			return this.rpcClient as ClientWithUser;
 		} catch (err) {
-			await this.cleanup(true);
+			await this.cleanup();
 			throw err;
 		}
 	}
 
-	async cleanup(clearActivity: boolean = true) {
-		if (clearActivity) {
-			await this.rpcClient.user?.clearActivity().catch(onCleanupErr);
+	async cleanup() {
+		try {
+			await this.rpcClient.destroy();
+		} catch (error) {
+			console.warn(
+				"Encountered error while cleaning up DiscordRPC",
+				error
+			);
 		}
-
-		await this.rpcClient.destroy().catch(onCleanupErr);
 	}
 }
