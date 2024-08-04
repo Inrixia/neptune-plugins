@@ -102,5 +102,5 @@ const onUnloadTimeUpdate = intercept(
 onTimeUpdate().catch(trace.msg.err.withContext("Failed to update"));
 export const onUnload = () => {
 	onUnloadTimeUpdate();
-	onRpcCleanup();
+	onRpcCleanup().catch(trace.msg.err.withContext("Failed to cleanup RPC"));
 };
