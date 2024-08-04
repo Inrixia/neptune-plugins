@@ -45,7 +45,7 @@ var te=(A,e)=>{let t=document.getElementById(e);t||(t=document.createElement("st
 	`;import{html as Le}from"@neptune/voby";var G=({text:A,onText:e,title:t,tooltip:i})=>Le`
 		<${f} tooltip=${i}>
 			<label for="text-${t}" style="font-size: 1.2em;margin-right: 16px;">${t}</label>
-			<input id="text-${t}" value=${A} onChange=${s=>e?.(s.target.value)} style="flex-grow: 1 background: var(--wave-color-solid-base-brighter);border-bottom: 1px solid var(--wave-color-opacity-contrast-fill-ultra-thin);border-right: 1px solid var(--wave-color-opacity-contrast-fill-ultra-thin); color: var(--wave-color-opacity-contrast-fill-t);" />
+			<input id="text-${t}" value=${A} onChange=${s=>e?.(s.target.value)} style="flex-grow: 1; background: var(--wave-color-solid-base-brighter);border-bottom: 1px solid var(--wave-color-opacity-contrast-fill-ultra-thin);border-right: 1px solid var(--wave-color-opacity-contrast-fill-ultra-thin); color: var(--wave-color-opacity-contrast-fill-t);" />
 		<//>
 	`;import{html as Oe}from"@neptune/voby";var H=({checked:A,onClick:e,title:t,tooltip:i})=>(A??=!1,Oe`
 		<${f} tooltip=${i}>
