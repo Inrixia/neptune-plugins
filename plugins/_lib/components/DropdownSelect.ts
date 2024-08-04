@@ -7,7 +7,7 @@ export const DropdownSelect = ({ selected, onSelect, options, title, tooltip }: 
 	return html`
 		<${DivWithTooltip} tooltip=${tooltip}>
 			<label for="dropdown-${title}" style="font-size: 1.2em;margin-right: 10px;">${title}</label>
-			<select id="dropdown-${title}" class="neptune-text-input" value=${selected} onChange=${onChange} style="flex-grow: 1; max-width: 180px;">
+			<select id="dropdown-${title}" class="neptune-text-input" value=${selected} onChange=${onChange} style="flex-grow: 1; max-width: 180px; width: auto; height: auto;">
 				${options.map((option) => html`<option class="neptune-card" value=${option} selected=${option === selected}>${option}</option>`)}
 			</select>
 		<//>
