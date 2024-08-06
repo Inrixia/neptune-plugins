@@ -60,7 +60,7 @@ export const onTimeUpdate = async (currentTime?: number) => {
 		}
 
 		// Artist image
-		const artist = track.artist || track.artists?.[0];
+		const artist = track.artist ?? track.artists?.[0];
 		if (artist && settings.displayArtistImage) {
 			activity.smallImageKey = getMediaURLFromID(
 				artist.picture,
