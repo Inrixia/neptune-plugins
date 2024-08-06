@@ -60,12 +60,13 @@ export const onTimeUpdate = async (currentTime?: number) => {
 		}
 
 		// Artist image
-		if (track.artist && settings.displayArtistImage) {
+		const artist = track.artist || track.artists?.[0];
+		if (artist && settings.displayArtistImage) {
 			activity.smallImageKey = getMediaURLFromID(
-				track.artist.picture,
+				artist.picture,
 				"/320x320.jpg"
 			);
-			activity.smallImageText = formatLongString(track.artist.name);
+			activity.smallImageText = formatLongString(artist.name);
 		}
 	}
 
