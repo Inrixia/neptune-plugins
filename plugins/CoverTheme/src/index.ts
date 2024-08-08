@@ -56,4 +56,6 @@ export const onUnload = () => {
 	unloadIntercept();
 	document.body.style.backgroundImage = "";
 	getStyle("coverTheme")?.remove();
+	prevSong = undefined;
+	prevCover = undefined;
 };
