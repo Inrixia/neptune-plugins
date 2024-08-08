@@ -26,13 +26,13 @@ async function updateBackground() {
 	prevCover = track.album.cover;
 
 	const cover = getCoverUrl(track.album.cover);
-	const palette = await Vibrant.from(cover).maxColorCount(128).getPalette();
+	const palette = await Vibrant.from(cover).getPalette();
 
-	const vibrant = palette.Vibrant?.rgb.join(", ");
-	const muted = palette.Muted?.rgb.join(", ");
+	const vibrant = palette.DarkVibrant?.hex;
+	const muted = palette.DarkMuted?.hex;
 	if (!vibrant || !muted) return;
 
-	const style = `linear-gradient(rgb(${vibrant}, 0.5), rgb(${muted}, 0.5))`;
+	const style = `linear-gradient(${vibrant}, ${muted})`;
 	document.body.style.backgroundImage = style;
 }
 
