@@ -48,6 +48,11 @@ setStyle(
 		
 	#footerPlayer, nav, [class^="bar"] {
 		background-color: color-mix(in srgb, var(--wave-color-solid-base-brighter), transparent 70%) !important;
+	}
+	
+	#nowPlaying > [class^="innerContainer"] {
+		height: calc(100vh - 126px);
+		overflow: hidden;
 	}`,
 	"coverTheme"
 );
