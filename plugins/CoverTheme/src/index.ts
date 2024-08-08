@@ -3,6 +3,7 @@ import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
 import Vibrant from "node-vibrant";
 import { getStyle, setStyle } from "@inrixia/lib/css/setStyle";
+import { Palette, Vec3 } from "node-vibrant/lib/color";
 
 // These variables are used to prevent unnecessary updates
 let prevSong: string | undefined;
@@ -28,11 +29,30 @@ async function updateBackground() {
 	const cover = getCoverUrl(track.album.cover);
 	const palette = await Vibrant.from(cover).getPalette();
 
-	const vibrant = palette.DarkVibrant?.hex;
-	const muted = palette.DarkMuted?.hex;
-	if (!vibrant || !muted) return;
+	const colors: { [K in keyof Palette]: string } = {};
+	Object.entries(palette).forEach(([colorName, color]) => {
+		if (!color) return;
+		const rgb = color.rgb.join(", ");
+		colors[colorName] = `rgb(${rgb}, 0.5)`;
+	});
 
-	const style = `linear-gradient(${vibrant}, ${muted})`;
+	const gradients = {
+		"top left": colors.LightMuted,
+		"center left": colors.Vibrant,
+		"bottom left": colors.DarkVibrant,
+		"top right": colors.LightVibrant,
+		"center right": colors.Muted,
+		"bottom right": colors.DarkMuted,
+	};
+
+	const style = Object.entries(gradients)
+		.map(
+			([position, color]) =>
+				`radial-gradient(ellipse at ${position}, ${color}, transparent 70%)`
+		)
+		.join(", ");
+	console.log({ style, colors });
+
 	document.body.style.backgroundImage = style;
 }
 
