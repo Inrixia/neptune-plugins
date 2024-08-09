@@ -51,7 +51,6 @@ async function updateBackground() {
 				`radial-gradient(ellipse at ${position}, ${color}, transparent 70%)`
 		)
 		.join(", ");
-	console.log({ style, colors });
 
 	document.body.style.backgroundImage = style;
 }
