@@ -73,9 +73,9 @@ export function updateCSS() {
 
 	if (settings.backgroundGradient) {
 		const positions = {
-			"top left": "LightMuted",
+			"top left": "DarkVibrant",
 			"center left": "Vibrant",
-			"bottom left": "DarkVibrant",
+			"bottom left": "LightMuted",
 			"top right": "LightVibrant",
 			"center right": "Muted",
 			"bottom right": "DarkMuted",
