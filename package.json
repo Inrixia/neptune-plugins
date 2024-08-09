@@ -23,7 +23,8 @@
 		"dasha": "^3.0.3",
 		"flac-stream-tagger": "^1.0.9",
 		"idb": "^8.0.0",
-		"music-metadata": "^10.0.0"
+		"music-metadata": "^10.0.0",
+		"node-vibrant": "^3.1.6"
 	},
 	"nodemonConfig": {
 		"watch": [

@@ -1,0 +1,5 @@
+{
+	"dependencies": {
+		"@inrixia/lib": "../_lib"
+	}
+}
