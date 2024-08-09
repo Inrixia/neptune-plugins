@@ -50,45 +50,47 @@ const unloadIntercept = intercept("playbackControls/TIME_UPDATE", ([time]) => {
 	if (time === 0) updateBackground();
 });
 
-const positions = {
-	"top left": "LightMuted",
-	"center left": "Vibrant",
-	"bottom left": "DarkVibrant",
-	"top right": "LightVibrant",
-	"center right": "Muted",
-	"bottom right": "DarkMuted",
-};
-
-const gradients = Object.entries(positions)
-	.map(
-		([position, variable]) =>
-			`radial-gradient(ellipse at ${position}, rgb(var(--cover-${variable}), 0.5), transparent 70%)`
-	)
-	.join(", ");
-
-const styles = `
-#wimp, main, .sidebarWrapper, [class^="mainContainer"] {
-	background: unset !important;
-}
-			
-#footerPlayer, nav, [class^="bar"] {
-	background-color: color-mix(in srgb, var(--wave-color-solid-base-brighter), transparent 70%) !important;
-}
-		
-#nowPlaying > [class^="innerContainer"] {
-	height: calc(100vh - 126px);
-	overflow: hidden;
-}
-	
-body {
-	background-image: ${gradients};
-}`;
-
 export function updateCSS() {
-	if (settings.injectCSS) {
-		setStyle(styles, "coverTheme");
+	if (settings.transparentTheme) {
+		const styles = `
+		#wimp, main, .sidebarWrapper, [class^="mainContainer"] {
+			background: unset !important;
+		}
+					
+		#footerPlayer, nav, [class^="bar"] {
+			background-color: color-mix(in srgb, var(--wave-color-solid-base-brighter), transparent 70%) !important;
+		}
+				
+		#nowPlaying > [class^="innerContainer"] {
+			height: calc(100vh - 126px);
+			overflow: hidden;
+		}`;
+
+		setStyle(styles, "transparentTheme");
 	} else {
-		getStyle("coverTheme")?.remove();
+		getStyle("transparentTheme")?.remove();
+	}
+
+	if (settings.backgroundGradient) {
+		const positions = {
+			"top left": "LightMuted",
+			"center left": "Vibrant",
+			"bottom left": "DarkVibrant",
+			"top right": "LightVibrant",
+			"center right": "Muted",
+			"bottom right": "DarkMuted",
+		};
+
+		const gradients = Object.entries(positions)
+			.map(
+				([position, variable]) =>
+					`radial-gradient(ellipse at ${position}, rgb(var(--cover-${variable}), 0.5), transparent 70%)`
+			)
+			.join(", ");
+
+		setStyle(`body{background-image:${gradients};}`, "backgroundGradient");
+	} else {
+		getStyle("backgroundGradient")?.remove();
 	}
 }
 

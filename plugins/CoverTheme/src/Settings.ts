@@ -4,14 +4,23 @@ import { SwitchSetting } from "@inrixia/lib/components/SwitchSetting";
 import { updateCSS } from ".";
 
 export const settings = getSettings({
-	injectCSS: true,
+	transparentTheme: true,
+	backgroundGradient: true,
 });
 
-export const Settings = () => html`<${SwitchSetting}
-	checked=${settings.injectCSS}
-	onClick=${() => {
-		settings.injectCSS = !settings.injectCSS;
-		updateCSS();
-	}}
-	title="Inject default CSS styles"
-/>`;
+export const Settings = () => html` <${SwitchSetting}
+		checked=${settings.transparentTheme}
+		onClick=${() => {
+			settings.transparentTheme = !settings.transparentTheme;
+			updateCSS();
+		}}
+		title="Transparent theme"
+	/>
+	<${SwitchSetting}
+		checked=${settings.backgroundGradient}
+		onClick=${() => {
+			settings.backgroundGradient = !settings.backgroundGradient;
+			updateCSS();
+		}}
+		title="Background gradient"
+	/>`;
