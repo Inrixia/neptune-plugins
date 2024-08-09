@@ -74,7 +74,7 @@ Lets you scroll on the volume icon to change the volume by 2%. Hold shift to cha
 **Install Url: `https://inrixia.github.io/neptune-plugins/CoverTheme/`**
 Theme Tidal based on the current playing songs cover art. Also adds CSS variables for the cover art to be used in custom themes.
 
-![image](https://github.com/user-attachments/assets/99d5dfa9-4e48-4cca-a882-23a7a53cc6f2)
+![image](https://github.com/user-attachments/assets/57fc931a-e664-495a-a69b-f638e0839d10)
 
 ## Downloader
 **Install Url: `https://inrixia.github.io/neptune-plugins/SongDownloader/`**  
