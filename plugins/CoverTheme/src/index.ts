@@ -53,7 +53,7 @@ const unloadIntercept = intercept("playbackControls/TIME_UPDATE", ([time]) => {
 export function updateCSS() {
 	if (settings.transparentTheme) {
 		const styles = `
-		#wimp, main, .sidebarWrapper, [class^="mainContainer"] {
+		#wimp, main, .sidebarWrapper, [class^="mainContainer"], [class^="tabListWrapper"] {
 			background: unset !important;
 		}
 					
@@ -64,6 +64,10 @@ export function updateCSS() {
 		#nowPlaying > [class^="innerContainer"] {
 			height: calc(100vh - 126px);
 			overflow: hidden;
+		}
+			
+		.tidal-ui__z-stack > :not(:has(div)) {
+			background-image: linear-gradient(90deg, rgb(var(--cover-DarkVibrant), 0.5), rgb(var(--cover-LightVibrant), 0.5)) !important;
 		}`;
 
 		setStyle(styles, "transparentTheme");
