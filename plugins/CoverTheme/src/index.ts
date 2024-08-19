@@ -15,13 +15,11 @@ const getCoverUrl = (id: string) =>
 	id.split("-").join("/") +
 	"/640x640.jpg?cors";
 
-async function updateBackground() {
-	const { playbackContext } = getPlaybackControl();
+async function updateBackground(productId: string) {
+	if (prevSong === productId) return;
+	prevSong = productId;
 
-	if (prevSong === playbackContext?.actualProductId) return;
-	prevSong = playbackContext?.actualProductId;
-
-	const track = await TrackItemCache.ensure(playbackContext?.actualProductId);
+	const track = await TrackItemCache.ensure(productId);
 	if (!track || !track.album?.cover) return;
 
 	if (prevCover === track.album.cover) return;
@@ -46,9 +44,13 @@ async function updateBackground() {
 	}
 }
 
-const unloadIntercept = intercept("playbackControls/TIME_UPDATE", ([time]) => {
-	if (time === 0) updateBackground();
-});
+const unloadIntercept = intercept(
+	"playbackControls/PREFILL_MEDIA_PRODUCT_TRANSITION",
+	([track]) => {
+		const id = (track.mediaProduct as { productId?: string })?.productId;
+		if (id) updateBackground(id);
+	}
+);
 
 export function updateCSS() {
 	if (settings.transparentTheme) {
@@ -99,7 +101,8 @@ export function updateCSS() {
 }
 
 updateCSS();
-updateBackground();
+const { playbackContext } = getPlaybackControl();
+if (playbackContext) updateBackground(playbackContext.actualProductId);
 
 export const onUnload = () => {
 	unloadIntercept();
