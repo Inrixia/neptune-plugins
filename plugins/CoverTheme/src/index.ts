@@ -44,12 +44,19 @@ async function updateBackground(productId: string) {
 	}
 }
 
-const unloadIntercept = intercept(
+function onTransition([track]: any[]) {
+	const id = (track.mediaProduct as { productId?: string })?.productId;
+	if (id) updateBackground(id);
+}
+
+const unloadPrefill = intercept(
 	"playbackControls/PREFILL_MEDIA_PRODUCT_TRANSITION",
-	([track]) => {
-		const id = (track.mediaProduct as { productId?: string })?.productId;
-		if (id) updateBackground(id);
-	}
+	onTransition
+);
+
+const unloadTransition = intercept(
+	"playbackControls/MEDIA_PRODUCT_TRANSITION",
+	onTransition
 );
 
 export function updateCSS() {
@@ -105,7 +112,8 @@ const { playbackContext } = getPlaybackControl();
 if (playbackContext) updateBackground(playbackContext.actualProductId);
 
 export const onUnload = () => {
-	unloadIntercept();
+	unloadPrefill();
+	unloadTransition();
 	getStyle("coverTheme")?.remove();
 	vars.forEach((variable) =>
 		document.documentElement.style.removeProperty(variable)
