@@ -62,7 +62,7 @@ const unloadTransition = intercept(
 export function updateCSS() {
 	if (settings.transparentTheme) {
 		const styles = `
-		#wimp, main, .sidebarWrapper, [class^="mainContainer"], [class^="tabListWrapper"] {
+		#wimp, main, [class^="sidebarWrapper"], [class^="mainContainer"], [class^="tabListWrapper"] {
 			background: unset !important;
 		}
 					
