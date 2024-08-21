@@ -1,6 +1,0 @@
-{
-  "name": "LastFM",
-  "description": "Custom LastFM integration",
-  "author": "Inrixia",
-  "main": "./src/index.js"
-}

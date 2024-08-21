@@ -1,5 +1,9 @@
 {
-  "dependencies": {
-    "@inrixia/lib": "../_lib"
-  }
+	"displayName": "Testing",
+	"description": "~0_0~",
+	"author": "Inrixia",
+	"main": "./src/index.js",
+	"dependencies": {
+		"electron": "^31.3.0"
+	}
 }

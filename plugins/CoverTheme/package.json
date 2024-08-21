@@ -1,5 +1,9 @@
 {
+	"displayName": "Cover Theme",
+	"description": "Adds a color background based on the current track's cover art.",
+	"author": "Nick Oates",
+	"main": "./src/index.js",
 	"dependencies": {
-		"@inrixia/lib": "../_lib"
+		"@inrixia/lib": "workspace:*"
 	}
 }

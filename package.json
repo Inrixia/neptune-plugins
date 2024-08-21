@@ -1,11 +1,11 @@
 {
 	"name": "@inrixia/neptune-plugins",
 	"description": "Plugins for Neptune writtern by @inrixia",
+	"type": "module",
 	"scripts": {
 		"watch": "concurrently \"nodemon\" \"npm run serve\"",
 		"build": "node ./build.js",
-		"serve": "npx http-server --cors -S -p 443",
-		"postinstall": "node postinstall.js"
+		"serve": "npx http-server --cors"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.12",

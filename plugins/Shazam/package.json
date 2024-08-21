@@ -1,13 +1,17 @@
 {
-  "dependencies": {
-    "shazamio-core": "^1.3.1",
-    "uuid": "^10.0.0",
-    "@inrixia/lib": "../_lib"
-  },
-  "scripts": {
-    "postinstall": "node ./fixShazamio.js"
-  },
-  "devDependencies": {
-    "@types/uuid": "^9.0.8"
-  }
+	"displayName": "Shazam",
+	"description": "Drop any file onto the tidal client and go to its tidal song if it exists",
+	"author": "Inrixia",
+	"main": "./src/index.js",
+	"dependencies": {
+		"shazamio-core": "^1.3.1",
+		"uuid": "^10.0.0",
+		"@inrixia/lib": "workspace:*"
+	},
+	"scripts": {
+		"postinstall": "node ./fixShazamio.js"
+	},
+	"devDependencies": {
+		"@types/uuid": "^9.0.8"
+	}
 }
