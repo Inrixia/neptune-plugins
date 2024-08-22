@@ -1,57 +1,55 @@
 name: Build and deploy
 
 on:
- push:
-  branches: [master]
-  paths:
-   - "plugins/**"
-   - "themes/**"
- workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - "plugins/**"
+      - "themes/**"
+  workflow_dispatch:
 
 jobs:
- deploy:
-  runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
 
-  permissions:
-   contents: write
+    permissions:
+      contents: write
 
-  steps:
-   - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
-   - name: Prepare environment
-     uses: actions/setup-node@v3
-     with:
-      node-version: "16"
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
 
-   - name: Install dependencies
-     run: |
-      npm i
-      for plugin in plugins/*
-      do
-        cd $plugin
-        npm install
-        cd ../..
-      done
+      - name: Install dependencies
+        run: pnpm install
 
-   - name: Build plugin(s)
-     run: |
-      mkdir -p .dist
-      npm run build
-      for plugin in plugins/*
-      do
-        if [ -d "$plugin/dist" ]; then
-          cp -r "$plugin/dist" ".dist/$(basename $plugin)"
-        else
-          echo "Directory $plugin/dist does not exist skipping..."
-        fi
-      done
+      - name: Build plugin(s)
+        run: |
+          mkdir -p .dist
+          pnpm run build
+          for plugin in plugins/*
+          do
+            if [ -d "$plugin/dist" ]; then
+              cp -r "$plugin/dist" ".dist/$(basename $plugin)"
+            else
+              echo "Directory $plugin/dist does not exist skipping..."
+            fi
+          done
 
-   - name: Copy themes folder
-     run: |
-      cp -r themes .dist/themes
+      - name: Copy themes folder
+        run: |
+          cp -r themes .dist/themes
 
-   - name: Deploy to GitHub Pages
-     uses: peaceiris/actions-gh-pages@v3
-     with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      publish_dir: .dist
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .dist
