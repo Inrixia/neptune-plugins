@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@inrixia/helpers':
-        specifier: ^2.0.11
-        version: 2.0.11
       '@xhayper/discord-rpc':
         specifier: ^1.2.0
         version: 1.2.0
@@ -26,9 +23,6 @@ importers:
       music-metadata:
         specifier: ^10.0.0
         version: 10.2.0
-      node-vibrant:
-        specifier: ^3.1.6
-        version: 3.1.6
     devDependencies:
       '@types/node':
         specifier: ^20.14.12
@@ -62,6 +56,9 @@ importers:
       '@inrixia/lib':
         specifier: workspace:*
         version: link:../_lib
+      node-vibrant:
+        specifier: ^3.1.6
+        version: 3.1.6
 
   plugins/DiscordRPC:
     dependencies:
@@ -89,6 +86,9 @@ importers:
 
   plugins/RealMAX:
     dependencies:
+      '@inrixia/helpers':
+        specifier: ^2.0.11
+        version: 2.0.11
       '@inrixia/lib':
         specifier: workspace:*
         version: link:../_lib
