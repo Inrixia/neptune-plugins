@@ -27,10 +27,8 @@
 		"node-vibrant": "^3.1.6"
 	},
 	"nodemonConfig": {
-		"watch": [
-			"./plugins/*/src/**",
-			"./plugins/_lib/**"
-		],
+		"watch": "./plugins/**",
+		"ignore": "**/dist/**",
 		"ext": "*",
 		"exec": "npm run build"
 	}
