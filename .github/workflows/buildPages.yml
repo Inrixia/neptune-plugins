@@ -1,13 +1,5 @@
 name: Build and deploy
 
-on:
-  push:
-    branches: [master]
-    paths:
-      - "plugins/**"
-      - "themes/**"
-  workflow_dispatch:
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -49,6 +41,7 @@ jobs:
           cp -r themes .dist/themes
 
       - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
