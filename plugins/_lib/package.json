@@ -1,0 +1,6 @@
+{
+	"name": "@inrixia/lib",
+	"dependencies": {
+		"electron": "^31.3.0"
+	}
+}

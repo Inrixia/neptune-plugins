@@ -1,36 +1,32 @@
 {
 	"name": "@inrixia/neptune-plugins",
 	"description": "Plugins for Neptune writtern by @inrixia",
+	"type": "module",
 	"scripts": {
-		"watch": "concurrently \"nodemon\" \"npm run serve\"",
+		"watch": "concurrently nodemon npm:serve",
 		"build": "node ./build.js",
-		"serve": "npx http-server --cors -S -p 443",
-		"postinstall": "node postinstall.js"
+		"serve": "serve -C ./plugins"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.12",
 		"concurrently": "^8.2.2",
 		"electron": "^31.3.0",
 		"esbuild": "^0.23.0",
-		"http-server": "^14.1.1",
 		"neptune-types": "^1.0.1",
 		"nodemon": "^3.1.4",
-		"typescript": "^5.5.4"
+		"typescript": "^5.5.4",
+		"serve": "^14.2.3"
 	},
 	"dependencies": {
-		"@inrixia/helpers": "^2.0.11",
 		"@xhayper/discord-rpc": "^1.2.0",
 		"dasha": "^3.0.3",
 		"flac-stream-tagger": "^1.0.9",
 		"idb": "^8.0.0",
-		"music-metadata": "^10.0.0",
-		"node-vibrant": "^3.1.6"
+		"music-metadata": "^10.0.0"
 	},
 	"nodemonConfig": {
-		"watch": [
-			"./plugins/*/src/**",
-			"./plugins/_lib/**"
-		],
+		"watch": "./plugins/**",
+		"ignore": "**/dist/**",
 		"ext": "*",
 		"exec": "npm run build"
 	}

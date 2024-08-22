@@ -1,6 +1,0 @@
-{
-  "name": "Themer",
-  "description": "Create your own themes!",
-  "author": "Inrixia",
-  "main": "./src/index.js"
-}

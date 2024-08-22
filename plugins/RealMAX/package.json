@@ -1,5 +1,10 @@
 {
+	"displayName": "RealMAX",
+	"description": "Always ensure that the highest quality available of a track is played",
+	"author": "Inrixia",
+	"main": "./src/index.js",
 	"dependencies": {
-		"@inrixia/lib": "../_lib"
+		"@inrixia/lib": "workspace:*",
+		"@inrixia/helpers": "^2.0.11"
 	}
 }
