@@ -4,6 +4,7 @@
 	"author": "Inrixia",
 	"main": "./src/index.js",
 	"dependencies": {
-		"@inrixia/lib": "workspace:*"
+		"@inrixia/lib": "workspace:*",
+		"@inrixia/helpers": "^2.0.11"
 	}
 }
