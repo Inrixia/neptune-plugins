@@ -117,6 +117,9 @@ importers:
 
   plugins/Testing:
     dependencies:
+      '@inrixia/lib':
+        specifier: workspace:*
+        version: link:../_lib
       electron:
         specifier: ^31.3.0
         version: 31.4.0
