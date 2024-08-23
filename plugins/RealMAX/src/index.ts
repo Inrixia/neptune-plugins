@@ -49,7 +49,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 	const maxButton = document.createElement("button");
 	maxButton.type = "button";
 	maxButton.role = "menuitem";
-	maxButton.textContent = `RealMAX - Process ${trackItems.length} tracks`;
+	maxButton.textContent = trackItems.length > 1 ? `RealMAX - Process ${trackItems.length} tracks` : "RealMAX - Process track";
 	maxButton.id = "realMax-button";
 	maxButton.className = "context-button"; // Set class name for styling
 	contextMenu.appendChild(maxButton);
