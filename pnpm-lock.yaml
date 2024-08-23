@@ -140,6 +140,9 @@ importers:
 
   plugins/_lib:
     dependencies:
+      '@inrixia/helpers':
+        specifier: ^2.0.11
+        version: 2.0.11
       electron:
         specifier: ^31.3.0
         version: 31.4.0
