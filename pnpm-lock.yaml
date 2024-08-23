@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@inrixia/neptune-plugins':
+        specifier: 'file:'
+        version: 'file:'
       '@xhayper/discord-rpc':
         specifier: ^1.2.0
         version: 1.2.0
@@ -67,6 +70,12 @@ importers:
         version: link:../_lib
 
   plugins/LastFM:
+    dependencies:
+      '@inrixia/lib':
+        specifier: workspace:*
+        version: link:../_lib
+
+  plugins/ListenBrainz:
     dependencies:
       '@inrixia/lib':
         specifier: workspace:*
@@ -143,6 +152,9 @@ importers:
       '@inrixia/helpers':
         specifier: ^2.0.11
         version: 2.0.11
+      '@inrixia/lib':
+        specifier: 'file:'
+        version: 'link:'
       electron:
         specifier: ^31.3.0
         version: 31.4.0
@@ -315,6 +327,9 @@ packages:
 
   '@inrixia/helpers@2.0.11':
     resolution: {integrity: sha512-ode9gx62MsN9ho95GCUkl8M/ocmBlF7OWkL0Eq+2fhpAywlDet9LTOEyN072Rkq77nnV+IqHZKVgKZOvoA8xLg==}
+
+  '@inrixia/neptune-plugins@file:':
+    resolution: {directory: '', type: directory}
 
   '@jimp/bmp@0.16.13':
     resolution: {integrity: sha512-9edAxu7N2FX7vzkdl5Jo1BbACfycUtBQX+XBMcHA2bk62P8R0otgkHg798frgAk/WxQIzwxqOH6wMiCwrlAzdQ==}
@@ -1603,6 +1618,18 @@ snapshots:
     optional: true
 
   '@inrixia/helpers@2.0.11': {}
+
+  '@inrixia/neptune-plugins@file:':
+    dependencies:
+      '@xhayper/discord-rpc': 1.2.0
+      dasha: 3.0.3
+      flac-stream-tagger: 1.0.9
+      idb: 8.0.0
+      music-metadata: 10.2.0
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
 
   '@jimp/bmp@0.16.13(@jimp/custom@0.16.13)':
     dependencies:
