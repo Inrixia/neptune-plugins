@@ -49,7 +49,7 @@ export interface MediaProduct {
 }
 export interface PlaybackContext {
 	actualAssetPresentation: string;
-	actualAudioMode: string;
+	actualAudioMode: TrackItem["audioModes"];
 	actualAudioQuality: AudioQuality;
 	actualDuration: number;
 	actualProductId: string;

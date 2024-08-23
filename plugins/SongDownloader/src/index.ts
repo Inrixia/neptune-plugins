@@ -17,6 +17,7 @@ import { makeTags } from "@inrixia/lib/makeTags";
 import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
 import { MaxTrack } from "@inrixia/lib/MaxTrack";
 import { AudioQuality } from "@inrixia/lib/AudioQualityTypes";
+import { dialog } from "electron";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
@@ -81,23 +82,23 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 
 	downloadButton.addEventListener("click", async () => {
 		if (context === undefined) return;
-		let filePath: string | undefined = settings.defaultDownloadPath !== "" && settings.alwaysUseDefaultPath ? settings.defaultDownloadPath : undefined;
-		if (trackItems.length > 1 && filePath === undefined) {
+		let folderPath = settings.defaultDownloadPath;
+		if (trackItems.length > 1 && (folderPath === undefined || !settings.alwaysUseDefaultPath)) {
 			updateMethods.set("Prompting for download folder...");
-			const dialogResult = await openDialog({ properties: ["openDirectory", "createDirectory"], defaultPath: filePath });
+			const dialogResult = await openDialog({ properties: ["openDirectory", "createDirectory"], defaultPath: folderPath });
 			if (dialogResult.canceled) return updateMethods.clear();
-			filePath = dialogResult.filePaths[0];
+			folderPath = dialogResult.filePaths[0];
 		}
 		updateMethods.prep();
 		for (const trackItem of trackItems) {
 			if (trackItem.id === undefined) continue;
-			await downloadTrack(trackItem, updateMethods, filePath).catch(trace.msg.err.withContext("Error downloading track"));
+			await downloadTrack(trackItem, updateMethods, folderPath).catch(trace.msg.err.withContext("Error downloading track"));
 		}
 		updateMethods.clear();
 	});
 });
 
-const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, filePath?: string) => {
+const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, folderPath?: string) => {
 	let trackId = trackItem.id!;
 	if (settings.useRealMAX && settings.desiredDownloadQuality === AudioQuality.HiRes) {
 		updateMethods.set("Checking RealMAX for better quality...");
@@ -111,24 +112,28 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 	updateMethods.set("Fetching playback info & tags...");
 	const playbackInfo = PlaybackInfoCache.ensure(trackId, settings.desiredDownloadQuality);
 	const metaTags = makeTags((await ExtendedTrackItem.get(trackId))!);
-	const pathParts = parseFileName(await metaTags, await playbackInfo);
+	const pathInfo = parseFileName(await metaTags, await playbackInfo);
 
-	if (filePath === undefined) {
+	console.log(pathInfo);
+
+	pathInfo.basePath = folderPath;
+	if (folderPath === undefined || !settings.alwaysUseDefaultPath) {
 		updateMethods.set("Prompting for download path...");
-		const fileName = pathParts.pop() ?? "";
-		const defaultPath = settings.defaultDownloadPath !== "" ? `${settings.defaultDownloadPath}\\${fileName}` : `${fileName}`;
-		const dialogResult = await saveDialog({ defaultPath, filters: [{ name: "", extensions: [fileName ?? "*"] }] });
+		const fileName = pathInfo.fileName;
+		const dialogResult = await saveDialog({ defaultPath: `${folderPath ?? ""}\\${fileName}`, filters: [{ name: "", extensions: [fileName ?? "*"] }] });
 		if (dialogResult.canceled) return updateMethods.clear();
-		filePath = dialogResult?.filePath;
-	} else {
-		filePath = `${filePath}\\${pathParts.join("\\")}`;
+		const dialogParts = dialogResult.filePath.split("\\");
+		dialogParts.pop();
+		pathInfo.basePath = dialogParts.join("\\");
 	}
 
 	updateMethods.set("Downloading...");
 	let downloadEnded = false;
-	const downloadComplete = startTrackDownload(await playbackInfo, filePath, await metaTags).finally(() => (downloadEnded = true));
+	const downloadComplete = startTrackDownload(await playbackInfo, pathInfo, await metaTags).finally(() => (downloadEnded = true));
+
+	const pathKey = JSON.stringify(pathInfo);
 	const updateDownloadProgress = async () => {
-		const downloadProgress = await getDownloadProgress(filePath);
+		const downloadProgress = await getDownloadProgress(pathKey);
 		if (downloadProgress !== undefined) updateMethods.onProgress(downloadProgress);
 		if (!downloadEnded) setTimeout(updateDownloadProgress, 100);
 	};

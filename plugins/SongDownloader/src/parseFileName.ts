@@ -1,6 +1,7 @@
 import { type ExtendedPlayackInfo, ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoTypes";
 import { availableTags, MetaTags } from "@inrixia/lib/makeTags";
 import { settings } from "./Settings";
+import type { PathInfo } from "@inrixia/lib/nativeBridge";
 
 const unsafeCharacters = /[\/:*?"<>|]/g;
 const sanitizeFilename = (filename: string): string => filename.replace(unsafeCharacters, "_");
@@ -12,7 +13,7 @@ const filePathFromInfo = ({ tags }: MetaTags, { manifest, manifestMimeType }: Ex
 		let tagValue = tags[tag];
 		if (Array.isArray(tagValue)) tagValue = tagValue[0];
 		if (tagValue === undefined) continue;
-		base = base.replaceAll(tag, tagValue);
+		base = base.replaceAll(`{${tag}}`, sanitizeFilename(tagValue));
 	}
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
@@ -28,9 +29,13 @@ const filePathFromInfo = ({ tags }: MetaTags, { manifest, manifestMimeType }: Ex
 	}
 };
 
-export const parseFileName = (metaTags: MetaTags, extPlaybackInfo: ExtendedPlayackInfo) => {
+export const parseFileName = (metaTags: MetaTags, extPlaybackInfo: ExtendedPlayackInfo): PathInfo => {
 	const filePath = filePathFromInfo(metaTags, extPlaybackInfo);
 	let pathParts = filePath.replaceAll("/", "\\").split("\\");
-	pathParts[pathParts.length - 1] = sanitizeFilename(pathParts[pathParts.length - 1]);
-	return pathParts;
+	const fileName = pathParts.pop();
+	console.log(fileName, pathParts);
+	return {
+		fileName,
+		folderPath: pathParts.join("\\"),
+	};
 };

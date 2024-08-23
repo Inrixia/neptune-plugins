@@ -18,6 +18,8 @@ export type PlaybackInfo = {
 	albumPeakAmplitude: number;
 	trackReplayGain: number;
 	trackPeakAmplitude: number;
+	bitDepth: number;
+	sampleRate: number;
 };
 
 export type TidalManifest = {

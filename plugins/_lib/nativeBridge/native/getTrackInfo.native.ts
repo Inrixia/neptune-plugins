@@ -45,7 +45,7 @@ export const getTrackInfo = async (playbackContext: PlaybackContext, extPlayback
 			trackInfo.bytes = manifest.tracks.audios[0].size?.b;
 		}
 	} else {
-		const stream = await requestTrackStream(extPlaybackInfo, { requestOptions: { method: "HEAD" }, onProgress: ({ total }) => (trackInfo.bytes = total) });
+		await requestTrackStream(extPlaybackInfo, { requestOptions: { method: "HEAD" }, onProgress: ({ total }) => (trackInfo.bytes = total) });
 		trackInfo.audioQuality = <AudioQuality>playbackInfo.audioQuality ?? audioQuality;
 	}
 

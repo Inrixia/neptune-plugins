@@ -1,13 +1,15 @@
-import { type Readable } from "stream";
 import { ManifestMimeType, type ExtendedPlayackInfo } from "../../Caches/PlaybackInfoTypes";
 import { rejectNotOk, toBuffer, type DownloadProgress } from "./request/helpers.native";
 import { requestTrackStream } from "./request/requestTrack.native";
 import { createWriteStream } from "fs";
 import { mkdir } from "fs/promises";
+import path from "path";
 
 import { FlacStreamTagger, PictureType } from "flac-stream-tagger";
 import { requestStream } from "./request/requestStream.native";
+
 import type { MetaTags } from "../../makeTags";
+import type { Readable } from "stream";
 
 export type { DownloadProgress } from "./request/helpers.native";
 
@@ -38,22 +40,33 @@ const addTags = async (extPlaybackInfo: ExtendedPlayackInfo, stream: Readable, m
 	return stream;
 };
 
+export type PathInfo = {
+	fileName?: string;
+	folderPath: string;
+	basePath?: string;
+};
+
 const downloadStatus: Record<string, DownloadProgress> = {};
-export const startTrackDownload = async (extPlaybackInfo: ExtendedPlayackInfo, filePath: string, metaTags?: MetaTags): Promise<void> => {
-	if (downloadStatus[filePath] !== undefined) throw new Error(`Something is already downloading to ${filePath}`);
+export const startTrackDownload = async (extPlaybackInfo: ExtendedPlayackInfo, pathInfo: PathInfo, metaTags?: MetaTags): Promise<void> => {
+	const pathKey = JSON.stringify(pathInfo);
+	if (downloadStatus[pathKey] !== undefined) throw new Error(`Something is already downloading to ${pathKey}`);
 	try {
-		const folderPath = filePath.split("\\").slice(0, -1).join("\\");
-		await mkdir(folderPath, { recursive: true });
-		const stream = await requestTrackStream(extPlaybackInfo, { onProgress: (progress) => (downloadStatus[filePath] = progress) });
+		const folderPath = path.join(pathInfo.basePath ?? "", pathInfo.folderPath);
+		if (folderPath !== ".") await mkdir(folderPath, { recursive: true });
+		const stream = await requestTrackStream(extPlaybackInfo, { onProgress: (progress) => (downloadStatus[pathKey] = progress) });
 		const metaStream = await addTags(extPlaybackInfo, stream, metaTags);
-		return new Promise((res) =>
-			metaStream.pipe(createWriteStream(filePath)).on("finish", () => {
-				delete downloadStatus[filePath];
-				res();
-			})
+		const writeStream = createWriteStream(`${folderPath}\\${pathInfo.fileName}`);
+		return new Promise((res, rej) =>
+			metaStream
+				.pipe(writeStream)
+				.on("finish", () => {
+					delete downloadStatus[pathKey];
+					res();
+				})
+				.on("error", rej)
 		);
 	} catch (err) {
-		delete downloadStatus[filePath];
+		delete downloadStatus[pathKey];
 		throw err;
 	}
 };

@@ -6,7 +6,7 @@ import { TextInput } from "@inrixia/lib/components/TextInput";
 import { SwitchSetting } from "@inrixia/lib/components/SwitchSetting";
 import { availableTags } from "@inrixia/lib/makeTags";
 
-const defaultFilenameFormat = "artist - album - title";
+const defaultFilenameFormat = "{artist} - {album} - {title}";
 export const settings = getSettings({
 	desiredDownloadQuality: AudioQuality.HiRes,
 	defaultDownloadPath: "",
@@ -15,6 +15,7 @@ export const settings = getSettings({
 	useRealMAX: true,
 });
 if (settings.filenameFormat === "") settings.filenameFormat = defaultFilenameFormat;
+if (settings.filenameFormat === "artist - album - title") settings.filenameFormat = defaultFilenameFormat;
 export const Settings = () => html`<div style="display: grid; grid-gap: 20px; margin-top: 20px;">
 	<${DropdownSelect}
 		selected=${settings.desiredDownloadQuality}
@@ -26,7 +27,7 @@ export const Settings = () => html`<div style="display: grid; grid-gap: 20px; ma
 	<${SwitchSetting}
 		checked=${settings.defaultDownloadPath !== "" && settings.alwaysUseDefaultPath}
 		onClick=${() => (settings.alwaysUseDefaultPath = !settings.alwaysUseDefaultPath)}
-		title="Always use default save path"
+		title="Skip save prompt (requires default path)"
 	/>
 	<${SwitchSetting} checked=${settings.useRealMAX} onClick=${() => (settings.useRealMAX = !settings.useRealMAX)} title="Use RealMAX to find the highest quality" />
 	<${TextInput}
