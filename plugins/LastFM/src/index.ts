@@ -8,7 +8,7 @@ import type { PlaybackState } from "neptune-types/tidal";
 import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[last.fm]");
 
-import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
+import { ExtendedMediaItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
 import { debounce } from "@inrixia/lib/debounce";
 import safeUnload from "@inrixia/lib/safeUnload";
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
@@ -86,7 +86,7 @@ const intercepters = [
 ];
 
 type CurrentTrack = {
-	extTrackItem: ExtendedTrackItem;
+	extTrackItem: ExtendedMediaItem;
 	playbackContext: PlaybackContext;
 	playbackStart: number;
 	metaTags: MetaTags;
@@ -97,7 +97,7 @@ const getCurrentTrack = async (playbackContext?: PlaybackContext): Promise<Curre
 
 	playbackContext ??= getPlaybackControl()?.playbackContext;
 	if (playbackContext === undefined) throw new Error("PlaybackContext is undefined");
-	const extTrackItem = await ExtendedTrackItem.current(playbackContext);
+	const extTrackItem = await ExtendedMediaItem.current(playbackContext);
 	if (extTrackItem === undefined) throw new Error("Failed to get extTrackItem");
 
 	const metaTags = await makeTags(extTrackItem);

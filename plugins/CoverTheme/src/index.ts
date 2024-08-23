@@ -1,6 +1,6 @@
 import { intercept } from "@neptune";
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
-import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
+import { MediaItemCache } from "@inrixia/lib/Caches/MediaItemCache";
 import Vibrant from "node-vibrant";
 import { getStyle, setStyle } from "@inrixia/lib/css/setStyle";
 import { settings } from "./Settings";
@@ -10,22 +10,19 @@ let prevSong: string | undefined;
 let prevCover: string | undefined;
 let vars: string[] = [];
 
-const getCoverUrl = (id: string) =>
-	"https://resources.tidal.com/images/" +
-	id.split("-").join("/") +
-	"/640x640.jpg?cors";
+const getCoverUrl = (id: string) => "https://resources.tidal.com/images/" + id.split("-").join("/") + "/640x640.jpg?cors";
 
 async function updateBackground(productId: string) {
 	if (prevSong === productId) return;
 	prevSong = productId;
 
-	const track = await TrackItemCache.ensure(productId);
-	if (!track || !track.album?.cover) return;
+	const mediaItem = await MediaItemCache.ensure(productId);
+	if (!mediaItem || !mediaItem.album?.cover) return;
 
-	if (prevCover === track.album.cover) return;
-	prevCover = track.album.cover;
+	if (prevCover === mediaItem.album.cover) return;
+	prevCover = mediaItem.album.cover;
 
-	const cover = getCoverUrl(track.album.cover);
+	const cover = getCoverUrl(mediaItem.album.cover);
 	const palette = await Vibrant.from(cover).getPalette();
 
 	for (const [colorName, color] of Object.entries(palette)) {
@@ -37,10 +34,7 @@ async function updateBackground(productId: string) {
 
 		if (!vars.includes(variableName)) vars.push(variableName);
 
-		document.documentElement.style.setProperty(
-			variableName,
-			color.rgb.join(", ")
-		);
+		document.documentElement.style.setProperty(variableName, color.rgb.join(", "));
 	}
 }
 
@@ -49,15 +43,9 @@ function onTransition([track]: any[]) {
 	if (id) updateBackground(id);
 }
 
-const unloadPrefill = intercept(
-	"playbackControls/PREFILL_MEDIA_PRODUCT_TRANSITION",
-	onTransition
-);
+const unloadPrefill = intercept("playbackControls/PREFILL_MEDIA_PRODUCT_TRANSITION", onTransition);
 
-const unloadTransition = intercept(
-	"playbackControls/MEDIA_PRODUCT_TRANSITION",
-	onTransition
-);
+const unloadTransition = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", onTransition);
 
 export function updateCSS() {
 	if (settings.transparentTheme) {
@@ -95,10 +83,7 @@ export function updateCSS() {
 		};
 
 		const gradients = Object.entries(positions)
-			.map(
-				([position, variable]) =>
-					`radial-gradient(ellipse at ${position}, rgb(var(--cover-${variable}), 0.5), transparent 70%)`
-			)
+			.map(([position, variable]) => `radial-gradient(ellipse at ${position}, rgb(var(--cover-${variable}), 0.5), transparent 70%)`)
 			.join(", ");
 
 		setStyle(`body{background-image:${gradients};}`, "backgroundGradient");
@@ -115,9 +100,7 @@ export const onUnload = () => {
 	unloadPrefill();
 	unloadTransition();
 	getStyle("coverTheme")?.remove();
-	vars.forEach((variable) =>
-		document.documentElement.style.removeProperty(variable)
-	);
+	vars.forEach((variable) => document.documentElement.style.removeProperty(variable));
 	prevSong = undefined;
 	prevCover = undefined;
 };

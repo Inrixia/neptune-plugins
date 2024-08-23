@@ -36,7 +36,7 @@ export class SharedObjectStoreExpirable<K extends IDBValidKey, V extends Record<
 		this.setExpires(value, expires);
 		return super.put(value, key);
 	}
-	async get(key: K) {
+	async get(key: K): Promise<V | undefined> {
 		const value = await super.get(key);
 		if (this.isTooOld(value)) return undefined;
 		this.clearExpires(value);

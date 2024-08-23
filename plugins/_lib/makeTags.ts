@@ -1,10 +1,11 @@
 import { utils, actions } from "@neptune";
 import { interceptPromise } from "./intercept/interceptPromise";
 
-import { ExtendedTrackItem } from "./Caches/ExtendedTrackItem";
+import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
 import { Album, TrackItem } from "neptune-types/tidal";
+import type { MediaItem } from "./Caches/MediaItemCache";
 
-export const fullTitle = (track: TrackItem) => `${track.title}${track.version ? ` - ${track.version}` : ""}`;
+export const fullTitle = (track: MediaItem) => `${track.title}${track.version ? ` - ${track.version}` : ""}`;
 
 const formatArtists = (artists?: (string | undefined)[] | Album["artists"] | TrackItem["artists"]): string[] =>
 	artists
@@ -15,7 +16,7 @@ const formatArtists = (artists?: (string | undefined)[] | Album["artists"] | Tra
 		})
 		.filter((artist) => artist !== undefined) ?? [];
 
-const resolveArtist = (trackItem: TrackItem, album?: Album) => {
+const resolveArtist = (trackItem: MediaItem, album?: Album) => {
 	const sharedAlbumArtist = trackItem.artists?.find((artist) => artist?.id === album?.artist?.id);
 	if (sharedAlbumArtist?.name !== undefined) return formatArtists([sharedAlbumArtist.name]);
 	else if ((trackItem.artists?.length ?? -1) > 0) return formatArtists(trackItem.artists);
@@ -68,7 +69,7 @@ export type MetaTags = {
 	coverUrl: string | undefined;
 };
 
-export const makeTags = async (extTrackItem: ExtendedTrackItem): Promise<MetaTags> => {
+export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTags> => {
 	const lyrics = interceptPromise(
 		() => actions.content.loadItemLyrics({ itemId: extTrackItem.trackItem.id!, itemType: "track" }),
 		["content/LOAD_ITEM_LYRICS_SUCCESS"],
@@ -76,20 +77,23 @@ export const makeTags = async (extTrackItem: ExtendedTrackItem): Promise<MetaTag
 	)
 		.catch(() => undefined)
 		.then((res) => res?.[0]);
-	const { trackItem, releaseAlbum, recording, album } = await extTrackItem.everything();
+	const { trackItem: mediaItem, releaseAlbum, recording, album } = await extTrackItem.everything();
 
 	const tags: FlacTags = {};
-	if (trackItem.title) tags.title = recording?.title ?? fullTitle(trackItem);
+	if (mediaItem.title) tags.title = recording?.title ?? fullTitle(mediaItem);
 
-	if (trackItem.trackNumber !== undefined) tags.trackNumber = trackItem.trackNumber.toString();
-	if (trackItem.releaseDate !== undefined) tags.date = trackItem.releaseDate;
-	if (trackItem.copyright) tags.copyright = trackItem.copyright;
-	if (trackItem.replayGain) tags.REPLAYGAIN_TRACK_GAIN = trackItem.replayGain.toString();
-	if (trackItem.peak) tags.REPLAYGAIN_TRACK_PEAK = trackItem.peak.toString();
-	if (trackItem.url) tags.comment = trackItem.url;
+	if (mediaItem.trackNumber !== undefined) tags.trackNumber = mediaItem.trackNumber.toString();
+	if (mediaItem.releaseDate !== undefined) tags.date = mediaItem.releaseDate;
+	if (mediaItem.peak) tags.REPLAYGAIN_TRACK_PEAK = mediaItem.peak.toString();
+	if (mediaItem.url) tags.comment = mediaItem.url;
+
+	if (mediaItem.contentType === "track") {
+		if (mediaItem.copyright) tags.copyright = mediaItem.copyright;
+		if (mediaItem.replayGain) tags.REPLAYGAIN_TRACK_GAIN = mediaItem.replayGain.toString();
+	}
 
 	// track isrc & album upc
-	if (trackItem.isrc) tags.isrc = trackItem.isrc;
+	if (mediaItem.isrc) tags.isrc = mediaItem.isrc;
 	if (album?.upc) tags.upc = album?.upc;
 
 	// Musicbrainz
@@ -97,15 +101,15 @@ export const makeTags = async (extTrackItem: ExtendedTrackItem): Promise<MetaTag
 	if (releaseAlbum?.id) tags.musicbrainz_albumid = releaseAlbum.id.toString();
 
 	// Metadata resolution using Musicbrainz
-	const artistName = resolveArtist(trackItem, album);
+	const artistName = resolveArtist(mediaItem, album);
 	if (artistName) tags.artist = artistName;
 
 	if (releaseAlbum?.title) {
 		tags.album = releaseAlbum.title;
 		if (releaseAlbum.disambiguation) tags.album += ` (${releaseAlbum.disambiguation})`;
-	} else if (trackItem.album?.title) tags.album = trackItem.album.title;
+	} else if (mediaItem.album?.title) tags.album = mediaItem.album.title;
 
-	let cover = trackItem.album?.cover;
+	let cover = mediaItem.album?.cover;
 	if (album !== undefined) {
 		if ((album.artists?.length ?? -1) > 0) tags.albumArtist = formatArtists(album.artists);
 		else if (album.artist?.name) tags.albumArtist = [album.artist.name];

@@ -1,6 +1,6 @@
 import { fetchIsrcIterable, Resource } from "./api/tidal";
-import { ExtendedTrackItem } from "./Caches/ExtendedTrackItem";
-import { TrackItemCache } from "./Caches/TrackItemCache";
+import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
+import { MediaItemCache } from "./Caches/MediaItemCache";
 import { ItemId, TrackItem } from "neptune-types/tidal";
 
 export class MaxTrack {
@@ -15,9 +15,9 @@ export class MaxTrack {
 		const maxTrack = MaxTrack._maxTrackMap[itemId];
 		if (maxTrack !== undefined) return maxTrack;
 
-		const extTrackItem = await ExtendedTrackItem.get(itemId);
+		const extTrackItem = await ExtendedMediaItem.get(itemId);
 		const trackItem = extTrackItem?.trackItem;
-		if (trackItem !== undefined && this.hasHiRes(trackItem)) return false;
+		if (trackItem === undefined || trackItem.contentType !== "track" || this.hasHiRes(trackItem)) return false;
 
 		const isrcs = await extTrackItem?.isrcs();
 		if (isrcs === undefined) return (this._maxTrackMap[itemId] = Promise.resolve(false));
@@ -27,7 +27,7 @@ export class MaxTrack {
 				for await (const { resource } of fetchIsrcIterable(isrc)) {
 					if (resource?.id !== undefined && this.hasHiRes(<TrackItem>resource)) {
 						if (resource.artifactType !== "track") continue;
-						const maxTrackItem = await TrackItemCache.ensure(resource?.id);
+						const maxTrackItem = await MediaItemCache.ensureTrack(resource?.id);
 						if (maxTrackItem !== undefined && !this.hasHiRes(maxTrackItem)) continue;
 						else return resource;
 					}

@@ -1,18 +1,18 @@
-import type { ItemId, TrackItem, Album } from "neptune-types/tidal";
+import type { ItemId, Album } from "neptune-types/tidal";
 import type { PlaybackContext } from "../AudioQualityTypes";
 import { MusicBrainz, Release, Recording } from "../api/musicbrainz";
-import { TrackItemCache } from "./TrackItemCache";
+import { MediaItem, MediaItemCache } from "./MediaItemCache";
 import { AlbumCache } from "./AlbumCache";
 import { libTrace } from "../trace";
 import getPlaybackControl from "../getPlaybackControl";
 
-export class ExtendedTrackItem {
+export class ExtendedMediaItem {
 	private _album?: Album;
 	private _recording?: Recording;
 	private _releaseAlbum?: Release;
 
-	private static readonly _cache: Record<ItemId, ExtendedTrackItem> = {};
-	private constructor(public readonly trackId: ItemId, public readonly trackItem: TrackItem) {}
+	private static readonly _cache: Record<ItemId, ExtendedMediaItem> = {};
+	private constructor(public readonly trackId: ItemId, public readonly trackItem: MediaItem) {}
 
 	public static current(playbackContext?: PlaybackContext) {
 		playbackContext ??= getPlaybackControl()?.playbackContext;
@@ -22,7 +22,7 @@ export class ExtendedTrackItem {
 
 	public static async get(trackId?: ItemId) {
 		if (trackId === undefined) return undefined;
-		const trackItem = await TrackItemCache.ensure(trackId);
+		const trackItem = await MediaItemCache.ensure(trackId);
 		if (trackItem === undefined) return undefined;
 		return this._cache[trackId] ?? (this._cache[trackId] = new this(trackId, trackItem));
 	}

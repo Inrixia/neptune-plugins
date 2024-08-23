@@ -1,4 +1,4 @@
-import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
+import { MediaItemCache } from "@inrixia/lib/Caches/MediaItemCache";
 import { actions, intercept, store } from "@neptune";
 import { debounce } from "@inrixia/lib/debounce";
 
@@ -26,7 +26,7 @@ const unloadIntercept = intercept(
 		const maxItem = await MaxTrack.getMaxTrack(queueId);
 		if (maxItem === false) return;
 		if (maxItem.id !== undefined && nextQueueId !== maxItem.id) {
-			await TrackItemCache.ensure(maxItem.id);
+			await MediaItemCache.ensure(maxItem.id);
 			if (settings.displayInfoPopups) trace.msg.log(`Found Max quality for ${maxItem.title}! Adding to queue and skipping...`);
 			actions.playQueue.addNext({ mediaItemIds: [maxItem.id], context: { type: "user" } });
 			actions.playQueue.moveNext();
@@ -62,7 +62,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 			const trackId = trackItem.id!;
 			const maxItem = await MaxTrack.getMaxTrack(trackItem.id).catch(trace.msg.err.withContext(`Failed to create ${sourceName}`));
 			if (maxItem !== false && maxItem?.id !== undefined) {
-				if ((await TrackItemCache.ensure(trackId)) !== undefined) {
+				if ((await MediaItemCache.ensure(trackId)) !== undefined) {
 					trace.msg.log(`Found Max quality for ${maxItem.title} in ${sourceName}! ${index}/${trackItems.length - 1} done.`);
 					trackIds.push(+maxItem.id);
 					maxIdsFound++;

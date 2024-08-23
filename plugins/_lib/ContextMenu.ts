@@ -1,6 +1,6 @@
 import { intercept } from "@neptune";
 import { ItemId, TrackItem } from "neptune-types/tidal";
-import { TrackItemCache } from "./Caches/TrackItemCache";
+import { MediaItemCache } from "./Caches/MediaItemCache";
 
 import "./contentButton.styles";
 
@@ -40,7 +40,7 @@ export class ContextMenu {
 		}),
 	];
 	private static async getTrackItems(mediaIds: ItemId[]): Promise<TrackItem[]> {
-		const tracks = await Promise.all(mediaIds.map(TrackItemCache.ensure.bind(TrackItemCache)));
+		const tracks = await Promise.all(mediaIds.map(MediaItemCache.ensureTrack.bind(MediaItemCache)));
 		return tracks.filter((item) => item !== undefined);
 	}
 	private static _onOpen(contextSource: ContextSource, trackItems: TrackItem[]): void {

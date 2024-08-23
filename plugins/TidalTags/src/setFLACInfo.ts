@@ -102,7 +102,10 @@ export const setFLACInfo = async ([{ playbackContext }]: [{ playbackContext?: Pl
 	}
 
 	try {
-		await TrackInfoCache.ensure(playbackContext);
+		if ((await TrackInfoCache.ensure(playbackContext)) === undefined) {
+			flacInfoElem.textContent = `Unsupported Content...`;
+			return;
+		}
 		await TrackInfoCache.register(playbackContext.actualProductId, playbackContext.actualAudioQuality, ({ sampleRate, bitDepth, bitrate }) => {
 			flacInfoElem.textContent = "";
 			if (!!sampleRate) flacInfoElem.textContent += `${sampleRate / 1000}kHz `;

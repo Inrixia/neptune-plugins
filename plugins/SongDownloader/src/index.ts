@@ -14,7 +14,7 @@ import { PlaybackInfoCache } from "@inrixia/lib/Caches/PlaybackInfoCache";
 import { openDialog, saveDialog } from "@inrixia/lib/nativeBridge";
 import { startTrackDownload, getDownloadProgress } from "@inrixia/lib/nativeBridge/request";
 import { makeTags } from "@inrixia/lib/makeTags";
-import { ExtendedTrackItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
+import { ExtendedMediaItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
 import { MaxTrack } from "@inrixia/lib/MaxTrack";
 import { AudioQuality } from "@inrixia/lib/AudioQualityTypes";
 import { dialog } from "electron";
@@ -111,7 +111,7 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 
 	updateMethods.set("Fetching playback info & tags...");
 	const playbackInfo = PlaybackInfoCache.ensure(trackId, settings.desiredDownloadQuality);
-	const metaTags = makeTags((await ExtendedTrackItem.get(trackId))!);
+	const metaTags = makeTags((await ExtendedMediaItem.get(trackId))!);
 	const pathInfo = parseFileName(await metaTags, await playbackInfo);
 
 	console.log(pathInfo);

@@ -10,7 +10,7 @@ import { settings } from "./Settings";
 
 import { isElement } from "./lib/isElement";
 import { setInfoColumnHeaders, setInfoColumns } from "./setInfoColumns";
-import { TrackItemCache } from "@inrixia/lib/Caches/TrackItemCache";
+import { MediaItemCache } from "@inrixia/lib/Caches/MediaItemCache";
 import { PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
 import safeUnload from "@inrixia/lib/safeUnload";
 
@@ -42,8 +42,8 @@ const updateTrackRows = async (trackRows: NodeListOf<Element>) => {
 		const trackId = trackRow.getAttribute("data-track-id");
 		if (trackId == null) return;
 
-		const trackItem = await TrackItemCache.ensure(trackId);
-		if (trackItem?.contentType !== "track") continue;
+		const trackItem = await MediaItemCache.ensureTrack(trackId);
+		if (trackItem === undefined) continue;
 
 		if (settings.showTags) setQualityTags(trackRow, trackId, trackItem);
 		if (settings.displayInfoColumns) setInfoColumns(trackRow, trackId, trackItem);
