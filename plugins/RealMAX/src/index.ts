@@ -27,7 +27,7 @@ const unloadIntercept = intercept(
 		if (maxItem === false) return;
 		if (maxItem.id !== undefined && nextQueueId !== maxItem.id) {
 			await TrackItemCache.ensure(maxItem.id);
-			trace.msg.log(`Found Max quality for ${maxItem.title}! Adding to queue and skipping...`);
+			if (settings.displayInfoPopups) trace.msg.log(`Found Max quality for ${maxItem.title}! Adding to queue and skipping...`);
 			actions.playQueue.addNext({ mediaItemIds: [maxItem.id], context: { type: "user" } });
 			actions.playQueue.moveNext();
 		}
