@@ -2,6 +2,7 @@
 	"name": "@inrixia/lib",
 	"dependencies": {
 		"@inrixia/helpers": "^2.0.11",
+		"@inrixia/lib": "file:",
 		"electron": "^31.3.0"
 	}
 }

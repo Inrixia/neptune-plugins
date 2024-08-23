@@ -14,10 +14,11 @@
 		"esbuild": "^0.23.0",
 		"neptune-types": "^1.0.1",
 		"nodemon": "^3.1.4",
-		"typescript": "^5.5.4",
-		"serve": "^14.2.3"
+		"serve": "^14.2.3",
+		"typescript": "^5.5.4"
 	},
 	"dependencies": {
+		"@inrixia/neptune-plugins": "file:",
 		"@xhayper/discord-rpc": "^1.2.0",
 		"dasha": "^3.0.3",
 		"flac-stream-tagger": "^1.0.9",

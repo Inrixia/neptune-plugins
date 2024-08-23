@@ -3,8 +3,6 @@ import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { MediaItemCache } from "@inrixia/lib/Caches/MediaItemCache";
 import Vibrant from "node-vibrant";
 import { getStyle, setStyle } from "@inrixia/lib/css/setStyle";
-import { settings } from "./Settings";
-export { Settings } from "./Settings";
 
 let prevSong: string | undefined;
 let prevCover: string | undefined;
@@ -48,48 +46,40 @@ const unloadPrefill = intercept("playbackControls/PREFILL_MEDIA_PRODUCT_TRANSITI
 const unloadTransition = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", onTransition);
 
 export function updateCSS() {
-	if (settings.transparentTheme) {
-		const styles = `
-		#wimp, main, [class^="sidebarWrapper"], [class^="mainContainer"], [class^="tabListWrapper"] {
-			background: unset !important;
-		}
-					
-		#footerPlayer, nav, [class^="bar"] {
-			background-color: color-mix(in srgb, var(--wave-color-solid-base-brighter), transparent 70%) !important;
-		}
+	const positions = {
+		"top left": "DarkVibrant",
+		"center left": "Vibrant",
+		"bottom left": "LightMuted",
+		"top right": "LightVibrant",
+		"center right": "Muted",
+		"bottom right": "DarkMuted",
+	};
+	const gradients = Object.entries(positions)
+		.map(([position, variable]) => `radial-gradient(ellipse at ${position}, rgb(var(--cover-${variable}), 0.5), transparent 70%)`)
+		.join(", ");
+
+	const styles = `
+	body {
+		background-image:${gradients};
+	}
+	#wimp, main, [class^="sidebarWrapper"], [class^="mainContainer"], [class^="tabListWrapper"] {
+		background: unset !important;
+	}
 				
-		#nowPlaying > [class^="innerContainer"] {
-			height: calc(100vh - 126px);
-			overflow: hidden;
-		}
+	#footerPlayer, nav, [class^="bar"] {
+		background-color: color-mix(in srgb, var(--wave-color-solid-base-brighter), transparent 70%) !important;
+	}
 			
-		.tidal-ui__z-stack > :not(:has(div)) {
-			background-image: linear-gradient(90deg, rgb(var(--cover-DarkVibrant), 0.5), rgb(var(--cover-LightVibrant), 0.5)) !important;
-		}`;
-
-		setStyle(styles, "transparentTheme");
-	} else {
-		getStyle("transparentTheme")?.remove();
+	#nowPlaying > [class^="innerContainer"] {
+		height: calc(100vh - 126px);
+		overflow: hidden;
 	}
+		
+	.tidal-ui__z-stack > :not(:has(div)) {
+		background-image: linear-gradient(90deg, rgb(var(--cover-DarkVibrant), 0.5), rgb(var(--cover-LightVibrant), 0.5)) !important;
+	}`;
 
-	if (settings.backgroundGradient) {
-		const positions = {
-			"top left": "DarkVibrant",
-			"center left": "Vibrant",
-			"bottom left": "LightMuted",
-			"top right": "LightVibrant",
-			"center right": "Muted",
-			"bottom right": "DarkMuted",
-		};
-
-		const gradients = Object.entries(positions)
-			.map(([position, variable]) => `radial-gradient(ellipse at ${position}, rgb(var(--cover-${variable}), 0.5), transparent 70%)`)
-			.join(", ");
-
-		setStyle(`body{background-image:${gradients};}`, "backgroundGradient");
-	} else {
-		getStyle("backgroundGradient")?.remove();
-	}
+	setStyle(styles, "transparentTheme");
 }
 
 updateCSS();
