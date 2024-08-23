@@ -83,7 +83,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 	downloadButton.addEventListener("click", async () => {
 		if (context === undefined) return;
 		let folderPath = settings.defaultDownloadPath;
-		if (trackItems.length > 1 && (folderPath === undefined || !settings.alwaysUseDefaultPath)) {
+		if (trackItems.length > 1 && (folderPath === "" || !settings.alwaysUseDefaultPath)) {
 			updateMethods.set("Prompting for download folder...");
 			const dialogResult = await openDialog({ properties: ["openDirectory", "createDirectory"], defaultPath: folderPath });
 			if (dialogResult.canceled) return updateMethods.clear();
@@ -113,8 +113,6 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 	const playbackInfo = PlaybackInfoCache.ensure(trackId, settings.desiredDownloadQuality);
 	const metaTags = makeTags((await ExtendedMediaItem.get(trackId))!);
 	const pathInfo = parseFileName(await metaTags, await playbackInfo);
-
-	console.log(pathInfo);
 
 	pathInfo.basePath = folderPath;
 	if (folderPath === undefined || !settings.alwaysUseDefaultPath) {
