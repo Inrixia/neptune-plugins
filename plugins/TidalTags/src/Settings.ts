@@ -8,7 +8,7 @@ export const settings = getSettings({
 	showAtmosQuality: true,
 	displayFlacInfo: true,
 	showFLACInfoBorder: true,
-	infoColumnColors: false,
+	infoColumnColors: true,
 	displayInfoColumns: true,
 });
 
