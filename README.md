@@ -12,9 +12,21 @@ Then just paste the **Install Url** into the plugins page and hit enter.
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/a997156c-a281-46ec-992a-397a742dd146)
 
 # My Public Plugins
-You can see a list of all plugins including unreleased ones under the [**plugins directory**](https://github.com/Inrixia/neptune-plugins/tree/master/plugins)
-
-
+You can see a list of all plugins including **unreleased** ones under the [**plugins directory**](https://github.com/Inrixia/neptune-plugins/tree/master/plugins)
+- [TidalTags](#Tidal-Tags)
+- [DiscordRPC](#DiscordRPC)
+- [Last.fm](#Last.fm)
+- [ListenBrainz](#ListenBrainz)
+- [RealMAX](#RealMAX)
+- [VolumeScroll](#Volume-Scroll)
+- [CoverTheme](#Cover-Theme)
+- [NativeFullscreen](#Native-Fullscreen)
+- [Themer](#Themer)
+- [Always Exclusive](#Always-Exclusive)
+- [Shazam Files](#Shazam-Files)
+- [NoBuffer](#NoBuffer)
+- [Downloader](#Downloader)
+  
 ## Tidal Tags
 <b>
 
@@ -59,6 +71,20 @@ Tidals default last.fm implementation can be very inaccurate, this tries to fix 
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/7e4ff7ad-422f-4836-b187-45217c5dd4e3)
 
+## ListenBrainz
+<b>
+
+Install Url:
+```
+https://inrixia.github.io/neptune-plugins/ListenBrainz
+```
+</b>
+
+Scrobbles and sets currently playing for [**ListenBrainz**](https://listenbrainz.org/).
+
+![image](https://github.com/user-attachments/assets/2832d750-069a-461c-8500-72263a6bb5ca)
+
+
 ## RealMAX
 <b>
 
@@ -71,6 +97,32 @@ https://inrixia.github.io/neptune-plugins/RealMAX
 Tidal oftern has multiple versions of the same song at different qualities.
 With RealMAX when playing a song if there is a version available at a higher quality it will automatically be added as the next song in the queue and skipped to.
 This ensures you are **always listening to the best quality of a song**
+
+## Volume Scroll
+<b>
+
+Install Url:
+```
+https://inrixia.github.io/neptune-plugins/VolumeScroll
+```
+</b>
+
+Lets you scroll on the volume icon to change the volume by 2%. Hold shift to change by 10%.
+
+![image](https://github.com/user-attachments/assets/3a795666-2ed3-4feb-8d42-9374d4f6edd3)
+
+## Cover Theme
+<b>
+
+Install Url:
+```
+https://inrixia.github.io/neptune-plugins/CoverTheme
+```
+</b>
+
+Theme Tidal based on the current playing songs cover art. Also adds CSS variables for the cover art to be used in custom themes.
+
+![image](https://github.com/user-attachments/assets/57fc931a-e664-495a-a69b-f638e0839d10)
 
 ## Native Fullscreen
 <b>
@@ -134,32 +186,6 @@ https://inrixia.github.io/neptune-plugins/NoBuffer
 Kicks the Tidal cdn if the current playback stalls to make it stop so you never have to deal with constant stuttering or stalling again!
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/8378a9a3-2d3f-4cd7-af04-ceeac350b9e6)
-
-## Volume Scroll
-<b>
-
-Install Url:
-```
-https://inrixia.github.io/neptune-plugins/VolumeScroll
-```
-</b>
-
-Lets you scroll on the volume icon to change the volume by 2%. Hold shift to change by 10%.
-
-![image](https://github.com/user-attachments/assets/3a795666-2ed3-4feb-8d42-9374d4f6edd3)
-
-## Cover Theme
-<b>
-
-Install Url:
-```
-https://inrixia.github.io/neptune-plugins/CoverTheme
-```
-</b>
-
-Theme Tidal based on the current playing songs cover art. Also adds CSS variables for the cover art to be used in custom themes.
-
-![image](https://github.com/user-attachments/assets/57fc931a-e664-495a-a69b-f638e0839d10)
 
 ## Downloader
 <b>
