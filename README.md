@@ -122,7 +122,8 @@ https://inrixia.github.io/neptune-plugins/CoverTheme
 
 Theme Tidal based on the current playing songs cover art. Also adds CSS variables for the cover art to be used in custom themes.
 
-![image](https://github.com/user-attachments/assets/57fc931a-e664-495a-a69b-f638e0839d10)
+![image](https://github.com/user-attachments/assets/cd1cd715-3032-4786-bf57-f6f6c21c0f23)
+
 
 ## Native Fullscreen
 <b>
