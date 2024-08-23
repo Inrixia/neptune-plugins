@@ -7,8 +7,8 @@ const lastFmApiKey = findModuleFunction<string>("lastFmApiKey", "string");
 if (lastFmSecret === undefined) throw new Error("Last.fm secret not found");
 if (lastFmApiKey === undefined) throw new Error("Last.fm API key not found");
 
-import { NowPlaying } from "./types/lastfm/NowPlaying";
-import { Scrobble } from "./types/lastfm/Scrobble";
+import { NowPlaying } from "./types/NowPlaying";
+import { Scrobble } from "./types/Scrobble";
 import { hash } from "@inrixia/lib/nativeBridge";
 import { requestJson } from "@inrixia/lib/nativeBridge/request";
 
@@ -52,7 +52,7 @@ export class LastFM {
 		return hash(sig);
 	}
 
-	private static async sendRequest<T>(method: string, params?: Record<string, string>, reqMethod = "GET") {
+	private static async sendRequest<T>(method: string, params?: Record<string, string>) {
 		params ??= {};
 		params.method = method;
 		params.api_key = lastFmApiKey!;
@@ -84,25 +84,17 @@ export class LastFM {
 
 	public static async updateNowPlaying(opts: NowPlayingOpts) {
 		const session = await this.getSession();
-		return this.sendRequest<NowPlaying>(
-			"track.updateNowPlaying",
-			{
-				...opts,
-				sk: session.key,
-			},
-			"POST"
-		);
+		return this.sendRequest<NowPlaying>("track.updateNowPlaying", {
+			...opts,
+			sk: session.key,
+		});
 	}
 
 	public static async scrobble(opts?: ScrobbleOpts) {
 		const session = await this.getSession();
-		return this.sendRequest<Scrobble>(
-			"track.scrobble",
-			{
-				...opts,
-				sk: session.key,
-			},
-			"POST"
-		);
+		return this.sendRequest<Scrobble>("track.scrobble", {
+			...opts,
+			sk: session.key,
+		});
 	}
 }

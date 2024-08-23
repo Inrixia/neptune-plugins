@@ -2,6 +2,7 @@ import type { IncomingHttpHeaders, IncomingMessage } from "http";
 import type { Readable } from "stream";
 import type { TidalManifest } from "../../../Caches/PlaybackInfoTypes";
 import { ExtendedRequestOptions } from "./requestStream.native";
+import { libTrace } from "../../helpers/trace.native";
 
 export type DownloadProgress = { total: number; downloaded: number; percent: number };
 type OnProgress = (progress: DownloadProgress) => void;
@@ -15,7 +16,12 @@ export interface FetchyOptions {
 
 export const rejectNotOk = (res: IncomingMessage) => {
 	const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
-	if (!OK) throw new Error(`Status code is ${res.statusCode}`);
+	if (!OK) {
+		toJson(res)
+			.then((body) => libTrace.err(`(${res.statusCode})`, body))
+			.catch(() => {});
+		throw new Error(`Status code is ${res.statusCode}`);
+	}
 	return res;
 };
 export const toJson = <T>(res: IncomingMessage): Promise<T> => toBuffer(res).then((buffer) => JSON.parse(buffer.toString()));

@@ -15,6 +15,12 @@ export const requestStream = async (url: string, options: ExtendedRequestOptions
 	options.rateLimit ??= 0;
 	const release = options.rateLimit > 0 ? await rateLimitSema.obtain() : undefined;
 	return new Promise<IncomingMessage>((resolve, reject) => {
+		const body = options.body;
+		delete options.body;
+		if (body !== undefined) {
+			options.headers ??= {};
+			options.headers["Content-Length"] = Buffer.byteLength(body);
+		}
 		const req = request(url, options, (res) => {
 			const statusMsg = res.statusMessage !== "" ? ` - ${res.statusMessage}` : "";
 			if (res.statusCode === 429 || res.statusCode === 503) {
@@ -31,7 +37,7 @@ export const requestStream = async (url: string, options: ExtendedRequestOptions
 			resolve(res);
 		});
 		req.on("error", reject);
-		const body = options.body;
+
 		if (body !== undefined) req.write(body);
 		req.end();
 	}).finally(release);
