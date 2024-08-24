@@ -11,7 +11,7 @@ let prevSong: string | undefined;
 let prevCover: string | undefined;
 let vars = new Set<string>();
 
-const getCoverUrl = (id: string) => "https://resources.tidal.com/images/" + id.split("-").join("/") + "/80x80.jpg";
+const getCoverUrl = (id: string) => "https://resources.tidal.com/images/" + id.split("-").join("/") + "/640x640.jpg";
 
 type ColorInfo = [colorName: string, rgb: string | null];
 const paletteCache: Record<string, Promise<ColorInfo[]>> = {};
@@ -93,7 +93,7 @@ export function updateCSS() {
 		background-image: linear-gradient(90deg, rgb(var(--cover-DarkVibrant), 0.5), rgb(var(--cover-LightVibrant), 0.5)) !important;
 	}`;
 
-	setStyle(styles, "transparentTheme");
+	setStyle(styles, "coverTheme");
 }
 
 updateCSS();
