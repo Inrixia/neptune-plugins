@@ -145,9 +145,9 @@ https://inrixia.github.io/neptune-plugins/Themer
 ```
 </b>
 
-A simple plugin allowing realtime css injection for testing and creating themes.
+Create your own theme with a built-in CSS editor, powered by [Monaco Editor](https://microsoft.github.io/monaco-editor/). Press <kbd>CTRL</kbd> + <kbd>E</kbd> to open the editor, or go to Themer's plugin settings.
 
-![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/dec1b36b-66df-4419-a7f1-9342992bd2b5)
+![image](https://github.com/user-attachments/assets/905dc5d9-a694-4729-9d18-b5064bccb879)
 
 ## Always Exclusive
 <b>
