@@ -21,6 +21,7 @@ function openEditor(event: any, css: string) {
 			preload: path.join(process.resourcesPath, "app", "preload.js"),
 		},
 		autoHideMenuBar: true,
+		backgroundColor: "#1e1e1e",
 	});
 
 	// Open links in default browser
