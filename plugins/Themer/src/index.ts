@@ -1,40 +1,32 @@
-import safeUnload from "@inrixia/lib/safeUnload";
-import { getStyle } from "@inrixia/lib/css/setStyle";
-import { draggableStyleId, getDraggable } from "./getDraggable";
-
 export { Settings } from "./Settings";
+import "./editor.native";
+import { getStorage } from "@inrixia/lib/storage";
+import { getStyle, setStyle } from "@inrixia/lib/css/setStyle";
 
-export const draggable = getDraggable();
-// Make the container draggable
-let isDragging = false;
-let offsetX: number, offsetY: number;
+const storage = getStorage({
+	css: "",
+});
 
-const onMouseDown = (e: MouseEvent) => {
-	const top = draggable.getBoundingClientRect().top;
-	const left = draggable.getBoundingClientRect().left;
-	offsetX = e.clientX - left;
-	offsetY = e.clientY - top;
-	if (offsetX < 20 || (offsetX > top - 20 && offsetX < top - 2) || offsetY < 20 || (offsetY > top - 20 && offsetY < top - 2)) {
-		isDragging = true;
-	}
-};
-const onMouseMove = (e: MouseEvent) => {
-	if (!isDragging) return;
-	draggable.style.left = `${e.clientX - offsetX}px`;
-	draggable.style.top = `${e.clientY - offsetY}px`;
-};
-const onMouseUp = () => {
-	isDragging = false;
-};
+function setCSS(event: any, css: string) {
+	storage.css = css;
+	setStyle(css, "Themer");
+}
 
-draggable.addEventListener("mousedown", onMouseDown);
-document.addEventListener("mousemove", onMouseMove);
-document.addEventListener("mouseup", onMouseUp);
+function onKeyDown(event: KeyboardEvent) {
+	if (event.ctrlKey && event.key === "e") openEditor();
+}
+
+export function openEditor() {
+	window.electron.ipcRenderer.invoke("THEMER_OPEN_EDITOR", storage.css);
+}
+
+window.electron.ipcRenderer.on("THEMER_SET_CSS", setCSS);
+document.addEventListener("keydown", onKeyDown);
+setStyle(storage.css, "Themer");
+
 export const onUnload = () => {
-	draggable.removeEventListener("mousedown", onMouseDown);
-	document.removeEventListener("mousemove", onMouseMove);
-	document.removeEventListener("mouseup", onMouseUp);
-	draggable.remove();
-	getStyle(draggableStyleId)?.remove();
-	safeUnload();
+	window.electron.ipcRenderer.invoke("THEMER_CLOSE_EDITOR");
+	window.electron.ipcRenderer.off("THEMER_SET_CSS", setCSS);
+	document.removeEventListener("keydown", onKeyDown);
+	getStyle("Themer")?.remove();
 };
