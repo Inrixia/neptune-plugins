@@ -1,14 +1,34 @@
 import { intercept } from "@neptune";
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { MediaItemCache } from "@inrixia/lib/Caches/MediaItemCache";
-import Vibrant from "node-vibrant";
 import { getStyle, setStyle } from "@inrixia/lib/css/setStyle";
+import { getPalette } from "@inrixia/lib/nativeBridge";
+
+import { Tracer } from "@inrixia/lib/trace";
+const trace = Tracer("[CoverTheme]");
 
 let prevSong: string | undefined;
 let prevCover: string | undefined;
-let vars: string[] = [];
+let vars = new Set<string>();
 
-const getCoverUrl = (id: string) => "https://resources.tidal.com/images/" + id.split("-").join("/") + "/640x640.jpg?cors";
+const getCoverUrl = (id: string) => "https://resources.tidal.com/images/" + id.split("-").join("/") + "/80x80.jpg";
+
+type ColorInfo = [colorName: string, rgb: string | null];
+const paletteCache: Record<string, Promise<ColorInfo[]>> = {};
+const getCachedPalette = (coverId: string) => {
+	const palette = paletteCache[coverId];
+	if (palette !== undefined) return palette;
+	return (paletteCache[coverId] = getPalette(getCoverUrl(coverId)).then((palette) => {
+		console.log(palette);
+		const colors: ColorInfo[] = [];
+		for (const colorName in palette) {
+			// @ts-expect-error Native return types dont serialize class methods like .rgb(),
+			// but thankfully the class pre-fills the value in a private _rgb property we can use.
+			colors.push([colorName, palette[colorName]?._rgb?.join(", ")]);
+		}
+		return colors;
+	})).catch(trace.msg.err.withContext(`Failed to get cover palette!`));
+};
 
 async function updateBackground(productId: string) {
 	if (prevSong === productId) return;
@@ -20,19 +40,13 @@ async function updateBackground(productId: string) {
 	if (prevCover === mediaItem.album.cover) return;
 	prevCover = mediaItem.album.cover;
 
-	const cover = getCoverUrl(mediaItem.album.cover);
-	const palette = await Vibrant.from(cover).getPalette();
+	const palette = await getCachedPalette(mediaItem.album.cover);
+	if (palette === undefined) return;
 
-	for (const [colorName, color] of Object.entries(palette)) {
+	for (const [colorName, rgb] of palette) {
 		const variableName = `--cover-${colorName}`;
-		if (!color) {
-			document.documentElement.style.setProperty(variableName, null);
-			continue;
-		}
-
-		if (!vars.includes(variableName)) vars.push(variableName);
-
-		document.documentElement.style.setProperty(variableName, color.rgb.join(", "));
+		vars.add(variableName);
+		document.documentElement.style.setProperty(variableName, rgb ?? null);
 	}
 }
 

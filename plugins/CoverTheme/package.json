@@ -4,7 +4,7 @@
 	"author": "Nick Oates",
 	"main": "./src/index.js",
 	"dependencies": {
-		"@inrixia/lib": "workspace:*",
-		"node-vibrant": "^3.1.6"
+		"@behold/sharp-vibrant": "^0.2.1",
+		"@inrixia/lib": "workspace:*"
 	}
 }
