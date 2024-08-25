@@ -1,6 +1,6 @@
 {
 	"displayName": "Themer",
-	"description": "Create your own themes!",
+	"description": "Create your own theme with a built-in CSS editor",
 	"author": "Inrixia",
 	"main": "./src/index.js",
 	"dependencies": {
