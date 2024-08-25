@@ -1,24 +1,36 @@
 export const setStyle = (css?: string, id?: string) => {
 	let styleTag: HTMLElement | null = null;
-	if (id) styleTag = document.getElementById(id); // Use the existing style tag if it exists
 
-	if (!styleTag) {
-		styleTag = document.createElement("style");
-		if (id) styleTag.id = id;
-		document.head.appendChild(styleTag);
+	function remove() {
+		styleTag?.remove();
+		styleTag = null;
 	}
 
-	if (css) styleTag.innerHTML = css;
+	function setCSS(css?: string) {
+		if (id) styleTag = document.getElementById(id);
+		if (!css) {
+			remove();
+		} else {
+			if (!styleTag) {
+				styleTag = document.createElement("style");
+				if (id) styleTag.id = id;
+				document.head.appendChild(styleTag);
+			}
+
+			styleTag.innerHTML = css;
+		}
+	}
+
+	setCSS(css);
+
 	return {
 		set css(css: string) {
-			styleTag.innerHTML = css;
+			setCSS(css);
 		},
 		get css() {
-			return styleTag.innerHTML;
+			return styleTag?.innerHTML || "";
 		},
-		remove() {
-			styleTag.remove();
-		},
+		remove,
 	};
 };
 
