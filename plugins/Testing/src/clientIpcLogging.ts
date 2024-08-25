@@ -9,6 +9,7 @@ const ipcRenderer: IpcRenderer = (<any>window).electron.ipcRenderer;
 const ipcListeners: Record<string, (_: IpcRendererEvent, ...args: any[]) => void> = {};
 export const startClientIpcLogging = async () => {
 	for (const eventName of Object.values(await ClientMessageChannelEnum)) {
+		if (eventName === "client.playback.playersignal") continue; // This event is too spammy
 		ipcListeners[eventName] = (_, ...args) => trace.log(eventName, ...args);
 		ipcRenderer.on(eventName, ipcListeners[eventName]);
 	}
