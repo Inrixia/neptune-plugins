@@ -11,9 +11,6 @@ importers:
       '@inrixia/neptune-plugins':
         specifier: 'file:'
         version: 'file:'
-      '@xhayper/discord-rpc':
-        specifier: ^1.2.0
-        version: 1.2.0
       dasha:
         specifier: ^3.0.3
         version: 3.0.3
@@ -68,6 +65,9 @@ importers:
       '@inrixia/lib':
         specifier: workspace:*
         version: link:../_lib
+      '@xhayper/discord-rpc':
+        specifier: ^1.2.0
+        version: 1.2.0
 
   plugins/LastFM:
     dependencies:
