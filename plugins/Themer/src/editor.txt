@@ -54,12 +54,10 @@
 					}
 				);
 
-				window.electron.ipcRenderer
-					.invoke("THEMER_GET_CSS")
-					.then((css) => {
-						editor.getModel().setValue(css)
-						editor.updateOptions({ readOnly: false });
-					});
+				window.electron.ipcRenderer.invoke("THEMER_GET_CSS").then((css) => {
+					editor.getModel().setValue(css);
+					editor.updateOptions({ readOnly: false });
+				});
 
 				editor.onDidChangeModelContent(() => {
 					clearTimeout(timeoutId);
@@ -68,7 +66,7 @@
 							"THEMER_SET_CSS",
 							editor.getValue()
 						);
-					}, 200);
+					}, 100);
 				});
 				window.addEventListener("resize", () => {
 					editor.layout();
