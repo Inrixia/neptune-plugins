@@ -6,4 +6,3 @@ export * from "./voidTrack.native";
 export * from "./downloadTrack.native";
 export * from "./electron.native";
 export * from "./test.native";
-export * from "./vibrant.native";

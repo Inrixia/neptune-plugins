@@ -2,38 +2,29 @@ import { intercept } from "@neptune";
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { MediaItemCache } from "@inrixia/lib/Caches/MediaItemCache";
 import { setStyle } from "@inrixia/lib/css/setStyle";
-import { getPalette } from "@inrixia/lib/nativeBridge";
 import transparent from "file://transparent.css?minify";
-
+import "./vibrant.native";
 import { Tracer } from "@inrixia/lib/trace";
-const trace = Tracer("[CoverTheme]");
+import { settings } from "./Settings";
+export { Settings } from "./Settings";
 
+const trace = Tracer("[CoverTheme]");
 let prevSong: string | undefined;
 let prevCover: string | undefined;
 let vars = new Set<string>();
 
-const getCoverUrl = (id: string) =>
-	"https://resources.tidal.com/images/" +
-	id.split("-").join("/") +
-	"/640x640.jpg";
+export type Palette = { [key: string]: string };
+const paletteCache = new Map<string, Palette>();
+async function getPalette(coverId: string) {
+	if (paletteCache.has(coverId)) return paletteCache.get(coverId)!;
+	const palette = await makePalette(coverId);
+	paletteCache.set(coverId, palette);
+	return palette;
+}
 
-type ColorInfo = [colorName: string, rgb: string | null];
-const paletteCache: Record<string, Promise<ColorInfo[]>> = {};
-const getCachedPalette = (coverId: string) => {
-	const palette = paletteCache[coverId];
-	if (palette !== undefined) return palette;
-	return (paletteCache[coverId] = getPalette(getCoverUrl(coverId)).then(
-		(palette) => {
-			const colors: ColorInfo[] = [];
-			for (const colorName in palette) {
-				// @ts-expect-error Native return types dont serialize class methods like .rgb(),
-				// but thankfully the class pre-fills the value in a private _rgb property we can use.
-				colors.push([colorName, palette[colorName]?._rgb?.join(", ")]);
-			}
-			return colors;
-		}
-	)).catch(trace.msg.err.withContext(`Failed to get cover palette!`));
-};
+function makePalette(coverId: string): Promise<Palette> {
+	return window.electron.ipcRenderer.invoke("VIBRANT_GET_PALETTE", coverId);
+}
 
 async function updateBackground(productId: string) {
 	if (prevSong === productId) return;
@@ -45,19 +36,21 @@ async function updateBackground(productId: string) {
 	if (prevCover === mediaItem.album.cover) return;
 	prevCover = mediaItem.album.cover;
 
-	const palette = await getCachedPalette(mediaItem.album.cover);
+	const palette = await getPalette(mediaItem.album.cover);
 	if (palette === undefined) return;
 
-	for (const [colorName, rgb] of palette) {
+	for (const [colorName, rgb] of Object.entries(palette)) {
 		const variableName = `--cover-${colorName}`;
 		vars.add(variableName);
 		document.documentElement.style.setProperty(variableName, rgb ?? null);
 	}
 }
 
+const onCatch = trace.msg.err.withContext("Failed to update background");
+
 function onTransition([track]: any[]) {
 	const id = (track.mediaProduct as { productId?: string })?.productId;
-	if (id) updateBackground(id);
+	if (id) updateBackground(id).catch(onCatch);
 }
 
 const unloadPrefill = intercept(
@@ -70,9 +63,15 @@ const unloadTransition = intercept(
 	onTransition
 );
 
-const style = setStyle(transparent);
+const style = setStyle();
+export function updateStyle() {
+	style.css = settings.transparentTheme ? transparent : "";
+}
+
+updateStyle();
 const { playbackContext } = getPlaybackControl();
-if (playbackContext) updateBackground(playbackContext.actualProductId);
+if (playbackContext)
+	updateBackground(playbackContext.actualProductId).catch(onCatch);
 
 export const onUnload = () => {
 	unloadPrefill();

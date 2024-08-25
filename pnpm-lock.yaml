@@ -68,6 +68,9 @@ importers:
       '@inrixia/lib':
         specifier: workspace:*
         version: link:../_lib
+      node-vibrant:
+        specifier: 3.2.1-alpha.1
+        version: 3.2.1-alpha.1
 
   plugins/DiscordRPC:
     dependencies:
@@ -164,9 +167,6 @@ importers:
       '@inrixia/lib':
         specifier: workspace:*
         version: 'link:'
-      node-vibrant:
-        specifier: 3.2.1-alpha.1
-        version: 3.2.1-alpha.1
 
 packages:
 
