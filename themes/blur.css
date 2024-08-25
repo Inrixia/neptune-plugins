@@ -1,0 +1,71 @@
+/*
+{
+  "name": "Blur",
+  "author": "Nick Oates",
+  "description": "Adds backdrop blur behind the player, title bar, and context menus."
+}
+*/
+
+#footerPlayer {
+	backdrop-filter: blur(16px);
+}
+
+main > [data-type="page"] {
+	margin-bottom: 128px;
+}
+
+[class^="containerRow"] {
+	max-height: none !important;
+}
+
+[class^="mainContainer"] {
+	height: 100vh !important;
+	background-color: inherit;
+}
+
+[class^="bar"] {
+	position: absolute;
+	z-index: 100;
+	backdrop-filter: blur(16px);
+}
+
+[class^="sidebarWrapper"],
+[class^="contentArea"],
+#main {
+	padding-top: 30px;
+}
+
+[class^="contextMenu--"]::before,
+[class^="subMenu--"]::before {
+	content: "";
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	backdrop-filter: blur(16px);
+	border-radius: 9px;
+	pointer-events: none;
+	z-index: -5;
+	background-color: color-mix(
+		in srgb,
+		var(--wave-color-solid-base-brighter),
+		transparent 60%
+	);
+}
+
+[class^="contextMenu"],
+[class^="subMenu--"] {
+	position: relative;
+	background-color: transparent;
+}
+
+#footerPlayer,
+#sidebar,
+[class^="bar"] {
+	background-color: color-mix(
+		in srgb,
+		var(--wave-color-solid-base-brighter),
+		transparent 70%
+	) !important;
+}
