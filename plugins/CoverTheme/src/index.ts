@@ -19,7 +19,6 @@ const getCachedPalette = (coverId: string) => {
 	const palette = paletteCache[coverId];
 	if (palette !== undefined) return palette;
 	return (paletteCache[coverId] = getPalette(getCoverUrl(coverId)).then((palette) => {
-		console.log(palette);
 		const colors: ColorInfo[] = [];
 		for (const colorName in palette) {
 			// @ts-expect-error Native return types dont serialize class methods like .rgb(),
