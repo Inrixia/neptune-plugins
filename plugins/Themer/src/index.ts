@@ -1,15 +1,13 @@
 export { Settings } from "./Settings";
 import "./editor.native";
 import { getStorage } from "@inrixia/lib/storage";
-import { getStyle, setStyle } from "@inrixia/lib/css/setStyle";
+import { setStyle } from "@inrixia/lib/css/setStyle";
 
-const storage = getStorage({
-	css: "",
-});
+const storage = getStorage({ css: "" });
 
 function setCSS(event: any, css: string) {
 	storage.css = css;
-	setStyle(css, "Themer");
+	style.css = css;
 }
 
 function onKeyDown(event: KeyboardEvent) {
@@ -22,11 +20,11 @@ export function openEditor() {
 
 window.electron.ipcRenderer.on("THEMER_SET_CSS", setCSS);
 document.addEventListener("keydown", onKeyDown);
-setStyle(storage.css, "Themer");
+const style = setStyle(storage.css);
 
 export const onUnload = () => {
 	window.electron.ipcRenderer.invoke("THEMER_CLOSE_EDITOR");
 	window.electron.ipcRenderer.off("THEMER_SET_CSS", setCSS);
 	document.removeEventListener("keydown", onKeyDown);
-	getStyle("Themer")?.remove();
+	style.remove();
 };

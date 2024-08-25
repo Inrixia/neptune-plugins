@@ -2,7 +2,7 @@ import { intercept, store } from "@neptune";
 
 import { setFLACInfo } from "./setFLACInfo";
 
-import "./style";
+import { style } from "./style";
 import { setQualityTags } from "./setQualityTags";
 
 export { Settings } from "./Settings";
@@ -62,4 +62,5 @@ export const onUnload = () => {
 	observer.disconnect();
 	unloadIntercept();
 	safeUnload();
+	style.remove();
 };

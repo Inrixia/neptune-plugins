@@ -2,6 +2,8 @@ import { BrowserWindow, shell, ipcMain } from "electron";
 import editorHtml from "./editor.txt";
 import path from "path";
 
+const base64 = Buffer.from(editorHtml).toString("base64");
+
 ipcMain.removeHandler("THEMER_OPEN_EDITOR");
 ipcMain.removeHandler("THEMER_CLOSE_EDITOR");
 ipcMain.removeHandler("THEMER_SET_CSS");
@@ -30,8 +32,8 @@ function openEditor(event: any, css: string) {
 		return { action: "deny" };
 	});
 
-	const editor = editorHtml.replace('"%%REPLACE_ME%%"', JSON.stringify(css));
-	const base64 = Buffer.from(editor).toString("base64");
+	ipcMain.removeHandler("THEMER_GET_CSS");
+	ipcMain.handle("THEMER_GET_CSS", () => css);
 
 	win.loadURL(`data:text/html;base64,${base64}`);
 }

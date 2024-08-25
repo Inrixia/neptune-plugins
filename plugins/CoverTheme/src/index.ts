@@ -1,7 +1,7 @@
 import { intercept } from "@neptune";
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { MediaItemCache } from "@inrixia/lib/Caches/MediaItemCache";
-import { getStyle, setStyle } from "@inrixia/lib/css/setStyle";
+import { setStyle } from "@inrixia/lib/css/setStyle";
 import { getPalette } from "@inrixia/lib/nativeBridge";
 
 import { Tracer } from "@inrixia/lib/trace";
@@ -58,6 +58,7 @@ const unloadPrefill = intercept("playbackControls/PREFILL_MEDIA_PRODUCT_TRANSITI
 
 const unloadTransition = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", onTransition);
 
+const style = setStyle();
 export function updateCSS() {
 	const positions = {
 		"top left": "DarkVibrant",
@@ -71,7 +72,7 @@ export function updateCSS() {
 		.map(([position, variable]) => `radial-gradient(ellipse at ${position}, rgb(var(--cover-${variable}), 0.5), transparent 70%)`)
 		.join(", ");
 
-	const styles = `
+	const css = `
 	body {
 		background-image:${gradients};
 	}
@@ -92,7 +93,7 @@ export function updateCSS() {
 		background-image: linear-gradient(90deg, rgb(var(--cover-DarkVibrant), 0.5), rgb(var(--cover-LightVibrant), 0.5)) !important;
 	}`;
 
-	setStyle(styles, "coverTheme");
+	style.css = css;
 }
 
 updateCSS();
@@ -102,7 +103,7 @@ if (playbackContext) updateBackground(playbackContext.actualProductId);
 export const onUnload = () => {
 	unloadPrefill();
 	unloadTransition();
-	getStyle("coverTheme")?.remove();
+	style.remove();
 	vars.forEach((variable) => document.documentElement.style.removeProperty(variable));
 	prevSong = undefined;
 	prevCover = undefined;

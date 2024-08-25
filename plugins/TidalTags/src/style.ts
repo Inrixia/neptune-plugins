@@ -24,4 +24,4 @@ div[class*="titleCell--"] {
 }
 `;
 
-setStyle(styles, "tidal-tags-styles");
+export const style = setStyle(styles);

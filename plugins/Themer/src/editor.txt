@@ -47,12 +47,20 @@
 				const editor = monaco.editor.create(
 					document.getElementById("container"),
 					{
-						value: "%%REPLACE_ME%%",
 						language: "css",
 						theme: "vs-dark",
 						smoothScrolling: true,
+						readOnly: true,
 					}
 				);
+
+				window.electron.ipcRenderer
+					.invoke("THEMER_GET_CSS")
+					.then((css) => {
+						editor.getModel().setValue(css)
+						editor.updateOptions({ readOnly: false });
+					});
+
 				editor.onDidChangeModelContent(() => {
 					clearTimeout(timeoutId);
 					timeoutId = setTimeout(() => {
