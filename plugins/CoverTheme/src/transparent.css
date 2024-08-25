@@ -42,7 +42,10 @@ main,
 
 #footerPlayer,
 nav,
-[class^="bar"] {
+[class^="bar"],
+[class^="sidebarItem"]:hover,
+.enable-scrollbar-styles ::-webkit-scrollbar-corner,
+.enable-scrollbar-styles ::-webkit-scrollbar-track {
 	background-color: color-mix(
 		in srgb,
 		var(--wave-color-solid-base-brighter),
