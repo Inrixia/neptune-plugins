@@ -41,7 +41,7 @@ main,
 }
 
 #footerPlayer,
-nav,
+#sidebar,
 [class^="bar"],
 [class^="sidebarItem"]:hover,
 .enable-scrollbar-styles ::-webkit-scrollbar-corner,
