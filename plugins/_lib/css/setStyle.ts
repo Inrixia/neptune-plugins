@@ -8,10 +8,10 @@ export const setStyle = (css?: string, id?: string) => {
 		document.head.appendChild(styleTag);
 	}
 
-	if (css) styleTag.innerHTML = escape(css);
+	if (css) styleTag.innerHTML = css;
 	return {
 		set css(css: string) {
-			styleTag.innerHTML = escape(css);
+			styleTag.innerHTML = css;
 		},
 		get css() {
 			return styleTag.innerHTML;
@@ -23,7 +23,3 @@ export const setStyle = (css?: string, id?: string) => {
 };
 
 export const getStyle = (styleId: string) => document.getElementById(styleId);
-
-function escape(css: string) {
-	return css.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-}
