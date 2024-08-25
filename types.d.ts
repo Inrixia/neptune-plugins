@@ -7,7 +7,7 @@ declare global {
 		};
 	}
 
-	module "*.txt" {
+	module "file://*" {
 		const value: string;
 		export default value;
 	}

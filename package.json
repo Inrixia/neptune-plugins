@@ -8,10 +8,12 @@
 		"serve": "serve -C ./plugins"
 	},
 	"devDependencies": {
+		"@types/html-minifier-terser": "^7.0.2",
 		"@types/node": "^20.14.12",
 		"concurrently": "^8.2.2",
 		"electron": "^31.3.0",
 		"esbuild": "^0.23.0",
+		"html-minifier-terser": "^7.2.0",
 		"neptune-types": "^1.0.1",
 		"nodemon": "^3.1.4",
 		"serve": "^14.2.3",

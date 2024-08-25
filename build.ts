@@ -2,10 +2,67 @@ import esbuild from "esbuild";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { minify as minifyHtml } from "html-minifier-terser";
 
 const nativeExternals = ["@neptune", "@plugin", "electron"];
-
 const minify = true;
+
+// Based on Vencord's file-uri-plugin
+// https://github.com/Vendicated/Vencord/blob/main/scripts/build/common.mjs
+const fileUrl: esbuild.Plugin = {
+	name: "fileUrl",
+	setup: (build) => {
+		const filter = /^file:\/\/.+/;
+		build.onResolve({ filter }, (args) => ({
+			path: args.path,
+			pluginData: {
+				uri: args.path,
+				path: path.join(
+					args.resolveDir,
+					args.path.slice("file://".length).split("?")[0]
+				),
+			},
+			namespace: "file-url",
+		}));
+		build.onLoad(
+			{ filter, namespace: "file-url" },
+			async ({ pluginData: { path, uri } }) => {
+				const { searchParams } = new URL(uri);
+				const base64 = searchParams.has("base64");
+				const minify = searchParams.has("minify");
+				const encoding = base64 ? "base64" : "utf-8";
+
+				let content;
+				if (!minify) {
+					content = fs.readFileSync(path, encoding).trimEnd();
+				} else {
+					if (path.endsWith(".html")) {
+						const file = fs.readFileSync(path, "utf-8");
+						content = await minifyHtml(file, {
+							collapseWhitespace: true,
+							removeComments: true,
+							minifyCSS: true,
+							minifyJS: true,
+							removeEmptyAttributes: true,
+							removeRedundantAttributes: true,
+							removeScriptTypeAttributes: true,
+							removeStyleLinkTypeAttributes: true,
+							useShortDoctype: true,
+						});
+					} else {
+						throw new Error(`Don't know how to minify file type: ${path}`);
+					}
+
+					if (base64) content = Buffer.from(content).toString("base64");
+				}
+
+				return {
+					contents: `export default ${JSON.stringify(content)}`,
+				};
+			}
+		);
+	},
+};
 
 const neptuneNativeImports: esbuild.Plugin = {
 	name: "neptuneNativeImports",
@@ -20,6 +77,7 @@ const neptuneNativeImports: esbuild.Plugin = {
 				globalName: "neptuneExports",
 				write: false,
 				external: nativeExternals,
+				plugins: [fileUrl],
 			});
 
 			const outputCode = result.outputFiles[0].text;
@@ -33,6 +91,7 @@ const neptuneNativeImports: esbuild.Plugin = {
 				bundle: true,
 				minify,
 				external: nativeExternals,
+				plugins: [fileUrl],
 			});
 
 			const builtExports = Object.values(metafile.outputs)[0].exports;
@@ -69,7 +128,7 @@ for (const plugin of plugins) {
 			entryPoints: [
 				"./" + path.join(pluginPath, pluginPackage.main ?? "index.js"),
 			],
-			plugins: [neptuneNativeImports],
+			plugins: [fileUrl, neptuneNativeImports],
 			bundle: true,
 			minify,
 			format: "esm",

@@ -1,8 +1,6 @@
 import { BrowserWindow, shell, ipcMain } from "electron";
-import editorHtml from "./editor.txt";
+import editor from "file://editor.html?base64&minify";
 import path from "path";
-
-const base64 = Buffer.from(editorHtml).toString("base64");
 
 ipcMain.removeHandler("THEMER_OPEN_EDITOR");
 ipcMain.removeHandler("THEMER_CLOSE_EDITOR");
@@ -35,7 +33,7 @@ function openEditor(event: any, css: string) {
 	ipcMain.removeHandler("THEMER_GET_CSS");
 	ipcMain.handle("THEMER_GET_CSS", () => css);
 
-	win.loadURL(`data:text/html;base64,${base64}`);
+	win.loadURL(`data:text/html;base64,${editor}`);
 }
 
 function setCSS(event: any, css: string) {
