@@ -1,3 +1,37 @@
+body,
+#nowPlaying {
+	background-image: radial-gradient(
+			ellipse at top left,
+			rgb(var(--cover-DarkVibrant), 0.5),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse at center left,
+			rgb(var(--cover-Vibrant), 0.5),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse at bottom left,
+			rgb(var(--cover-LightMuted), 0.5),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse at top right,
+			rgb(var(--cover-LightVibrant), 0.5),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse at center right,
+			rgb(var(--cover-Muted), 0.5),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse at bottom right,
+			rgb(var(--cover-DarkMuted), 0.5),
+			transparent 70%
+		) !important;
+}
+
 #wimp,
 main,
 [class^="sidebarWrapper"],
@@ -16,15 +50,22 @@ nav,
 	) !important;
 }
 
+/* Fix play queue overlapping with player */
 #nowPlaying > [class^="innerContainer"] {
 	height: calc(100vh - 126px);
 	overflow: hidden;
 }
 
+/* Use cover colors in album/artist/playlist overlay instead of black */
 .tidal-ui__z-stack > :not(:has(div)) {
 	background-image: linear-gradient(
 		90deg,
 		rgb(var(--cover-DarkVibrant), 0.5),
 		rgb(var(--cover-LightVibrant), 0.5)
 	) !important;
+}
+
+/* This looks weird when the background isn't dark, better to just remove it. */
+[class^="bottomGradient"] {
+	display: none;
 }

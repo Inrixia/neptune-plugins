@@ -70,27 +70,7 @@ const unloadTransition = intercept(
 	onTransition
 );
 
-const style = setStyle();
-export function updateCSS() {
-	const positions = {
-		"top left": "DarkVibrant",
-		"center left": "Vibrant",
-		"bottom left": "LightMuted",
-		"top right": "LightVibrant",
-		"center right": "Muted",
-		"bottom right": "DarkMuted",
-	};
-	const gradients = Object.entries(positions)
-		.map(
-			([position, variable]) =>
-				`radial-gradient(ellipse at ${position}, rgb(var(--cover-${variable}), 0.5), transparent 70%)`
-		)
-		.join(", ");
-	document.body.style.backgroundImage = gradients;
-	style.css = transparent;
-}
-
-updateCSS();
+const style = setStyle(transparent);
 const { playbackContext } = getPlaybackControl();
 if (playbackContext) updateBackground(playbackContext.actualProductId);
 
