@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { minify as minifyHtml } from "html-minifier-terser";
+import CleanCSS from "clean-css";
 
 const nativeExternals = ["@neptune", "@plugin", "electron"];
 const minify = true;
@@ -36,8 +37,8 @@ const fileUrl: esbuild.Plugin = {
 				if (!minify) {
 					content = fs.readFileSync(path, encoding).trimEnd();
 				} else {
+					const file = fs.readFileSync(path, "utf-8");
 					if (path.endsWith(".html")) {
-						const file = fs.readFileSync(path, "utf-8");
 						content = await minifyHtml(file, {
 							collapseWhitespace: true,
 							removeComments: true,
@@ -49,6 +50,8 @@ const fileUrl: esbuild.Plugin = {
 							removeStyleLinkTypeAttributes: true,
 							useShortDoctype: true,
 						});
+					} else if (path.endsWith(".css")) {
+						content = new CleanCSS().minify(file).styles;
 					} else {
 						throw new Error(`Don't know how to minify file type: ${path}`);
 					}

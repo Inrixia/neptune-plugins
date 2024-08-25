@@ -8,8 +8,10 @@
 		"serve": "serve -C ./plugins"
 	},
 	"devDependencies": {
+		"@types/clean-css": "^4.2.11",
 		"@types/html-minifier-terser": "^7.0.2",
 		"@types/node": "^20.14.12",
+		"clean-css": "^5.3.3",
 		"concurrently": "^8.2.2",
 		"electron": "^31.3.0",
 		"esbuild": "^0.23.0",

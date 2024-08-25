@@ -1,7 +1,7 @@
 import "@inrixia/lib/contentButton.styles";
 
 import { TrackItem } from "neptune-types/tidal";
-import { parseExtension, parseFileName } from "./parseFileName";
+import { parseFileName } from "./parseFileName";
 
 import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[SongDownloader]");

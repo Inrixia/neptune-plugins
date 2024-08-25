@@ -1,8 +1,5 @@
-import { setStyle } from "@inrixia/lib/css/setStyle";
-
-const styles = `
 div[class*="titleCell--"] {
-    width: auto; !important
+	width: auto !important;
 }
 
 .quality-tag-container {
@@ -12,6 +9,7 @@ div[class*="titleCell--"] {
 	font-size: 12px;
 	line-height: 24px;
 }
+
 .quality-tag {
 	justify-content: center;
 	align-items: center;
@@ -22,6 +20,3 @@ div[class*="titleCell--"] {
 	transition: background-color 0.2s;
 	margin-left: 5px;
 }
-`;
-
-export const style = setStyle(styles);
