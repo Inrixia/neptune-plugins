@@ -28,7 +28,7 @@ export const setStyle = (css?: string, id?: string) => {
 			setCSS(css);
 		},
 		get css() {
-			return styleTag?.innerHTML || "";
+			return styleTag?.innerHTML ?? "";
 		},
 		remove,
 	};
