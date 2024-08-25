@@ -8,7 +8,7 @@ export const setStyle = (css?: string, id?: string) => {
 
 	function setCSS(css?: string) {
 		if (id) styleTag = document.getElementById(id);
-		if (!css) {
+		if (!css || !css.trim()) {
 			remove();
 		} else {
 			if (!styleTag) {
