@@ -5,7 +5,7 @@ import { trace } from ".";
 
 const ClientMessageChannelEnum = getClientMessageChannelEnum();
 
-const ipcRenderer: IpcRenderer = (<any>window).electron.ipcRenderer;
+const ipcRenderer = window.electron.ipcRenderer;
 const ipcListeners: Record<string, (_: IpcRendererEvent, ...args: any[]) => void> = {};
 export const startClientIpcLogging = async () => {
 	for (const eventName of Object.values(await ClientMessageChannelEnum)) {
