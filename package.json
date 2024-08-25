@@ -19,7 +19,6 @@
 		"typescript": "^5.5.4"
 	},
 	"dependencies": {
-		"@inrixia/neptune-plugins": "file:",
 		"dasha": "^3.0.3",
 		"flac-stream-tagger": "^1.0.9",
 		"idb": "^8.0.0",
