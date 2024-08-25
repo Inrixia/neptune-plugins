@@ -1,4 +1,4 @@
-import { utils, actions } from "@neptune";
+import { actions } from "@neptune";
 import { interceptPromise } from "./intercept/interceptPromise";
 
 import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
@@ -69,6 +69,8 @@ export type MetaTags = {
 	coverUrl: string | undefined;
 };
 
+const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") => (id ? "https://resources.tidal.com/images/" + id.split("-").join("/") + path : undefined);
+
 export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTags> => {
 	const lyrics = interceptPromise(
 		() => actions.content.loadItemLyrics({ itemId: extTrackItem.trackItem.id!, itemType: "track" }),
@@ -129,5 +131,5 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 	tags.album ??= "Unknown Album";
 	tags.artist ??= ["Unknown Artist"];
 
-	return { tags, coverUrl: utils.getMediaURLFromID(cover) };
+	return { tags, coverUrl: getMediaURLFromID(cover) };
 };

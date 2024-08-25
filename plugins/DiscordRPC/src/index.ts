@@ -14,10 +14,7 @@ const formatLongString = (s?: string) => {
 	if (s.length < 2) s += " ";
 	return s.length >= STR_MAX_LEN ? s.slice(0, STR_MAX_LEN - 3) + "..." : s;
 };
-const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") =>
-	id
-		? "https://resources.tidal.com/images/" + id.split("-").join("/") + path
-		: undefined;
+const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") => (id ? "https://resources.tidal.com/images/" + id.split("-").join("/") + path : undefined);
 
 let previousActivity: string | undefined;
 let previousStartTime = 0;
@@ -27,9 +24,7 @@ export const onTimeUpdate = async (currentTime?: number) => {
 	const { playbackContext, playbackState } = getPlaybackControl();
 	if (!playbackState) return;
 
-	const mediaItem = await MediaItemCache.ensure(
-		playbackContext?.actualProductId!
-	);
+	const mediaItem = await MediaItemCache.ensure(playbackContext?.actualProductId!);
 	if (mediaItem === undefined) return;
 
 	const loading = currentTime === 0 && previousActivity;
@@ -59,9 +54,7 @@ export const onTimeUpdate = async (currentTime?: number) => {
 		// Playback/Time
 		if (mediaItem.duration !== undefined && currentTime !== undefined) {
 			const newStartTime = Math.floor(Date.now() / 1000);
-			const newEndTime = Math.floor(
-				(Date.now() + (mediaItem.duration - currentTime) * 1000) / 1000
-			);
+			const newEndTime = Math.floor((Date.now() + (mediaItem.duration - currentTime) * 1000) / 1000);
 
 			// Use old timestamps if the difference is less than 100ms, to prevent unnecessary updates
 			if (newEndTime - previousEndTime < 100) {
@@ -78,23 +71,19 @@ export const onTimeUpdate = async (currentTime?: number) => {
 		// Artist image
 		const artist = mediaItem.artist ?? mediaItem.artists?.[0];
 		if (artist && settings.displayArtistImage) {
-			activity.smallImageKey = getMediaURLFromID(
-				artist.picture,
-				"/320x320.jpg"
-			);
+			activity.smallImageKey = getMediaURLFromID(artist.picture, "/320x320.jpg");
 			activity.smallImageText = formatLongString(artist.name);
 		}
 	}
 
 	// Album
 	if (mediaItem.album !== undefined) {
-		activity.largeImageKey = getMediaURLFromID(mediaItem.album.cover);
-		activity.largeImageText = formatLongString(mediaItem.album.title);
+		activity.largeImageKey = getMediaURLFromID(mediaItem.album?.cover);
+		activity.largeImageText = formatLongString(mediaItem.album?.title);
 	}
 
 	// Title/Artist
-	const artist =
-		mediaItem.artists?.map((a) => a.name).join(", ") ?? "Unknown Artist";
+	const artist = mediaItem.artists?.map((a) => a.name).join(", ") ?? "Unknown Artist";
 
 	activity.details = formatLongString(mediaItem.title);
 	activity.state = formatLongString(artist);
@@ -111,17 +100,12 @@ function setRPC(activity?: SetActivity) {
 	return window.electron.ipcRenderer.invoke("DISCORD_SET_ACTIVITY", activity);
 }
 
-const onUnloadTimeUpdate = intercept(
-	"playbackControls/TIME_UPDATE",
-	([newTime]) => {
-		onTimeUpdate(newTime).catch(trace.msg.err.withContext("Failed to update"));
-	}
-);
+const onUnloadTimeUpdate = intercept("playbackControls/TIME_UPDATE", ([newTime]) => {
+	onTimeUpdate(newTime).catch(trace.msg.err.withContext("Failed to update"));
+});
 
 onTimeUpdate().catch(trace.msg.err.withContext("Failed to update"));
 export const onUnload = () => {
 	onUnloadTimeUpdate();
-	window.electron.ipcRenderer
-		.invoke("DISCORD_CLEANUP")
-		.catch(trace.msg.err.withContext("Failed to cleanup RPC"));
+	window.electron.ipcRenderer.invoke("DISCORD_CLEANUP").catch(trace.msg.err.withContext("Failed to cleanup RPC"));
 };

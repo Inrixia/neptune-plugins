@@ -30,7 +30,7 @@ const retryPromise = <T>(getValue: () => T | Promise<T>, options: { interval?: n
 			try {
 				res(await getValue());
 			} catch (err) {
-				if (retries >= (options.maxRetries ?? 40)) return rej(err);
+				if (retries !== -1 && retries >= (options.maxRetries ?? 40)) return rej(err);
 				retries++;
 			}
 		}, options.interval ?? 250);
