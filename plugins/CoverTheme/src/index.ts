@@ -7,6 +7,7 @@ import "./vibrant.native";
 import { Tracer } from "@inrixia/lib/trace";
 import { settings } from "./Settings";
 export { Settings } from "./Settings";
+import { storage } from "@plugin";
 
 const trace = Tracer("[CoverTheme]");
 let prevSong: string | undefined;
@@ -14,11 +15,11 @@ let prevCover: string | undefined;
 let vars = new Set<string>();
 
 export type Palette = { [key: string]: string };
-const paletteCache = new Map<string, Palette>();
 async function getPalette(coverId: string) {
-	if (paletteCache.has(coverId)) return paletteCache.get(coverId)!;
+	if (typeof storage.paletteCache !== "object") storage.paletteCache = {};
+	const cache = storage.paletteCache as { [key: string]: Palette };
+	if (cache[coverId]) return cache[coverId];
 	const palette = await makePalette(coverId);
-	paletteCache.set(coverId, palette);
 	return palette;
 }
 
