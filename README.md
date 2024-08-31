@@ -25,6 +25,7 @@ You can see a list of all plugins including **unreleased** ones under the [**plu
 - [Always Exclusive](#Always-Exclusive)
 - [Shazam Files](#Shazam-Files)
 - [NoBuffer](#NoBuffer)
+- [Small Window](#Small-Window)
 - [Downloader](#Downloader)
   
 ## Tidal Tags
