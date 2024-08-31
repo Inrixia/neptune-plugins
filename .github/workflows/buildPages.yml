@@ -28,26 +28,12 @@ jobs:
         run: pnpm install
 
       - name: Build plugins 🛠️
-        run: |
-          mkdir -p .dist
-          pnpm run build
-          for plugin in plugins/*
-          do
-            if [ -d "$plugin/dist" ]; then
-              cp -r "$plugin/dist" ".dist/$(basename $plugin)"
-            else
-              echo "Directory $plugin/dist does not exist skipping..."
-            fi
-          done
-
-      - name: Copy themes folder 📁
-        run: |
-          cp -r themes .dist/themes
+        run: pnpm run build
 
       - name: Upload artifact 📡
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./.dist
+          path: ./dist
 
   deploy:
     if: github.ref == 'refs/heads/master'

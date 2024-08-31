@@ -5,7 +5,7 @@
 	"scripts": {
 		"watch": "concurrently nodemon npm:serve",
 		"build": "tsx build.ts",
-		"serve": "serve -C ./plugins"
+		"serve": "serve -C ./dist"
 	},
 	"devDependencies": {
 		"@types/clean-css": "^4.2.11",

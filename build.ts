@@ -124,7 +124,7 @@ for (const plugin of plugins) {
 	const pluginPackage = JSON.parse(
 		fs.readFileSync(path.join(pluginPath, "package.json"), "utf8")
 	);
-	const outfile = path.join(pluginPath, "dist/index.js");
+	const outfile = path.join("./dist", plugin, "index.js");
 
 	esbuild
 		.build({
@@ -148,7 +148,7 @@ for (const plugin of plugins) {
 				.pipe(crypto.createHash("md5").setEncoding("hex"))
 				.on("finish", function (this: crypto.Hash) {
 					fs.writeFileSync(
-						path.join(pluginPath, "dist/manifest.json"),
+						path.join("./dist", plugin, "manifest.json"),
 						JSON.stringify({
 							name: pluginPackage.displayName,
 							description: pluginPackage.description,
@@ -160,4 +160,19 @@ for (const plugin of plugins) {
 					console.log("Built " + pluginPackage.displayName + "!");
 				});
 		});
+}
+
+fs.mkdirSync("./dist/themes", { recursive: true });
+const themes = fs.readdirSync("./themes");
+for (const theme of themes) {
+	const file = fs.readFileSync(path.join("./themes", theme), "utf8");
+	const css = new CleanCSS().minify(file).styles;
+
+	// Minify manifest JSON
+	const json = file.slice(file.indexOf("/*") + 2, file.indexOf("*/"));
+	const manifest = JSON.parse(json);
+	const comment = `/*${JSON.stringify(manifest)}*/`;
+
+	fs.writeFileSync(path.join("./dist/themes", theme), comment + css);
+	console.log("Built " + manifest.name + "!");
 }
