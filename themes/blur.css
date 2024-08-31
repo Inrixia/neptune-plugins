@@ -10,7 +10,7 @@
 	backdrop-filter: blur(16px);
 }
 
-main > [data-type="page"] {
+main > [class*="container--"] {
 	margin-bottom: 128px;
 }
 
