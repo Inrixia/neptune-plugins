@@ -188,6 +188,19 @@ Kicks the Tidal cdn if the current playback stalls to make it stop so you never 
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/8378a9a3-2d3f-4cd7-af04-ceeac350b9e6)
 
+## Small Window
+<b>
+
+Install Url:
+```
+https://inrixia.github.io/neptune-plugins/SmallWindow
+```
+</b>
+
+Removes the minimum width and height limits on the window. Causes some UI bugs but can be useful if you want a smaller window.
+
+![image](https://github.com/user-attachments/assets/cb1eb26f-fb12-480e-99b2-76f9da5787f4)
+
 ## Downloader
 <b>
 
