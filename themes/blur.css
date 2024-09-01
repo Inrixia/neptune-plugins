@@ -10,7 +10,9 @@
 	backdrop-filter: blur(16px);
 }
 
-main > [class*="container--"] {
+main > [class*="container--"],
+main > [data-type="page"],
+.__NEPTUNE_PAGE {
 	margin-bottom: 128px;
 }
 
