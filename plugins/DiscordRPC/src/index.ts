@@ -96,8 +96,19 @@ export const onTimeUpdate = async (currentTime?: number) => {
 	return setRPC(activity);
 };
 
+// Debounce RPC updates, to prevent reaching the rate limit
+let lastSetAt = 0;
+let timeoutId: number | undefined;
 function setRPC(activity?: SetActivity) {
-	return window.electron.ipcRenderer.invoke("DISCORD_SET_ACTIVITY", activity);
+	if (timeoutId) window.clearTimeout(timeoutId);
+	const timeout = Date.now() - lastSetAt < 3000 ? 3000 : 0;
+	timeoutId = window.setTimeout(() => {
+		window.electron.ipcRenderer
+			.invoke("DISCORD_SET_ACTIVITY", activity)
+			.catch(trace.msg.err.withContext("Failed to update"));
+		timeoutId = undefined;
+	}, timeout);
+	lastSetAt = Date.now();
 }
 
 const onUnloadTimeUpdate = intercept("playbackControls/TIME_UPDATE", ([newTime]) => {
