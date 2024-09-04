@@ -46,6 +46,8 @@ export type PathInfo = {
 	basePath?: string;
 };
 
+const pathSeparator = process.platform === "win32" ? "\\" : "/";
+
 const downloadStatus: Record<string, DownloadProgress> = {};
 export const startTrackDownload = async (extPlaybackInfo: ExtendedPlayackInfo, pathInfo: PathInfo, metaTags?: MetaTags): Promise<void> => {
 	const pathKey = JSON.stringify(pathInfo);
@@ -55,7 +57,7 @@ export const startTrackDownload = async (extPlaybackInfo: ExtendedPlayackInfo, p
 		if (folderPath !== ".") await mkdir(folderPath, { recursive: true });
 		const stream = await requestTrackStream(extPlaybackInfo, { onProgress: (progress) => (downloadStatus[pathKey] = progress) });
 		const metaStream = await addTags(extPlaybackInfo, stream, metaTags);
-		const writeStream = createWriteStream(`${folderPath}\\${pathInfo.fileName}`);
+		const writeStream = createWriteStream(`${folderPath}${pathSeparator}${pathInfo.fileName}`);
 		return new Promise((res, rej) =>
 			metaStream
 				.pipe(writeStream)

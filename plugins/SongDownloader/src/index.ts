@@ -1,7 +1,7 @@
 import "@inrixia/lib/contentButton.styles";
 
 import { TrackItem } from "neptune-types/tidal";
-import { parseFileName } from "./parseFileName";
+import { parseFileName, pathSeparator } from "./parseFileName";
 
 import { Tracer } from "@inrixia/lib/trace";
 const trace = Tracer("[SongDownloader]");
@@ -118,11 +118,11 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 	if (folderPath === undefined || !settings.alwaysUseDefaultPath) {
 		updateMethods.set("Prompting for download path...");
 		const fileName = pathInfo.fileName;
-		const dialogResult = await saveDialog({ defaultPath: `${folderPath ?? ""}\\${fileName}`, filters: [{ name: "", extensions: [fileName ?? "*"] }] });
+		const dialogResult = await saveDialog({ defaultPath: `${folderPath ?? ""}${pathSeparator}${fileName}`, filters: [{ name: "", extensions: [fileName ?? "*"] }] });
 		if (dialogResult.canceled) return updateMethods.clear();
-		const dialogParts = dialogResult.filePath.split("\\");
+		const dialogParts = dialogResult.filePath.split(pathSeparator);
 		dialogParts.pop();
-		pathInfo.basePath = dialogParts.join("\\");
+		pathInfo.basePath = dialogParts.join(pathSeparator);
 	}
 
 	updateMethods.set("Downloading...");
