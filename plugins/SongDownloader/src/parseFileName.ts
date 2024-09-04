@@ -29,13 +29,15 @@ const filePathFromInfo = ({ tags }: MetaTags, { manifest, manifestMimeType }: Ex
 	}
 };
 
+export const pathSeparator = navigator.userAgent.includes("Win") ? "\\" : "/";
+
 export const parseFileName = (metaTags: MetaTags, extPlaybackInfo: ExtendedPlayackInfo): PathInfo => {
-	const filePath = filePathFromInfo(metaTags, extPlaybackInfo);
-	let pathParts = filePath.replaceAll("/", "\\").split("\\");
+	let filePath = filePathFromInfo(metaTags, extPlaybackInfo);
+	filePath = pathSeparator === "\\" ? filePath.replaceAll("/", pathSeparator) : filePath;
+	let pathParts = filePath.split(pathSeparator);
 	const fileName = pathParts.pop();
-	console.log(fileName, pathParts);
 	return {
 		fileName,
-		folderPath: pathParts.join("\\"),
+		folderPath: pathParts.join(pathSeparator),
 	};
 };
