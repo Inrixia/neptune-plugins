@@ -92,13 +92,13 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		updateMethods.prep();
 		for (const trackItem of trackItems) {
 			if (trackItem.id === undefined) continue;
-			await downloadTrack(trackItem, updateMethods, folderPath).catch(trace.msg.err.withContext("Error downloading track"));
+			await downloadTrack(trackItem, updateMethods, folderPath, trackItems.length > 1).catch(trace.msg.err.withContext("Error downloading track"));
 		}
 		updateMethods.clear();
 	});
 });
 
-const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, folderPath?: string) => {
+const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, folderPath?: string, noTriggerDialog: boolean = false) => {
 	let trackId = trackItem.id!;
 	if (settings.useRealMAX && settings.desiredDownloadQuality === AudioQuality.HiRes) {
 		updateMethods.set("Checking RealMAX for better quality...");
@@ -115,7 +115,7 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 	const pathInfo = parseFileName(await metaTags, await playbackInfo);
 
 	pathInfo.basePath = folderPath;
-	if (folderPath === undefined || !settings.alwaysUseDefaultPath) {
+	if ((folderPath === undefined || !settings.alwaysUseDefaultPath) && !noTriggerDialog) {
 		updateMethods.set("Prompting for download path...");
 		const fileName = pathInfo.fileName;
 		const dialogResult = await saveDialog({ defaultPath: `${folderPath ?? ""}${pathSeparator}${fileName}`, filters: [{ name: "", extensions: [fileName ?? "*"] }] });
