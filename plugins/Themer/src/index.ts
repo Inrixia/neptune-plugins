@@ -24,7 +24,7 @@ const style = setStyle(storage.css);
 
 export const onUnload = () => {
 	window.electron.ipcRenderer.invoke("THEMER_CLOSE_EDITOR");
-	window.electron.ipcRenderer.off("THEMER_SET_CSS", setCSS);
+	window.electron.ipcRenderer.removeAllListeners("THEMER_SET_CSS");
 	document.removeEventListener("keydown", onKeyDown);
 	style.remove();
 };
