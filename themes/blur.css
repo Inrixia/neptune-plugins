@@ -71,3 +71,7 @@ main > [data-type="page"],
 		transparent 70%
 	) !important;
 }
+
+[class^="sidebarWrapper"] {
+	padding-bottom: 96px;
+}
