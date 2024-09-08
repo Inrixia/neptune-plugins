@@ -59,16 +59,38 @@ main,
 	overflow: hidden;
 }
 
-/* Use cover colors in album/artist/playlist overlay instead of black */
-.tidal-ui__z-stack > :not(:has(div)) {
-	background-image: linear-gradient(
-		90deg,
-		rgb(var(--cover-DarkVibrant), 0.5),
-		rgb(var(--cover-LightVibrant), 0.5)
-	) !important;
-}
-
 /* This looks weird when the background isn't dark, better to just remove it. */
 [class^="bottomGradient"] {
 	display: none;
+}
+
+:root {
+	--cover-gradient: linear-gradient(
+		90deg,
+		rgb(var(--cover-DarkVibrant), 0.5),
+		rgb(var(--cover-LightVibrant), 0.5)
+	);
+}
+
+/* Use cover colors in album/artist/playlist overlay */
+.tidal-ui__z-stack > :not(:has(div)) {
+	background-image: var(--cover-gradient) !important;
+}
+
+/* Use cover colors in search results header */
+[data-test="search-results-top"] {
+	> [class*="container--"]::before {
+		background-image: var(--cover-gradient);
+		z-index: -1;
+		left: -36px;
+		right: -36px;
+		height: calc(var(--topSpacing) + 50px);
+	}
+
+	> [class*="container--"] {
+		background-color: unset;
+		[class*="divider"] {
+			background-color: unset;
+		}
+	}
 }
