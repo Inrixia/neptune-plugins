@@ -78,19 +78,15 @@ main,
 }
 
 /* Use cover colors in search results header */
-[data-test="search-results-top"] {
-	> [class*="container--"]::before {
-		background-image: var(--cover-gradient);
-		z-index: -1;
-		left: -36px;
-		right: -36px;
-		height: calc(var(--topSpacing) + 50px);
-	}
+[data-test="search-results-top"] > [class*="container"]::before {
+	background-image: var(--cover-gradient);
+	z-index: -1;
+	left: -36px;
+	right: -36px;
+	height: calc(var(--topSpacing) + 50px);
+}
 
-	> [class*="container--"] {
-		background-color: unset;
-		[class*="divider"] {
-			background-color: unset;
-		}
-	}
+[data-test="search-results-top"] > [class*="container"],
+[data-test="search-results-top"] > [class*="container"] > [class*="divider"] {
+	background-color: unset;
 }
