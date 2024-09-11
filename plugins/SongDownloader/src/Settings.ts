@@ -23,7 +23,14 @@ export const Settings = () => html`<div style="display: grid; grid-gap: 20px; ma
 		options=${validQualitiesSettings}
 		title="Download quality"
 	/>
-	<${TextInput} text=${settings.defaultDownloadPath} onText=${(text: string) => (settings.defaultDownloadPath = text)} title="Default save path" />
+	<${TextInput}
+		text=${settings.defaultDownloadPath}
+		onText=${(text: string) => {
+			settings.defaultDownloadPath = text;
+			if (text === "") settings.alwaysUseDefaultPath = false;
+		}}
+		title="Default save path"
+	/>
 	<${SwitchSetting}
 		checked=${settings.defaultDownloadPath !== "" && settings.alwaysUseDefaultPath}
 		onClick=${() => (settings.alwaysUseDefaultPath = !settings.alwaysUseDefaultPath)}

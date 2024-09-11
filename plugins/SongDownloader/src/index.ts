@@ -82,8 +82,9 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 
 	downloadButton.addEventListener("click", async () => {
 		if (context === undefined) return;
-		let folderPath = settings.defaultDownloadPath;
-		if (trackItems.length > 1 && (folderPath === "" || !settings.alwaysUseDefaultPath)) {
+		let folderPath;
+		if (settings.alwaysUseDefaultPath) folderPath = settings.defaultDownloadPath;
+		else if (trackItems.length > 1) {
 			updateMethods.set("Prompting for download folder...");
 			const dialogResult = await openDialog({ properties: ["openDirectory", "createDirectory"], defaultPath: folderPath });
 			if (dialogResult.canceled) return updateMethods.clear();
@@ -92,13 +93,13 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		updateMethods.prep();
 		for (const trackItem of trackItems) {
 			if (trackItem.id === undefined) continue;
-			await downloadTrack(trackItem, updateMethods, folderPath, trackItems.length > 1).catch(trace.msg.err.withContext("Error downloading track"));
+			await downloadTrack(trackItem, updateMethods, folderPath).catch(trace.msg.err.withContext("Error downloading track"));
 		}
 		updateMethods.clear();
 	});
 });
 
-const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, folderPath?: string, noTriggerDialog: boolean = false) => {
+const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, folderPath?: string) => {
 	let trackId = trackItem.id!;
 	if (settings.useRealMAX && settings.desiredDownloadQuality === AudioQuality.HiRes) {
 		updateMethods.set("Checking RealMAX for better quality...");
@@ -115,7 +116,7 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 	const pathInfo = parseFileName(await metaTags, await playbackInfo);
 
 	pathInfo.basePath = folderPath;
-	if ((folderPath === undefined || !settings.alwaysUseDefaultPath) && !noTriggerDialog) {
+	if (folderPath === undefined) {
 		updateMethods.set("Prompting for download path...");
 		const fileName = pathInfo.fileName;
 		const dialogResult = await saveDialog({ defaultPath: `${folderPath ?? ""}${pathSeparator}${fileName}`, filters: [{ name: "", extensions: [fileName ?? "*"] }] });
