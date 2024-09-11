@@ -103,19 +103,17 @@ function setRPC(activity?: SetActivity) {
 	if (timeoutId) window.clearTimeout(timeoutId);
 	const timeout = Date.now() - lastSetAt < 3000 ? 3000 : 0;
 	timeoutId = window.setTimeout(() => {
-		window.electron.ipcRenderer
-			.invoke("DISCORD_SET_ACTIVITY", activity)
-			.catch(trace.msg.err.withContext("Failed to update"));
+		window.electron.ipcRenderer.invoke("DISCORD_SET_ACTIVITY", activity).catch(trace.err.withContext("Failed to update"));
 		timeoutId = undefined;
 	}, timeout);
 	lastSetAt = Date.now();
 }
 
 const onUnloadTimeUpdate = intercept("playbackControls/TIME_UPDATE", ([newTime]) => {
-	onTimeUpdate(newTime).catch(trace.msg.err.withContext("Failed to update"));
+	onTimeUpdate(newTime).catch(trace.err.withContext("Failed to update"));
 });
 
-onTimeUpdate().catch(trace.msg.err.withContext("Failed to update"));
+onTimeUpdate().catch(trace.err.withContext("Failed to update"));
 export const onUnload = () => {
 	onUnloadTimeUpdate();
 	window.electron.ipcRenderer.invoke("DISCORD_CLEANUP").catch(trace.msg.err.withContext("Failed to cleanup RPC"));
