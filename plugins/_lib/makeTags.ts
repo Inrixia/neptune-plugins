@@ -11,7 +11,7 @@ const formatArtists = (artists?: (string | undefined)[] | Album["artists"] | Tra
 	artists
 		?.flatMap((artist) => {
 			if (artist === undefined) return [];
-			if (typeof artist === "string") return artist.split(", ");
+			if (typeof artist === "string") return artist;
 			return artist?.name;
 		})
 		.filter((artist) => artist !== undefined) ?? [];
