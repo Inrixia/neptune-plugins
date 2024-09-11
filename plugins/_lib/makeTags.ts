@@ -5,7 +5,18 @@ import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
 import { Album, TrackItem } from "neptune-types/tidal";
 import type { MediaItem } from "./Caches/MediaItemCache";
 
-export const fullTitle = (track: MediaItem) => `${track.title}${track.version ? ` - ${track.version}` : ""}`;
+export const fullTitle = (tidal?: { title?: string; version?: string }, musicBrainz?: { title?: string; disambiguation?: string }) => {
+	let title;
+	if (tidal?.title === undefined || musicBrainz?.title === undefined) title = musicBrainz?.title ?? tidal?.title;
+	else title = tidal?.title?.includes("feat. ") && !musicBrainz.title?.includes("feat. ") ? tidal?.title : musicBrainz.title;
+
+	if (title === undefined) return undefined;
+
+	const disambiguation = musicBrainz?.disambiguation ?? tidal?.version;
+	if (disambiguation && !title.includes(disambiguation)) title += ` (${disambiguation})`;
+
+	return title;
+};
 
 const formatArtists = (artists?: (string | undefined)[] | Album["artists"] | TrackItem["artists"]): string[] =>
 	artists
@@ -82,7 +93,7 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 	const { trackItem: mediaItem, releaseAlbum, recording, album } = await extTrackItem.everything();
 
 	const tags: FlacTags = {};
-	if (mediaItem.title) tags.title = recording?.title ?? fullTitle(mediaItem);
+	if (mediaItem.title !== undefined) tags.title = fullTitle(mediaItem, recording);
 
 	if (mediaItem.trackNumber !== undefined) tags.trackNumber = mediaItem.trackNumber.toString();
 	if (mediaItem.releaseDate !== undefined) tags.date = mediaItem.releaseDate;
@@ -106,10 +117,7 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 	const artistName = resolveArtist(mediaItem, album);
 	if (artistName) tags.artist = artistName;
 
-	if (releaseAlbum?.title) {
-		tags.album = releaseAlbum.title;
-		if (releaseAlbum.disambiguation) tags.album += ` (${releaseAlbum.disambiguation})`;
-	} else if (mediaItem.album?.title) tags.album = mediaItem.album.title;
+	tags.album = fullTitle(mediaItem.album, releaseAlbum);
 
 	let cover = mediaItem.album?.cover;
 	if (album !== undefined) {
