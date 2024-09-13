@@ -6,8 +6,17 @@
 }
 */
 
+:root {
+	--blur-background: color-mix(
+		in srgb,
+		var(--wave-color-solid-base-brighter),
+		transparent 60%
+	);
+	--blur-radius: 16px;
+}
+
 #footerPlayer {
-	backdrop-filter: blur(16px);
+	backdrop-filter: blur(var(--blur-radius));
 }
 
 main > [class*="container--"],
@@ -28,7 +37,7 @@ main > [data-type="page"],
 [class^="bar"] {
 	position: absolute;
 	z-index: 100;
-	backdrop-filter: blur(16px);
+	backdrop-filter: blur(var(--blur-radius));
 }
 
 [class^="sidebarWrapper"],
@@ -45,15 +54,11 @@ main > [data-type="page"],
 	height: 100%;
 	top: 0;
 	left: 0;
-	backdrop-filter: blur(16px);
+	backdrop-filter: blur(var(--blur-radius));
 	border-radius: 9px;
 	pointer-events: none;
 	z-index: -5;
-	background-color: color-mix(
-		in srgb,
-		var(--wave-color-solid-base-brighter),
-		transparent 60%
-	);
+	background-color: var(--blur-background);
 }
 
 [class^="contextMenu"],
@@ -65,13 +70,14 @@ main > [data-type="page"],
 #footerPlayer,
 #sidebar,
 [class^="bar"] {
-	background-color: color-mix(
-		in srgb,
-		var(--wave-color-solid-base-brighter),
-		transparent 70%
-	) !important;
+	background-color: var(--blur-background);
 }
 
 [class^="sidebarWrapper"] {
 	padding-bottom: 96px;
+}
+
+[class*="playQueueWithoutHeader--"] button {
+	background-color: var(--blur-background);
+	backdrop-filter: blur(var(--blur-radius));
 }
