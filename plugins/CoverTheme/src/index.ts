@@ -64,6 +64,14 @@ const unloadTransition = intercept(
 	onTransition
 );
 
+// @ts-expect-error - Neptune doesn't type this action
+const unloadPreload = intercept("player/PRELOAD_ITEM", async ([item]: any[]) => {
+	if (item.productType !== "track") return;
+	const mediaItem = await MediaItemCache.ensure(item.productId);
+	if (!mediaItem || !mediaItem.album?.cover) return;
+	getPalette(mediaItem.album.cover);
+});
+
 const style = setStyle();
 export function updateStyle() {
 	style.css = settings.transparentTheme ? transparent : "";
@@ -77,6 +85,7 @@ if (playbackContext)
 export const onUnload = () => {
 	unloadPrefill();
 	unloadTransition();
+	unloadPreload();
 	style.remove();
 	vars.forEach((variable) =>
 		document.documentElement.style.removeProperty(variable)
