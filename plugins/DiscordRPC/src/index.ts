@@ -113,10 +113,8 @@ const unloadPause = intercept("playbackControls/PAUSE", () => {
 const { playbackContext, playbackState, latestCurrentTime } =
 	getPlaybackControl();
 
-const newTrack = await MediaItemCache.ensure(playbackContext?.actualProductId);
-
 update({
-	track: newTrack,
+	track: await MediaItemCache.ensure(playbackContext?.actualProductId),
 	time: latestCurrentTime,
 	paused: playbackState !== "PLAYING",
 });
