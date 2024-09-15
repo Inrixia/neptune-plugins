@@ -1,7 +1,7 @@
 import { html } from "@neptune/voby";
 import { getSettings } from "@inrixia/lib/storage";
 import { SwitchSetting } from "@inrixia/lib/components/SwitchSetting";
-import { onTimeUpdate } from ".";
+import { update } from ".";
 
 export const settings = getSettings({
 	keepRpcOnPause: true,
@@ -13,7 +13,7 @@ export const Settings = () => html`<${SwitchSetting}
 		checked=${settings.keepRpcOnPause}
 		onClick=${() => {
 			settings.keepRpcOnPause = !settings.keepRpcOnPause;
-			onTimeUpdate().catch(() => {});
+			update();
 		}}
 		title="Keep RPC on pause"
 	/>
@@ -21,7 +21,7 @@ export const Settings = () => html`<${SwitchSetting}
 		checked=${settings.displayPlayButton}
 		onClick=${() => {
 			settings.displayPlayButton = !settings.displayPlayButton;
-			onTimeUpdate().catch(() => {});
+			update();
 		}}
 		title="Display play button"
 	/>
@@ -29,7 +29,7 @@ export const Settings = () => html`<${SwitchSetting}
 		checked=${settings.displayArtistImage}
 		onClick=${() => {
 			settings.displayArtistImage = !settings.displayArtistImage;
-			onTimeUpdate().catch(() => {});
+			update();
 		}}
 		title="Display artist image"
 	/>`;
