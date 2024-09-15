@@ -26,9 +26,9 @@ export function update(data?: {
 	time?: number;
 	paused?: boolean;
 }) {
-	if (data?.track) track = data.track;
-	if (data?.paused !== undefined) paused = data.paused;
-	if (data?.time !== undefined) time = data.time;
+	track = data?.track ?? track;
+	paused = data?.paused ?? paused;
+	time = data?.time ?? time;
 
 	// Clear activity if no track or paused
 	if (!track || (paused && !settings.keepRpcOnPause)) return setRPC();
