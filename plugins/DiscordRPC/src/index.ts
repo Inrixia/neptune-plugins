@@ -74,11 +74,11 @@ export function update(data?: {
 		formatString(track.artists?.map((a) => a.name).join(", ")) ??
 		"Unknown Artist";
 
-	setRPC(activity);
+	return setRPC(activity);
 }
 
 function setRPC(activity?: SetActivity) {
-	window.electron.ipcRenderer
+	return window.electron.ipcRenderer
 		.invoke("DISCORD_SET_ACTIVITY", activity)
 		.catch(trace.err.withContext("Failed to set activity"));
 }
