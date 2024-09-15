@@ -53,11 +53,11 @@ export const onTimeUpdate = async (currentTime?: number) => {
 	} else {
 		// Playback/Time
 		if (mediaItem.duration !== undefined && currentTime !== undefined) {
-			const newStartTime = Math.floor(Date.now() / 1000);
-			const newEndTime = Math.floor((Date.now() + (mediaItem.duration - currentTime) * 1000) / 1000);
+			const newStartTime = Date.now() - currentTime * 1000;
+			const newEndTime = newStartTime + mediaItem.duration * 1000;
 
 			// Use old timestamps if the difference is less than 100ms, to prevent unnecessary updates
-			if (newEndTime - previousEndTime < 100) {
+			if (newEndTime - previousEndTime < 100 && newStartTime - previousStartTime < 100) {
 				activity.startTimestamp = previousStartTime;
 				activity.endTimestamp = previousEndTime;
 			} else {
