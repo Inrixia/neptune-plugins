@@ -99,10 +99,14 @@ const unloadTime = intercept("playbackControls/TIME_UPDATE", ([newTime]) => {
 	time = newTime;
 });
 
+const unloadSeek = intercept("playbackControls/SEEK", ([newTime]) => {
+	if (typeof newTime === "number") update({ time: newTime });
+});
+
 const unloadPlay = intercept(
 	"playbackControls/SET_PLAYBACK_STATE",
 	([state]) => {
-		if (state === "PLAYING") update({ paused: false });
+		if (paused && state === "PLAYING") update({ paused: false });
 	}
 );
 
@@ -122,6 +126,7 @@ update({
 export const onUnload = () => {
 	unloadTransition();
 	unloadTime();
+	unloadSeek();
 	unloadPlay();
 	unloadPause();
 	window.electron.ipcRenderer
