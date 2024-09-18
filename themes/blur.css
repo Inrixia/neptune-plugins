@@ -77,6 +77,8 @@ main > [data-type="page"],
 	padding-bottom: 96px;
 }
 
+#feedSidebar,
+#playQueueSidebar,
 [class*="playQueueWithoutHeader--"] button {
 	background-color: var(--blur-background);
 	backdrop-filter: blur(var(--blur-radius));
