@@ -24,7 +24,7 @@ export class TrackInfoCache {
 
 		const key = `${trackId}${audioQuality}`;
 		if (this._listeners[key]?.push(onTrackInfo) === undefined) this._listeners[key] = [onTrackInfo];
-		const trackInfo = await this.get(trackId, audioQuality);
+		const { trackInfo } = await this.getWithExpiry(trackId, audioQuality);
 		if (trackInfo !== undefined) onTrackInfo(trackInfo);
 	}
 
