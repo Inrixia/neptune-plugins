@@ -69,7 +69,8 @@ main > [data-type="page"],
 
 #footerPlayer,
 #sidebar,
-[class^="bar"] {
+[class^="bar"],
+[class*="audioQualityContainerHover--"]:hover {
 	background-color: var(--blur-background);
 }
 
