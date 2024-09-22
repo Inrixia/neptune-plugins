@@ -70,8 +70,10 @@ main > [data-type="page"],
 #footerPlayer,
 #sidebar,
 [class^="bar"],
-[class*="audioQualityContainerHover--"]:hover {
-	background-color: var(--blur-background);
+[class*="audioQualityContainerHover--"]:hover,
+[class*="selectItem--"]:hover,
+[class*="createNewPlaylist--"]:hover {
+	background-color: var(--blur-background) !important;
 }
 
 [class^="sidebarWrapper"] {
