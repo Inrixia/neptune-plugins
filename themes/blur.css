@@ -86,3 +86,10 @@ main > [data-type="page"],
 	background-color: var(--blur-background);
 	backdrop-filter: blur(var(--blur-radius));
 }
+
+/* Blur background of homepage shortcut items */
+@container (width > 200px) {
+	[class*="shortcutItem--"]::after {
+		backdrop-filter: blur(8px);
+	}
+}
