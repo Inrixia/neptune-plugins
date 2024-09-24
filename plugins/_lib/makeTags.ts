@@ -6,9 +6,10 @@ import { Album, TrackItem } from "neptune-types/tidal";
 import type { MediaItem } from "./Caches/MediaItemCache";
 
 export const fullTitle = (tidal?: { title?: string; version?: string }, musicBrainz?: { title?: string; disambiguation?: string }) => {
-	let title;
-	if (tidal?.title === undefined || musicBrainz?.title === undefined) title = musicBrainz?.title ?? tidal?.title;
-	else title = tidal?.title?.includes("feat. ") && !musicBrainz.title?.includes("feat. ") ? tidal?.title : musicBrainz.title;
+	let title = musicBrainz?.title ?? tidal?.title;
+
+	// If the musicBrainz title is missing "feat ." use the tidal title.
+	if (tidal?.title?.includes("feat. ") && !musicBrainz?.title?.includes("feat. ")) title = tidal?.title;
 
 	if (title === undefined) return undefined;
 
@@ -117,7 +118,7 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 	const artistName = resolveArtist(mediaItem, album);
 	if (artistName) tags.artist = artistName;
 
-	tags.album = fullTitle(mediaItem.album, releaseAlbum);
+	tags.album = mediaItem.album?.title;
 
 	let cover = mediaItem.album?.cover;
 	if (album !== undefined) {
