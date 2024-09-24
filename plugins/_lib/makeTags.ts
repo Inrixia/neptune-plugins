@@ -5,6 +5,14 @@ import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
 import { Album, TrackItem } from "neptune-types/tidal";
 import type { MediaItem } from "./Caches/MediaItemCache";
 
+const sanitizeDisambiguation = (d?: string): string | false => {
+	if (d === undefined) return false;
+	let _d = d.toLowerCase();
+	if (_d.startsWith("deluxe")) return "Deluxe";
+	if (_d.includes("explicit") || _d.includes("48khz") || _d.includes("96khz") || _d.includes("24bit") || _d.includes("24-bit") || _d.includes("mastered for itunes")) return false;
+	return d;
+};
+
 export const fullTitle = (tidal?: { title?: string; version?: string }, musicBrainz?: { title?: string; disambiguation?: string }) => {
 	let title = musicBrainz?.title ?? tidal?.title;
 
@@ -13,7 +21,7 @@ export const fullTitle = (tidal?: { title?: string; version?: string }, musicBra
 
 	if (title === undefined) return undefined;
 
-	const disambiguation = musicBrainz?.disambiguation ?? tidal?.version;
+	const disambiguation = sanitizeDisambiguation(musicBrainz?.disambiguation ?? tidal?.version);
 	if (disambiguation && !title.includes(disambiguation)) title += ` (${disambiguation})`;
 
 	return title;
