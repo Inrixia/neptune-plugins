@@ -21,6 +21,7 @@ const makeScrobbleOpts = ({ metaTags, playbackStart, playbackContext }: CurrentT
 	};
 	// @ts-expect-error TS really hates iterating keys cuz its unsafe
 	for (const key in scrobbleOpts) if (scrobbleOpts[key] === undefined) delete scrobbleOpts[key];
+	trace.debug("makeScrobbleOpts", scrobbleOpts);
 	return scrobbleOpts;
 };
 
