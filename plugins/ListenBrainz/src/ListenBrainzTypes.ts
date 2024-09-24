@@ -1,59 +1,49 @@
 export type Payload = {
-	listened_at: number; // The timestamp of when the track was listened to
+	listened_at?: number; // The timestamp when the track was listened to (Unix time). Omit for "playing_now".
 	track_metadata: {
-		additional_info?: {
-			/**
-			 * A list of MusicBrainz Artist IDs. If multiple Artist IDs are included in the complete MusicBrainz artist credit, include them all here.
-			 */
-			artist_mbids?: string[];
-
-			/**
-			 * MusicBrainz Release Group ID of the release group this recording was played from.
-			 */
-			release_group_mbid?: string;
-
-			/**
-			 * MusicBrainz Release ID of the release this recording was played from.
-			 */
-			release_mbid?: string;
-
-			/**
-			 * MusicBrainz Recording ID of the recording that was played.
-			 */
-			recording_mbid?: string;
-
-			/**
-			 * MusicBrainz Track ID associated with the recording that was played.
-			 */
-			track_mbid?: string;
-
-			/**
-			 * A list of MusicBrainz Work IDs that may be associated with this recording.
-			 */
-			work_mbids?: string[];
-
-			/**
-			 * The track number of the recording. The first recording on a release is track number 1.
-			 */
-			tracknumber?: number;
-
-			/**
-			 * The ISRC code associated with the recording.
-			 */
-			isrc?: string;
-
-			/**
-			 * The Spotify track URL associated with this recording. Example: http://open.spotify.com/track/1rrgWMXGCGHru5bIRxGFV0
-			 */
-			spotify_id?: string;
-
-			/**
-			 * A list of user-defined tags to be associated with this recording, similar to last.fm tags. You may submit up to MAX_TAGS_PER_LISTEN tags, each up to MAX_TAG_SIZE characters large.
-			 */
-			tags?: string[];
-		};
 		artist_name: string; // The name of the artist
 		track_name: string; // The name of the track
-		release_name?: string; // The name of the release, if available
+		release_name?: string; // The name of the release (optional)
+		additional_info?: {
+			artist_mbids?: string[]; // List of MusicBrainz Artist IDs
+			release_group_mbid?: string; // MusicBrainz Release Group ID
+			release_mbid?: string; // MusicBrainz Release ID
+			recording_mbid?: string; // MusicBrainz Recording ID
+			track_mbid?: string; // MusicBrainz Track ID
+			work_mbids?: string[]; // List of MusicBrainz Work IDs
+			tracknumber?: number; // Track number
+			isrc?: string; // ISRC code
+			spotify_id?: string; // Spotify track URL
+			tags?: string[]; // User-defined tags
+			media_player?: string; // Media player used for playback
+			media_player_version?: string; // Version of the media player
+			submission_client?: string; // Client used to submit the listen
+			submission_client_version?: string; // Version of the submission client
+			music_service?: MusicServiceDomain; // Domain of the music service
+			music_service_name?: MusicServiceName; // Textual name of the music service (if domain is unavailable)
+			origin_url?: string; // URL of the source of the listen
+			duration_ms?: number; // Duration of the track in milliseconds
+			duration?: number; // Duration of the track in seconds
+		};
 	};
 };
+
+export enum MusicServiceDomain {
+	Spotify = "spotify.com",
+	YouTube = "youtube.com",
+	Bandcamp = "bandcamp.com",
+	Deezer = "deezer.com",
+	TIDAL = "tidal.com",
+	Soundcloud = "soundcloud.com",
+	AppleMusic = "music.apple.com",
+}
+
+export enum MusicServiceName {
+	Spotify = "Spotify",
+	YouTube = "YouTube",
+	Bandcamp = "Bandcamp",
+	Deezer = "Deezer",
+	TIDAL = "TIDAL",
+	Soundcloud = "Soundcloud",
+	AppleMusic = "Apple Music",
+}

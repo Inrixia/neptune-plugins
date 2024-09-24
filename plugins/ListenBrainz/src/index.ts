@@ -6,7 +6,7 @@ const trace = Tracer("[ListenBrainz]");
 export { Settings } from "./Settings";
 
 import { CurrentTrack, registerOnScrobble } from "@inrixia/lib/scrobbleHelpers";
-import type { Payload } from "./ListenBrainzTypes";
+import { MusicServiceDomain, type Payload } from "./ListenBrainzTypes";
 
 const makeTrackPayload = async ({ metaTags, playbackStart, playbackContext, extTrackItem }: CurrentTrack): Promise<Payload> => {
 	const tags = metaTags.tags;
@@ -15,14 +15,25 @@ const makeTrackPayload = async ({ metaTags, playbackStart, playbackContext, extT
 		track_metadata: {
 			artist_name: tags.artist![0],
 			track_name: tags.title!,
+			release_name: tags.album,
 		},
 	};
 
 	const recording = await extTrackItem.recording();
-	const additional_info = { recording_mbid: recording?.id, isrc: extTrackItem.trackItem.isrc, tracknumber: extTrackItem.trackItem.trackNumber };
+	const additional_info = {
+		recording_mbid: recording?.id,
+		isrc: extTrackItem.trackItem.isrc,
+		tracknumber: extTrackItem.trackItem.trackNumber,
+		music_service: MusicServiceDomain.TIDAL,
+		origin_url: extTrackItem.trackItem.url,
+		duration: extTrackItem.trackItem.duration,
+		media_player: "Tidal Desktop",
+		submission_client: "Neptune Scrobbler",
+	};
 	removeUndefinedValues(additional_info);
-	if (Object.keys(additional_info).length !== -1) trackPayload.track_metadata.additional_info = additional_info;
+	trackPayload.track_metadata.additional_info = additional_info;
 
+	trace.debug("makeTrackPayload", trackPayload);
 	return trackPayload;
 };
 
