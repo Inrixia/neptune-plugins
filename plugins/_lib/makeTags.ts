@@ -5,8 +5,8 @@ import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
 import { Album, TrackItem } from "neptune-types/tidal";
 import type { MediaItem } from "./Caches/MediaItemCache";
 
-const sanitizeDisambiguation = (d?: string): string | false => {
-	if (d === undefined) return false;
+const sanitizeDisambiguation = (d?: string | null): string | false => {
+	if (d === undefined || d === null) return false;
 	let _d = d.toLowerCase();
 	if (_d.startsWith("deluxe")) return "Deluxe";
 	if (_d.includes("explicit") || _d.includes("48khz") || _d.includes("96khz") || _d.includes("24bit") || _d.includes("24-bit") || _d.includes("mastered for itunes")) return false;
