@@ -13,12 +13,22 @@ const sanitizeDisambiguation = (d?: string | null): string | false => {
 	return d;
 };
 
+const englishCharRegex = /[a-zA-Z]/;
+const hasEnglish = (str?: string) => !!str && /[a-zA-Z]/.test(str);
+
 export const fullTitle = (tidal?: { title?: string; version?: string }, musicBrainz?: { title?: string; disambiguation?: string }) => {
-	let title = musicBrainz?.title ?? tidal?.title;
+	const brainzTitle = musicBrainz?.title;
+	const tidalTitle = tidal?.title;
 
-	// If the musicBrainz title is missing "feat ." use the tidal title.
-	if (tidal?.title?.includes("feat. ") && !musicBrainz?.title?.includes("feat. ")) title = tidal?.title;
+	let title = brainzTitle ?? tidalTitle;
 
+	// If the musicBrainz title is missing "feat .", use the tidal title.
+	const mbMissingFeat = tidalTitle?.includes("feat. ") && !brainzTitle?.includes("feat. ");
+
+	// If the musicBrainz title is in another language and the tidal one isnt, use the tidal title.
+	const mbInAnotherLanguage = !hasEnglish(brainzTitle) && hasEnglish(tidalTitle);
+
+	if (mbMissingFeat || mbInAnotherLanguage) title = tidalTitle;
 	if (title === undefined) return undefined;
 
 	const disambiguation = sanitizeDisambiguation(musicBrainz?.disambiguation ?? tidal?.version);
