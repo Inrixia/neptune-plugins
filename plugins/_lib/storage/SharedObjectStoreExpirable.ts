@@ -3,7 +3,16 @@ import { SharedObjectStore } from "./SharedObjectStore";
 type ValueWithExpiry<V> = { value: V; expires: number; expired: boolean } | { value: V; expires: undefined; expired: true } | { value: undefined; expires: undefined; expired: undefined };
 export class SharedObjectStoreExpirable<K extends IDBValidKey, V extends Record<any, any> & { __expires?: never }> extends SharedObjectStore<K, V> {
 	private readonly maxAge?: number;
-	constructor(storeName: string, options?: { maxAge?: number; storeSchema?: IDBObjectStoreParameters }) {
+	constructor(
+		storeName: string,
+		options?: {
+			/**
+			 * maxAge for items to persist in cache in ms
+			 */
+			maxAge?: number;
+			storeSchema?: IDBObjectStoreParameters;
+		}
+	) {
 		const { maxAge, storeSchema } = options ?? {};
 		super(storeName, storeSchema);
 		this.maxAge = maxAge;

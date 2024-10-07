@@ -16,7 +16,7 @@ export class MaxTrack {
 		if (maxTrack !== undefined) return maxTrack;
 
 		const extTrackItem = await ExtendedMediaItem.get(itemId);
-		const trackItem = extTrackItem?.trackItem;
+		const trackItem = extTrackItem?.tidalTrack;
 		if (trackItem === undefined || trackItem.contentType !== "track" || this.hasHiRes(trackItem)) return false;
 
 		const isrcs = await extTrackItem?.isrcs();

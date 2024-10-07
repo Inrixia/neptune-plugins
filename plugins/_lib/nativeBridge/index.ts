@@ -20,3 +20,6 @@ export const hash = invoke("hash");
 export const voidTrack = invoke("voidTrack");
 export const saveDialog = invoke("saveDialog");
 export const openDialog = invoke("openDialog");
+export const cacheEnsure = invoke("cacheEnsure");
+export const cacheRej = invoke("cacheRej");
+export const cacheRes = invoke("cacheRes");

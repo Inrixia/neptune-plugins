@@ -29,7 +29,7 @@ export const toBuffer = (stream: Readable) =>
 	new Promise<Buffer>((resolve, reject) => {
 		const chunks: Buffer[] = [];
 		stream.on("data", (chunk) => chunks.push(chunk));
-		stream.on("end", () => resolve(Buffer.concat(chunks)));
+		stream.on("end", () => resolve(Buffer.concat(chunks as unknown as Uint8Array[])));
 		stream.on("error", reject);
 	});
 export const toBlob = (stream: Readable) =>

@@ -14,13 +14,13 @@ export const fullTitle = (tidal?: { title?: string; version?: string }, musicBra
 
 	let title = brainzTitle ?? tidalTitle;
 
-	// If the musicBrainz title is missing "feat .", use the tidal title.
-	const mbMissingFeat = tidalTitle?.includes("feat. ") && !brainzTitle?.includes("feat. ");
+	// // If the musicBrainz title is missing "feat .", use the tidal title.
+	// const mbMissingFeat = tidalTitle?.includes("feat. ") && !brainzTitle?.includes("feat. ");
 
 	// If the musicBrainz title is in another language and the tidal one isnt, use the tidal title.
 	const mbInAnotherLanguage = !hasEnglish(brainzTitle) && hasEnglish(tidalTitle);
 
-	if (mbMissingFeat || mbInAnotherLanguage) title = tidalTitle;
+	if (mbInAnotherLanguage) title = tidalTitle;
 	if (title === undefined) return undefined;
 
 	// Dont use musicBrainz disambiguation as its not the same as the tidal version!
@@ -96,55 +96,55 @@ const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") => (id ? "https
 
 export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTags> => {
 	const lyrics = interceptPromise(
-		() => actions.content.loadItemLyrics({ itemId: extTrackItem.trackItem.id!, itemType: "track" }),
+		() => actions.content.loadItemLyrics({ itemId: extTrackItem.tidalTrack.id!, itemType: "track" }),
 		["content/LOAD_ITEM_LYRICS_SUCCESS"],
 		["content/LOAD_ITEM_LYRICS_FAIL"]
 	)
 		.catch(() => undefined)
 		.then((res) => res?.[0]);
-	const { trackItem: mediaItem, releaseAlbum, recording, album } = await extTrackItem.everything();
+	const { tidalTrack, releaseAlbum, releaseTrack, tidalAlbum } = await extTrackItem.everything();
 
 	const tags: FlacTags = {};
-	if (mediaItem.title !== undefined) tags.title = fullTitle(mediaItem, recording);
+	if (tidalTrack.title !== undefined) tags.title = fullTitle(tidalTrack, releaseTrack);
 
-	if (mediaItem.trackNumber !== undefined) tags.trackNumber = mediaItem.trackNumber.toString();
-	if (mediaItem.releaseDate !== undefined) tags.date = mediaItem.releaseDate;
-	if (mediaItem.peak) tags.REPLAYGAIN_TRACK_PEAK = mediaItem.peak.toString();
-	if (mediaItem.url) tags.comment = mediaItem.url;
+	if (tidalTrack.trackNumber !== undefined) tags.trackNumber = tidalTrack.trackNumber.toString();
+	if (tidalTrack.releaseDate !== undefined) tags.date = tidalTrack.releaseDate;
+	if (tidalTrack.peak) tags.REPLAYGAIN_TRACK_PEAK = tidalTrack.peak.toString();
+	if (tidalTrack.url) tags.comment = tidalTrack.url;
 
-	if (mediaItem.contentType === "track") {
-		if (mediaItem.copyright) tags.copyright = mediaItem.copyright;
-		if (mediaItem.replayGain) tags.REPLAYGAIN_TRACK_GAIN = mediaItem.replayGain.toString();
+	if (tidalTrack.contentType === "track") {
+		if (tidalTrack.copyright) tags.copyright = tidalTrack.copyright;
+		if (tidalTrack.replayGain) tags.REPLAYGAIN_TRACK_GAIN = tidalTrack.replayGain.toString();
 	}
 
 	// track isrc & album upc
-	const isrc = mediaItem.isrc ?? recording?.isrcs?.[0];
+	const isrc = tidalTrack.isrc ?? releaseTrack?.recording.isrcs?.[0];
 	if (isrc) tags.isrc = isrc;
 
-	const upc = album?.upc ?? releaseAlbum?.barcode;
+	const upc = tidalAlbum?.upc ?? releaseAlbum?.barcode;
 	if (upc) tags.upc = upc;
 
 	// Musicbrainz
-	if (recording?.id) tags.musicbrainz_trackid = recording.id.toString();
+	if (releaseTrack?.id) tags.musicbrainz_trackid = releaseTrack.id.toString();
 	if (releaseAlbum?.id) tags.musicbrainz_albumid = releaseAlbum.id.toString();
 
 	// Metadata resolution using Musicbrainz
-	const artistName = resolveArtist(mediaItem, album);
+	const artistName = resolveArtist(tidalTrack, tidalAlbum);
 	if (artistName) tags.artist = artistName;
 
-	tags.album = fullTitle(mediaItem.album, releaseAlbum);
+	tags.album = fullTitle(tidalTrack.album, releaseAlbum);
 
-	let cover = mediaItem.album?.cover;
-	if (album !== undefined) {
-		if ((album.artists?.length ?? -1) > 0) tags.albumArtist = formatArtists(album.artists);
-		else if (album.artist?.name) tags.albumArtist = [album.artist.name];
+	let cover = tidalTrack.album?.cover;
+	if (tidalAlbum !== undefined) {
+		if ((tidalAlbum.artists?.length ?? -1) > 0) tags.albumArtist = formatArtists(tidalAlbum.artists);
+		else if (tidalAlbum.artist?.name) tags.albumArtist = [tidalAlbum.artist.name];
 
-		if (album.genre) tags.genres = album.genre;
-		if (album.recordLabel) tags.organization = album.recordLabel;
-		if (album.numberOfTracks) tags.totalTracks = album.numberOfTracks.toString();
-		if (!tags.date && album.releaseDate) tags.date = album.releaseDate;
-		if (!tags.date && album.releaseYear) tags.date = album.releaseYear.toString();
-		cover ??= album.cover;
+		if (tidalAlbum.genre) tags.genres = tidalAlbum.genre;
+		if (tidalAlbum.recordLabel) tags.organization = tidalAlbum.recordLabel;
+		if (tidalAlbum.numberOfTracks) tags.totalTracks = tidalAlbum.numberOfTracks.toString();
+		if (!tags.date && tidalAlbum.releaseDate) tags.date = tidalAlbum.releaseDate;
+		if (!tags.date && tidalAlbum.releaseYear) tags.date = tidalAlbum.releaseYear.toString();
+		cover ??= tidalAlbum.cover;
 	}
 
 	const _lyrics = (await lyrics)?.lyrics;

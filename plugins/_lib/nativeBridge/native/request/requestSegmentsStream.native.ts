@@ -21,10 +21,10 @@ export const requestSegmentsStream = async (segments: string[], options: FetchyO
 						onProgress?.({ total, downloaded, percent: (downloaded / total) * 100 });
 					});
 					res.on("error", reject);
-					return new Promise<Buffer>((resolve) => res.on("end", () => resolve(Buffer.concat(chunks))));
+					return new Promise<Buffer>((resolve) => res.on("end", () => resolve(Buffer.concat(chunks as unknown as Uint8Array[]))));
 				})
 			);
-			combinedStream.write(Buffer.concat(buffers));
+			combinedStream.write(Buffer.concat(buffers as unknown as Uint8Array[]));
 		} else {
 			for (const url of segments) {
 				const res = await requestStream(url).then(rejectNotOk);

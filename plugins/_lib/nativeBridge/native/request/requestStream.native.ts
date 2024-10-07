@@ -22,6 +22,7 @@ export const requestStream = async (url: string, options: ExtendedRequestOptions
 			options.headers["Content-Length"] = Buffer.byteLength(body);
 		}
 		const req = request(url, options, (res) => {
+			res.url = url;
 			const statusMsg = res.statusMessage !== "" ? ` - ${res.statusMessage}` : "";
 			if (res.statusCode === 429 || res.statusCode === 503) {
 				const retryAfter = parseInt(res.headers["retry-after"] ?? "1", 10);

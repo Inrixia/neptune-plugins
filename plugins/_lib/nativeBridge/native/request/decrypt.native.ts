@@ -19,10 +19,10 @@ const decryptKeyId = (keyId: string): DecryptedKey => {
 	const keyIdEnc = keyIdBuffer.subarray(16);
 
 	// Initialize decryptor
-	const decryptor = createDecipheriv("aes-256-cbc", mastKeyBuffer, iv);
+	const decryptor = createDecipheriv("aes-256-cbc", Uint8Array.from(mastKeyBuffer), Uint8Array.from(iv));
 
 	// Decrypt the security token
-	const keyIdDec = decryptor.update(keyIdEnc);
+	const keyIdDec = decryptor.update(Uint8Array.from(keyIdEnc));
 
 	// Get the audio stream decryption key and nonce from the decrypted security token
 	const key = keyIdDec.subarray(0, 16);
@@ -32,7 +32,10 @@ const decryptKeyId = (keyId: string): DecryptedKey => {
 };
 
 // Extend nonce to 16 bytes (nonce + counter)
-const makeDecipheriv = ({ key, nonce }: DecryptedKey) => createDecipheriv("aes-128-ctr", key, Buffer.concat([nonce, Buffer.alloc(8, 0)]));
+const makeDecipheriv = ({ key, nonce }: DecryptedKey) => {
+	const iv = new Uint8Array([...nonce, ...new Uint8Array(8)]);
+	return createDecipheriv("aes-128-ctr", Uint8Array.from(key), iv);
+};
 
 export const makeDecipher = (manifest: TidalManifest) => {
 	switch (manifest.encryptionType) {

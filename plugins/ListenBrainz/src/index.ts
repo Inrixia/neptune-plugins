@@ -19,14 +19,14 @@ const makeTrackPayload = async ({ metaTags, playbackStart, playbackContext, extT
 		},
 	};
 
-	const recording = await extTrackItem.recording();
+	const releaseTrack = await extTrackItem.releaseTrack();
 	const additional_info = {
-		recording_mbid: recording?.id,
-		isrc: extTrackItem.trackItem.isrc,
-		tracknumber: extTrackItem.trackItem.trackNumber,
+		recording_mbid: releaseTrack?.id,
+		isrc: extTrackItem.tidalTrack.isrc ?? releaseTrack?.recording.isrcs?.[0],
+		tracknumber: extTrackItem.tidalTrack.trackNumber,
 		music_service: MusicServiceDomain.TIDAL,
-		origin_url: extTrackItem.trackItem.url,
-		duration: extTrackItem.trackItem.duration,
+		origin_url: extTrackItem.tidalTrack.url,
+		duration: extTrackItem.tidalTrack.duration,
 		media_player: "Tidal Desktop",
 		submission_client: "Neptune Scrobbler",
 	};

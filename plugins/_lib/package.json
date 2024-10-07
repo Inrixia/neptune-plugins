@@ -2,6 +2,9 @@
 	"name": "@inrixia/lib",
 	"dependencies": {
 		"@inrixia/helpers": "^2.0.11",
-		"@inrixia/lib": "workspace:*"
+		"@inrixia/lib": "file:"
+	},
+	"devDependencies": {
+		"musicbrainz-api": "^0.19.1"
 	}
 }
