@@ -18,7 +18,7 @@ export const rejectNotOk = (res: IncomingMessage) => {
 	const OK = res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300;
 	if (!OK) {
 		toJson(res)
-			.then((body) => libTrace.err(`(${res.statusCode})`, body))
+			.then((body) => libTrace.err(`(${res.statusCode})`, body, res.url))
 			.catch(() => {});
 		throw new Error(`Status code is ${res.statusCode}`);
 	}

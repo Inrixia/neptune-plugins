@@ -5,16 +5,8 @@ import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
 import { Album, TrackItem } from "neptune-types/tidal";
 import type { MediaItem } from "./Caches/MediaItemCache";
 
-const sanitizeDisambiguation = (d?: string | null): string | false => {
-	if (d === undefined || d === null) return false;
-	let _d = d.toLowerCase();
-	if (_d.startsWith("deluxe")) return "Deluxe";
-	if (_d.includes("explicit") || _d.includes("48khz") || _d.includes("96khz") || _d.includes("24bit") || _d.includes("24-bit") || _d.includes("mastered for itunes")) return false;
-	return d;
-};
-
 const englishCharRegex = /[a-zA-Z]/;
-const hasEnglish = (str?: string) => !!str && /[a-zA-Z]/.test(str);
+const hasEnglish = (str?: string) => !!str && englishCharRegex.test(str);
 
 export const fullTitle = (tidal?: { title?: string; version?: string }, musicBrainz?: { title?: string; disambiguation?: string }) => {
 	const brainzTitle = musicBrainz?.title;
@@ -31,8 +23,9 @@ export const fullTitle = (tidal?: { title?: string; version?: string }, musicBra
 	if (mbMissingFeat || mbInAnotherLanguage) title = tidalTitle;
 	if (title === undefined) return undefined;
 
-	const disambiguation = sanitizeDisambiguation(musicBrainz?.disambiguation ?? tidal?.version);
-	if (disambiguation && !title.includes(disambiguation)) title += ` (${disambiguation})`;
+	// Dont use musicBrainz disambiguation as its not the same as the tidal version!
+	const version = tidal?.version;
+	if (version && !title.includes(version)) title += ` (${version})`;
 
 	return title;
 };
@@ -125,8 +118,11 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 	}
 
 	// track isrc & album upc
-	if (mediaItem.isrc) tags.isrc = mediaItem.isrc;
-	if (album?.upc) tags.upc = album?.upc;
+	const isrc = mediaItem.isrc ?? recording?.isrcs?.[0];
+	if (isrc) tags.isrc = isrc;
+
+	const upc = album?.upc ?? releaseAlbum?.barcode;
+	if (upc) tags.upc = upc;
 
 	// Musicbrainz
 	if (recording?.id) tags.musicbrainz_trackid = recording.id.toString();
@@ -136,7 +132,7 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 	const artistName = resolveArtist(mediaItem, album);
 	if (artistName) tags.artist = artistName;
 
-	tags.album = mediaItem.album?.title;
+	tags.album = fullTitle(mediaItem.album, releaseAlbum);
 
 	let cover = mediaItem.album?.cover;
 	if (album !== undefined) {
