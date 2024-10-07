@@ -13,15 +13,12 @@ export const fullTitle = (tidal?: { title?: string; version?: string }, musicBra
 	const tidalTitle = tidal?.title;
 
 	let title = brainzTitle ?? tidalTitle;
-
-	// // If the musicBrainz title is missing "feat .", use the tidal title.
-	// const mbMissingFeat = tidalTitle?.includes("feat. ") && !brainzTitle?.includes("feat. ");
+	if (title === undefined) return undefined;
 
 	// If the musicBrainz title is in another language and the tidal one isnt, use the tidal title.
 	const mbInAnotherLanguage = !hasEnglish(brainzTitle) && hasEnglish(tidalTitle);
 
-	if (mbInAnotherLanguage) title = tidalTitle;
-	if (title === undefined) return undefined;
+	if (mbInAnotherLanguage && tidalTitle !== undefined) title = tidalTitle;
 
 	// Dont use musicBrainz disambiguation as its not the same as the tidal version!
 	const version = tidal?.version;
