@@ -16,10 +16,11 @@ export class MaxTrack {
 		if (maxTrack !== undefined) return maxTrack;
 
 		const extTrackItem = await ExtendedMediaItem.get(itemId);
+		if (extTrackItem === undefined) return false;
 		const trackItem = extTrackItem?.tidalTrack;
-		if (trackItem === undefined || trackItem.contentType !== "track" || this.hasHiRes(trackItem)) return false;
+		if (trackItem.contentType !== "track" || this.hasHiRes(trackItem)) return false;
 
-		const isrcs = await extTrackItem?.isrcs();
+		const isrcs = await extTrackItem.isrcs();
 		if (isrcs === undefined) return (this._maxTrackMap[itemId] = Promise.resolve(false));
 
 		return (this._maxTrackMap[itemId] = (async () => {
