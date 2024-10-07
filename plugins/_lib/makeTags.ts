@@ -4,25 +4,27 @@ import { interceptPromise } from "./intercept/interceptPromise";
 import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
 import { Album, TrackItem } from "neptune-types/tidal";
 import type { MediaItem } from "./Caches/MediaItemCache";
+import type { IReleaseMatch, ITrack } from "musicbrainz-api";
 
-const englishCharRegex = /[a-zA-Z]/;
-const hasEnglish = (str?: string) => !!str && englishCharRegex.test(str);
+const includesLower = (string: string, includes: string) => string.toLowerCase().includes(includes.toLowerCase());
 
-export const fullTitle = (tidal?: { title?: string; version?: string }, musicBrainz?: { title?: string; disambiguation?: string }) => {
+export const fullTitle = (tidal: MediaItem | MediaItem["album"], musicBrainz?: ITrack | IReleaseMatch) => {
 	const brainzTitle = musicBrainz?.title;
 	const tidalTitle = tidal?.title;
 
 	let title = brainzTitle ?? tidalTitle;
 	if (title === undefined) return undefined;
 
-	// If the musicBrainz title is in another language and the tidal one isnt, use the tidal title.
-	const mbInAnotherLanguage = !hasEnglish(brainzTitle) && hasEnglish(tidalTitle);
-
-	if (mbInAnotherLanguage && tidalTitle !== undefined) title = tidalTitle;
+	// If the title has feat and its validated by musicBrainz then use the tidal title.
+	if (tidalTitle?.includes("feat. ") && !brainzTitle?.includes("feat. ")) {
+		const artistCredit = musicBrainz?.["artist-credit"];
+		const mbHasFeat = artistCredit && artistCredit.findIndex((credit) => credit.joinphrase === " feat. ") !== -1;
+		if (mbHasFeat) title = tidalTitle;
+	}
 
 	// Dont use musicBrainz disambiguation as its not the same as the tidal version!
-	const version = tidal?.version;
-	if (version && !title.includes(version)) title += ` (${version})`;
+	const version = (<MediaItem>tidal)?.version;
+	if (version && !includesLower(title, version)) title += ` (${version})`;
 
 	return title;
 };
