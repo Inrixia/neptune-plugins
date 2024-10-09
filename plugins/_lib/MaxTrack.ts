@@ -21,7 +21,7 @@ export class MaxTrack {
 		if (trackItem.contentType !== "track" || this.hasHiRes(trackItem)) return false;
 
 		const isrcs = await extTrackItem.isrcs();
-		if (isrcs === undefined) return (this._maxTrackMap[itemId] = Promise.resolve(false));
+		if (isrcs.size === 0) return (this._maxTrackMap[itemId] = Promise.resolve(false));
 
 		return (this._maxTrackMap[itemId] = (async () => {
 			for (const isrc of isrcs) {

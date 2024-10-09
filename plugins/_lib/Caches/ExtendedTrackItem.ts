@@ -27,11 +27,11 @@ export class ExtendedMediaItem {
 		return new this(trackId, trackItem);
 	}
 
-	public async isrcs(): Promise<Set<string> | undefined> {
+	public async isrcs() {
 		let isrcs = [];
 
-		const recording = await this.releaseTrack();
-		if (recording?.recording.isrcs) isrcs.push(...recording.recording.isrcs);
+		const releaseTrack = await this.releaseTrack();
+		if (releaseTrack?.recording.isrcs) isrcs.push(...releaseTrack.recording.isrcs);
 
 		const trackItem = this.tidalTrack;
 		if (trackItem.isrc) isrcs.push(trackItem.isrc);
