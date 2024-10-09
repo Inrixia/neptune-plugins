@@ -104,10 +104,7 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 	if (settings.useRealMAX && settings.desiredDownloadQuality === AudioQuality.HiRes) {
 		updateMethods.set("Checking RealMAX for better quality...");
 		const maxTrack = await MaxTrack.getMaxTrack(trackId);
-		if (maxTrack !== false) {
-			console.log(maxTrack);
-			trackId = +maxTrack.id!;
-		}
+		if (maxTrack !== false) trackId = +maxTrack.id!;
 	}
 
 	updateMethods.set("Fetching playback info & tags...");
