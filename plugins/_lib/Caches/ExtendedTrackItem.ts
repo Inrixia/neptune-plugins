@@ -48,11 +48,19 @@ export class ExtendedMediaItem {
 
 		const albumId = this.tidalTrack.album?.id;
 		if (albumId === undefined) return undefined;
-		const album = await this.tidalAlbum();
-		if (album?.upc === undefined) return undefined;
-		return (this._releaseAlbum = await requestJsonCached<{ releases: IReleaseMatch[] }>(`https://musicbrainz.org/ws/2/release/?query=barcode:${album.upc}&fmt=json`)
+		const tidalAlbum = await this.tidalAlbum();
+		if (tidalAlbum?.upc === undefined) return undefined;
+
+		const releaseAlbum = await requestJsonCached<{ releases: IReleaseMatch[] }>(`https://musicbrainz.org/ws/2/release/?query=barcode:${tidalAlbum.upc}&fmt=json`)
 			.then(({ releases }) => releases[0])
-			.catch(libTrace.warn.withContext("MusicBrainz.getUPCReleases")));
+			.catch(libTrace.warn.withContext("MusicBrainz.getUPCReleases"));
+
+		// Try validate if the album is valid because sometimes tidal has the wrong upc id!
+		if (releaseAlbum !== undefined && tidalAlbum.numberOfTracks !== undefined && releaseAlbum.media[(this.tidalTrack.volumeNumber ?? 1) - 1]["track-count"] !== tidalAlbum.numberOfTracks) {
+			libTrace.warn("Invalid Tidal UPC for album!", { releaseAlbum, tidalAlbum });
+			return undefined;
+		}
+		return (this._releaseAlbum = releaseAlbum);
 	}
 
 	public async releaseTrack(): Promise<ITrack | undefined> {
