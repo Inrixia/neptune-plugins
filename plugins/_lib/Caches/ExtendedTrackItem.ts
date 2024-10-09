@@ -60,18 +60,20 @@ export class ExtendedMediaItem {
 
 		if (this.tidalTrack.isrc !== undefined) {
 			// Lookup the recording from MusicBrainz by ISRC
-			const recording = await requestJsonCached<{ recordings: IRecording[] }>(`https://musicbrainz.org/ws/2/isrc/${this.tidalTrack.isrc}?fmt=json`)
+			const recording = await requestJsonCached<{ recordings: IRecording[] }>(`https://musicbrainz.org/ws/2/isrc/${this.tidalTrack.isrc}?inc=isrcs&fmt=json`)
 				.then(({ recordings }) => recordings[0])
 				.catch(libTrace.warn.withContext("MusicBrainz.getISRCRecordings"));
 
 			if (recording !== undefined) {
 				// If a recording exists then fetch the full recording details including media for title resolution
-				const release = await requestJsonCached<IRecording>(`https://musicbrainz.org/ws/2/recording/${recording.id}?inc=releases+media+artist-credits&fmt=json`)
+				const release = await requestJsonCached<IRecording>(`https://musicbrainz.org/ws/2/recording/${recording.id}?inc=releases+media+artist-credits+isrcs&fmt=json`)
 					.then(({ releases }) => releases?.filter((release) => release.country === "XW")[0] ?? releases?.[0])
 					.catch(libTrace.warn.withContext("MusicBrainz.getISRCRecordings"));
 				if (release === undefined) return undefined;
 
-				return (this._releaseTrack = release.media?.[0].tracks?.[0]);
+				this._releaseTrack = release.media?.[0].tracks?.[0];
+				this._releaseTrack.recording = recording;
+				return this._releaseTrack;
 			}
 		}
 
