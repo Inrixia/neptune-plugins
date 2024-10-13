@@ -1,6 +1,6 @@
 {
 	"displayName": "Volume Scroll",
-	"description": "Scroll on the volume button to change it. (Hold shift to change by 10%)",
+	"description": "Scroll on the volume button to change it.",
 	"author": "Nick Oates",
 	"main": "./src/index.js"
 }

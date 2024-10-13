@@ -3,8 +3,7 @@ import { actions, intercept, store } from "@neptune";
 function onScroll(event: WheelEvent) {
 	if (!event.deltaY) return;
 	const { playbackControls } = store.getState();
-	const increment = event.shiftKey ? 10 : 2;
-	const volumeChange = event.deltaY > 0 ? -increment : increment;
+	const volumeChange = event.deltaY > 0 ? -10 : 10;
 	const newVolume = playbackControls.volume + volumeChange;
 	const clampVolume = Math.min(100, Math.max(0, newVolume));
 	actions.playbackControls.setVolume({
