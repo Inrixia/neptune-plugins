@@ -1,7 +1,7 @@
 import { type ExtendedPlayackInfo, ManifestMimeType } from "@inrixia/lib/Caches/PlaybackInfoTypes";
 import { availableTags, MetaTags } from "@inrixia/lib/makeTags";
 import { settings } from "./Settings";
-import type { PathInfo } from "@inrixia/lib/nativeBridge";
+import type { PathInfo } from "@inrixia/lib/native/downloadTrack.native";
 
 const unsafeCharacters = /[\/:*?"<>|]/g;
 const sanitizeFilename = (filename: string): string => filename.replace(unsafeCharacters, "_");

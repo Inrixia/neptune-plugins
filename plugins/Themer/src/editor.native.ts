@@ -2,15 +2,8 @@ import { BrowserWindow, shell, ipcMain } from "electron";
 import editor from "file://editor.html?base64&minify";
 import path from "path";
 
-ipcMain.removeHandler("THEMER_OPEN_EDITOR");
-ipcMain.removeHandler("THEMER_CLOSE_EDITOR");
-ipcMain.removeHandler("THEMER_SET_CSS");
-ipcMain.handle("THEMER_OPEN_EDITOR", openEditor);
-ipcMain.handle("THEMER_CLOSE_EDITOR", closeEditor);
-ipcMain.handle("THEMER_SET_CSS", setCSS);
-
 let win: BrowserWindow | null = null;
-function openEditor(event: any, css: string) {
+export const openEditor = async (css: string) => {
 	if (win && !win.isDestroyed()) return win.focus();
 
 	win = new BrowserWindow({
@@ -30,18 +23,13 @@ function openEditor(event: any, css: string) {
 		return { action: "deny" };
 	});
 
-	ipcMain.removeHandler("THEMER_GET_CSS");
-	ipcMain.handle("THEMER_GET_CSS", () => css);
-
 	win.loadURL(`data:text/html;base64,${editor}`);
-}
+};
 
-function setCSS(event: any, css: string) {
+export const setCSS = async (css: string) => {
 	BrowserWindow.getAllWindows().forEach((win) => {
 		win.webContents.send("THEMER_SET_CSS", css);
 	});
-}
+};
 
-function closeEditor() {
-	if (win && !win.isDestroyed()) win.close();
-}
+export const closeEditor = async () => win && !win.isDestroyed() && win.close();

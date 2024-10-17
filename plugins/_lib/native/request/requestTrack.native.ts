@@ -1,7 +1,7 @@
 import type { Readable } from "stream";
 import type { FetchyOptions } from "./helpers.native";
 
-import { type ExtendedPlayackInfo, ManifestMimeType } from "../../../Caches/PlaybackInfoTypes";
+import { type ExtendedPlayackInfo, ManifestMimeType } from "../../Caches/PlaybackInfoTypes";
 import { requestDecodedStream } from "./requestDecodedStream.native";
 import { requestSegmentsStream } from "./requestSegmentsStream.native";
 

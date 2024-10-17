@@ -1,4 +1,4 @@
-import { cacheEnsure, cacheRej, cacheRes } from "../nativeBridge";
+import { cacheEnsure, cacheRej, cacheRes } from "../native/sharedCache";
 
 export class SharedNativeCache<K extends string | number | symbol, V> {
 	constructor(public readonly name?: string) {}

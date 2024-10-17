@@ -1,5 +1,5 @@
 import { TrackItem } from "neptune-types/tidal";
-import type { DashManifest } from "../nativeBridge";
+import type { DashManifest } from "../native/dasha.native";
 
 export enum ManifestMimeType {
 	Tidal = "application/vnd.tidal.bts",

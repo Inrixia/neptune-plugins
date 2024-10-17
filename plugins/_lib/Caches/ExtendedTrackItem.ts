@@ -6,7 +6,7 @@ import { libTrace } from "../trace";
 import getPlaybackControl from "../getPlaybackControl";
 
 import type { IRecording, IRelease, IReleaseMatch, ITrack } from "musicbrainz-api";
-import { requestJsonCached } from "../nativeBridge/request";
+import { requestJsonCached } from "../native/request/requestJsonCached";
 
 export class ExtendedMediaItem {
 	private _releaseTrack?: ITrack;

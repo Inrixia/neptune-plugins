@@ -4,8 +4,8 @@ import { settings } from "./Settings";
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 import { MediaItem, MediaItemCache } from "@inrixia/lib/Caches/MediaItemCache";
 import type { SetActivity } from "@xhayper/discord-rpc";
+import { cleanup, setActivity } from "./discord.native";
 export { Settings } from "./Settings";
-import "./discord.native";
 
 const trace = Tracer("[DiscordRPC]");
 const STR_MAX_LEN = 127;
@@ -14,18 +14,13 @@ const formatString = (s?: string) => {
 	if (s.length < 2) s += " ";
 	return s.length >= STR_MAX_LEN ? s.slice(0, STR_MAX_LEN - 3) + "..." : s;
 };
-const getMediaURL = (id?: string, path = "/1280x1280.jpg") =>
-	id && "https://resources.tidal.com/images/" + id.split("-").join("/") + path;
+const getMediaURL = (id?: string, path = "/1280x1280.jpg") => id && "https://resources.tidal.com/images/" + id.split("-").join("/") + path;
 
 let track: MediaItem | undefined;
 let paused = true;
 let time = 0;
 
-export function update(data?: {
-	track?: MediaItem;
-	time?: number;
-	paused?: boolean;
-}) {
+export function update(data?: { track?: MediaItem; time?: number; paused?: boolean }) {
 	track = data?.track ?? track;
 	paused = data?.paused ?? paused;
 	time = data?.time ?? time;
@@ -70,52 +65,36 @@ export function update(data?: {
 
 	// Title/Artist
 	activity.details = formatString(track.title);
-	activity.state =
-		formatString(track.artists?.map((a) => a.name).join(", ")) ??
-		"Unknown Artist";
+	activity.state = formatString(track.artists?.map((a) => a.name).join(", ")) ?? "Unknown Artist";
 
 	return setRPC(activity);
 }
 
-function setRPC(activity?: SetActivity) {
-	return window.electron.ipcRenderer
-		.invoke("DISCORD_SET_ACTIVITY", activity)
-		.catch(trace.err.withContext("Failed to set activity"));
-}
+const setRPC = (activity?: SetActivity) => setActivity(activity).catch(trace.err.withContext("Failed to set activity"));
 
-const unloadTransition = intercept(
-	"playbackControls/MEDIA_PRODUCT_TRANSITION",
-	([media]) => {
-		const mediaProduct = media.mediaProduct as { productId: string };
-		MediaItemCache.ensure(mediaProduct.productId)
-			.then((track) => {
-				if (track) update({ track, time: 0 });
-			})
-			.catch(trace.err.withContext("Failed to fetch media item"));
-	}
-);
+const unloadTransition = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", ([media]) => {
+	const mediaProduct = media.mediaProduct as { productId: string };
+	MediaItemCache.ensure(mediaProduct.productId)
+		.then((track) => {
+			if (track) update({ track, time: 0 });
+		})
+		.catch(trace.err.withContext("Failed to fetch media item"));
+});
 
 const unloadTime = intercept("playbackControls/TIME_UPDATE", ([newTime]) => {
 	time = newTime;
 });
-
 const unloadSeek = intercept("playbackControls/SEEK", ([newTime]) => {
 	if (typeof newTime === "number") update({ time: newTime });
 });
-
-const unloadPlay = intercept(
-	"playbackControls/SET_PLAYBACK_STATE",
-	([state]) => {
-		if (paused && state === "PLAYING") update({ paused: false });
-	}
-);
-
+const unloadPlay = intercept("playbackControls/SET_PLAYBACK_STATE", ([state]) => {
+	if (paused && state === "PLAYING") update({ paused: false });
+});
 const unloadPause = intercept("playbackControls/PAUSE", () => {
 	update({ paused: true });
 });
 
-const { playbackContext, playbackState, latestCurrentTime } =
-	getPlaybackControl();
+const { playbackContext, playbackState, latestCurrentTime } = getPlaybackControl();
 
 update({
 	track: await MediaItemCache.ensure(playbackContext?.actualProductId),
@@ -129,7 +108,5 @@ export const onUnload = () => {
 	unloadSeek();
 	unloadPlay();
 	unloadPause();
-	window.electron.ipcRenderer
-		.invoke("DISCORD_CLEANUP")
-		.catch(trace.msg.err.withContext("Failed to cleanup RPC"));
+	cleanup()!.catch(trace.msg.err.withContext("Failed to cleanup RPC"));
 };

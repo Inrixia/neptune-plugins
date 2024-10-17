@@ -1,10 +1,10 @@
 import type { IncomingMessage } from "http";
 import { RequestOptions, request } from "https";
-import { libTrace } from "../../helpers/trace.native";
-import { Semaphore } from "../../../Semaphore";
+import { libTrace } from "../helpers/trace.native";
+import { Semaphore } from "../../Semaphore";
 
-let defaultUserAgent: string | undefined = undefined;
-export const setDefaultUserAgent = (userAgent: string) => (defaultUserAgent = userAgent);
+let defaultUserAgent: string = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) TIDAL/9999.9999.9999 Chrome/126.0.6478.127 Electron/31.2.1 Safari/537.36";
+export const setDefaultUserAgent = async (userAgent: string) => (defaultUserAgent = userAgent);
 
 // Cap to two requests per domain at a time
 const rateLimitSema = new Semaphore(1);

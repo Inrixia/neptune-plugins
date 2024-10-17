@@ -1,8 +1,8 @@
 import type { IncomingHttpHeaders, IncomingMessage } from "http";
 import type { Readable } from "stream";
-import type { TidalManifest } from "../../../Caches/PlaybackInfoTypes";
+import type { TidalManifest } from "../../Caches/PlaybackInfoTypes";
 import { ExtendedRequestOptions } from "./requestStream.native";
-import { libTrace } from "../../helpers/trace.native";
+import { libTrace } from "../helpers/trace.native";
 
 export type DownloadProgress = { total: number; downloaded: number; percent: number };
 type OnProgress = (progress: DownloadProgress) => void;

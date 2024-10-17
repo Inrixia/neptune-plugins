@@ -5,7 +5,7 @@ const tracer = Tracer("[TrackInfoCache]");
 import { type } from "@inrixia/helpers/object";
 
 import { SharedObjectStoreExpirable } from "../storage/SharedObjectStoreExpirable";
-import { type TrackInfo, getTrackInfo } from "../nativeBridge";
+import { type TrackInfo, getTrackInfo } from "../native/getTrackInfo.native";
 import { PlaybackInfoCache } from "./PlaybackInfoCache";
 
 const WEEK = 7 * 24 * 60 * 60 * 1000;

@@ -1,12 +1,12 @@
 import { intercept, store } from "@neptune";
 
 import type { PlaybackState } from "neptune-types/tidal";
-import type { PlaybackContext } from "@inrixia/lib/AudioQualityTypes";
+import type { PlaybackContext } from "./AudioQualityTypes";
 import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
 import getPlaybackControl from "./getPlaybackControl";
 import { MetaTags, makeTags } from "./makeTags";
 
-import { Tracer } from "@inrixia/lib/trace";
+import { Tracer } from "./trace";
 import { UninterceptFunction } from "neptune-types/api/intercept";
 import { debounce } from "./debounce";
 const trace = Tracer("[Scrobbler]");

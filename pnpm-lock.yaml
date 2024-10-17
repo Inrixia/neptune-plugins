@@ -169,9 +169,6 @@ importers:
       '@inrixia/helpers':
         specifier: ^2.0.11
         version: 2.0.11
-      '@inrixia/lib':
-        specifier: 'file:'
-        version: 'link:'
     devDependencies:
       musicbrainz-api:
         specifier: ^0.19.1

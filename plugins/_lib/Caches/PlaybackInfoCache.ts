@@ -2,9 +2,9 @@ import { audioQualities, AudioQuality } from "../AudioQualityTypes";
 import { Semaphore } from "../Semaphore";
 
 import { SharedObjectStoreExpirable } from "../storage/SharedObjectStoreExpirable";
-import { parseDasha } from "../nativeBridge";
 import { findModuleFunction } from "../findModuleFunction";
 import { ExtendedPlayackInfo, PlaybackInfo, ManifestMimeType, TidalManifest } from "./PlaybackInfoTypes";
+import { parseDasha } from "../native/dasha.native";
 
 const getCredentials = findModuleFunction<() => Promise<{ token: string; clientId: string }>>("getCredentials", "function");
 if (getCredentials === undefined) throw new Error("getCredentials method not found");

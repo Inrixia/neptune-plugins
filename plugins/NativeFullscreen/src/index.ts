@@ -1,4 +1,4 @@
-import { intercept, actions } from "@neptune";
+import { intercept } from "@neptune";
 import { settings } from "./Settings";
 
 let enterNormalFullscreen: true | undefined = undefined;

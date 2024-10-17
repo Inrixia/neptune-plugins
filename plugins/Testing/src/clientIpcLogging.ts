@@ -1,7 +1,6 @@
 import type { IpcRenderer, IpcRendererEvent } from "electron";
-
-import { getClientMessageChannelEnum } from "@inrixia/lib/nativeBridge/test";
 import { trace } from ".";
+import { getClientMessageChannelEnum } from "./test.native";
 
 const ClientMessageChannelEnum = getClientMessageChannelEnum();
 

@@ -18,52 +18,46 @@ const fileUrl: esbuild.Plugin = {
 			path: args.path,
 			pluginData: {
 				uri: args.path,
-				path: path.join(
-					args.resolveDir,
-					args.path.slice("file://".length).split("?")[0]
-				),
+				path: path.join(args.resolveDir, args.path.slice("file://".length).split("?")[0]),
 			},
 			namespace: "file-url",
 		}));
-		build.onLoad(
-			{ filter, namespace: "file-url" },
-			async ({ pluginData: { path, uri } }) => {
-				const { searchParams } = new URL(uri);
-				const base64 = searchParams.has("base64");
-				const minify = searchParams.has("minify");
-				const encoding = base64 ? "base64" : "utf-8";
+		build.onLoad({ filter, namespace: "file-url" }, async ({ pluginData: { path, uri } }) => {
+			const { searchParams } = new URL(uri);
+			const base64 = searchParams.has("base64");
+			const minify = searchParams.has("minify");
+			const encoding = base64 ? "base64" : "utf-8";
 
-				let content;
-				if (!minify) {
-					content = fs.readFileSync(path, encoding).trimEnd();
+			let content;
+			if (!minify) {
+				content = fs.readFileSync(path, encoding).trimEnd();
+			} else {
+				const file = fs.readFileSync(path, "utf-8");
+				if (path.endsWith(".html")) {
+					content = await minifyHtml(file, {
+						collapseWhitespace: true,
+						removeComments: true,
+						minifyCSS: true,
+						minifyJS: true,
+						removeEmptyAttributes: true,
+						removeRedundantAttributes: true,
+						removeScriptTypeAttributes: true,
+						removeStyleLinkTypeAttributes: true,
+						useShortDoctype: true,
+					});
+				} else if (path.endsWith(".css")) {
+					content = new CleanCSS().minify(file).styles;
 				} else {
-					const file = fs.readFileSync(path, "utf-8");
-					if (path.endsWith(".html")) {
-						content = await minifyHtml(file, {
-							collapseWhitespace: true,
-							removeComments: true,
-							minifyCSS: true,
-							minifyJS: true,
-							removeEmptyAttributes: true,
-							removeRedundantAttributes: true,
-							removeScriptTypeAttributes: true,
-							removeStyleLinkTypeAttributes: true,
-							useShortDoctype: true,
-						});
-					} else if (path.endsWith(".css")) {
-						content = new CleanCSS().minify(file).styles;
-					} else {
-						throw new Error(`Don't know how to minify file type: ${path}`);
-					}
-
-					if (base64) content = Buffer.from(content).toString("base64");
+					throw new Error(`Don't know how to minify file type: ${path}`);
 				}
 
-				return {
-					contents: `export default ${JSON.stringify(content)}`,
-				};
+				if (base64) content = Buffer.from(content).toString("base64");
 			}
-		);
+
+			return {
+				contents: `export default ${JSON.stringify(content)}`,
+			};
+		});
 	},
 };
 
@@ -71,13 +65,15 @@ const neptuneNativeImports: esbuild.Plugin = {
 	name: "neptuneNativeImports",
 	setup(build) {
 		build.onLoad({ filter: /.*[\/\\].+\.native\.[a-z]+/g }, async (args) => {
+			const globalName = "neptuneExports";
 			const result = await esbuild.build({
 				entryPoints: [args.path],
 				bundle: true,
 				minify,
+				treeShaking: true,
 				platform: "node",
 				format: "iife",
-				globalName: "neptuneExports",
+				globalName,
 				write: false,
 				external: nativeExternals,
 				plugins: [fileUrl],
@@ -92,26 +88,48 @@ const neptuneNativeImports: esbuild.Plugin = {
 				write: false,
 				metafile: true,
 				bundle: true,
+				// This breaks native calls via neptune api but we dont use those
 				minify,
+				treeShaking: true,
+				format: "esm",
 				external: nativeExternals,
 				plugins: [fileUrl],
 			});
 
-			const builtExports = Object.values(metafile.outputs)[0].exports;
+			const output = Object.values(metafile.outputs)[0];
+
+			const registerExports = `__${output.entryPoint}_registerExports`;
+			const invokeExport = `__${output.entryPoint}`;
 
 			return {
-				contents: `import {addUnloadable} from "@plugin";const contextId=NeptuneNative.createEvalScope(${JSON.stringify(
-					outputCode
-				)});${builtExports
-					.map(
-						(e) =>
-							`export ${
-								e == "default" ? "default " : `const ${e} =`
-							} NeptuneNative.getNativeValue(contextId,${JSON.stringify(e)})`
-					)
-					.join(
-						";"
-					)};addUnloadable(() => NeptuneNative.deleteEvalScope(contextId))`,
+				contents: `
+					// Ensure eval exposed
+					const scopeId = NeptuneNative.createEvalScope(${JSON.stringify(`
+						electron.ipcMain.removeHandler("${registerExports}");
+						electron.ipcMain.handle("${registerExports}", (_, code, globalName) => {
+							const exports = eval(\`(() => {\${code};return \${globalName};})()\`)
+							electron.ipcMain.removeHandler("${invokeExport}");
+							electron.ipcMain.handle("${invokeExport}", (_, exportName, ...args) => exports[exportName](...args));
+						});
+					`)});
+					// We dont need to persist the eval scope its bound to ipcMain.handle listener
+					NeptuneNative.deleteEvalScope(scopeId);
+
+					// Register the native code
+					await window.electron.ipcRenderer.invoke("${registerExports}", ${JSON.stringify(outputCode)}, "${globalName}");
+				
+					// Helper function for invoking exports
+					const invokeNative = (exportName) => (...args) => window.electron.ipcRenderer.invoke("${invokeExport}", exportName, ...args).catch((err) => {
+						err.stack = err.stack?.replaceAll("Error invoking remote method '${invokeExport}': Error: ", "");
+						throw err;
+					});
+
+					// Expose built exports via ipc
+					${output.exports.reduce((exports, _export) => {
+						const exportName = _export == "default" ? "default " : `const ${_export}`;
+						return (exports += `export ${exportName} = invokeNative("${_export}");`);
+					}, "")}
+				`,
 			};
 		});
 	},
@@ -121,16 +139,12 @@ const plugins = fs.readdirSync("./plugins");
 for (const plugin of plugins) {
 	if (plugin.startsWith("_")) continue;
 	const pluginPath = path.join("./plugins/", plugin);
-	const pluginPackage = JSON.parse(
-		fs.readFileSync(path.join(pluginPath, "package.json"), "utf8")
-	);
+	const pluginPackage = JSON.parse(fs.readFileSync(path.join(pluginPath, "package.json"), "utf8"));
 	const outfile = path.join("./dist", plugin, "index.js");
 
 	esbuild
 		.build({
-			entryPoints: [
-				"./" + path.join(pluginPath, pluginPackage.main ?? "index.js"),
-			],
+			entryPoints: ["./" + path.join(pluginPath, pluginPackage.main ?? "index.js")],
 			plugins: [fileUrl, neptuneNativeImports],
 			bundle: true,
 			minify,
@@ -143,7 +157,8 @@ for (const plugin of plugins) {
 			},
 		})
 		.then(() => {
-			fs.createReadStream(outfile)
+			fs
+				.createReadStream(outfile)
 				// It being md5 does not matter, this is for caching and not security
 				.pipe(crypto.createHash("md5").setEncoding("hex"))
 				.on("finish", function (this: crypto.Hash) {

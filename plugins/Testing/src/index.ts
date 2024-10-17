@@ -1,7 +1,7 @@
 import { interceptActions } from "@inrixia/lib/intercept/interceptActions";
-import { startNativeIpcLogging, stopNativeIpcLogging } from "@inrixia/lib/nativeBridge/test";
 
 import { startClientIpcLogging, stopClientIpcLogging } from "./clientIpcLogging";
+import { startNativeIpcLogging, stopNativeIpcLogging } from "./test.native";
 
 import { Tracer } from "@inrixia/lib/trace";
 export const trace = Tracer("[test]");

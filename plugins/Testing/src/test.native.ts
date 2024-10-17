@@ -1,8 +1,8 @@
 import { ipcMain, IpcMainEvent } from "electron";
-import { ClientMessageChannelEnum } from "./player.native";
-import { importNative, _default } from "./helpers.native";
+import { ClientMessageChannelEnum } from "@inrixia/lib/native/player.native";
+import { importNative, _default } from "@inrixia/lib/native/helpers.native";
 
-import { Tracer } from "../helpers/trace.native";
+import { Tracer } from "@inrixia/lib/native/helpers/trace.native";
 const trace = Tracer("[test.native]");
 
 export const AppEventEnum: Promise<Record<string, string>> = importNative("../original.asar/app/shared/AppEventEnum.js").then(_default);

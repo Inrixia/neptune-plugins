@@ -1,4 +1,4 @@
-import { ManifestMimeType, type ExtendedPlayackInfo } from "../../Caches/PlaybackInfoTypes";
+import { ManifestMimeType, type ExtendedPlayackInfo } from "../Caches/PlaybackInfoTypes";
 import { rejectNotOk, toBuffer, type DownloadProgress } from "./request/helpers.native";
 import { requestTrackStream } from "./request/requestTrack.native";
 import { createWriteStream } from "fs";
@@ -8,7 +8,7 @@ import path from "path";
 import { FlacStreamTagger, PictureType } from "flac-stream-tagger";
 import { requestStream } from "./request/requestStream.native";
 
-import type { MetaTags } from "../../makeTags";
+import type { MetaTags } from "../makeTags";
 import type { Readable } from "stream";
 
 export type { DownloadProgress } from "./request/helpers.native";

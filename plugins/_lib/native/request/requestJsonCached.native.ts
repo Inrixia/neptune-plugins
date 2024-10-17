@@ -1,6 +1,6 @@
-import { requestJson, ExtendedRequestOptions } from ".";
-
-import { libTrace } from "../../helpers/trace.native";
+import { libTrace } from "../helpers/trace.native";
+import { requestJson } from "./requestJson.native";
+import { ExtendedRequestOptions } from "./requestStream.native";
 
 const requestCache: Record<string, Promise<unknown>> = {};
 export const requestJsonCached = async <T>(url: string, options?: ExtendedRequestOptions): Promise<T> => {

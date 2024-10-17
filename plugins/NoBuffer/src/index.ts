@@ -3,8 +3,8 @@ import { intercept } from "@neptune";
 import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
 
 import { Tracer } from "@inrixia/lib/trace";
-import { voidTrack } from "@inrixia/lib/nativeBridge";
 import { PlaybackInfoCache } from "@inrixia/lib/Caches/PlaybackInfoCache";
+import { voidTrack } from "./voidTrack.native";
 const trace = Tracer("[NoBuffer]");
 
 let unblocking = false;

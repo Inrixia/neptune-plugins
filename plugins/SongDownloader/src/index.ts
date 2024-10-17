@@ -10,14 +10,14 @@ import safeUnload from "@inrixia/lib/safeUnload";
 
 import { settings } from "./Settings";
 import { ContextMenu } from "@inrixia/lib/ContextMenu";
+``;
 import { PlaybackInfoCache } from "@inrixia/lib/Caches/PlaybackInfoCache";
-import { openDialog, saveDialog } from "@inrixia/lib/nativeBridge";
-import { startTrackDownload, getDownloadProgress } from "@inrixia/lib/nativeBridge/request";
+import { openDialog, saveDialog } from "./electron.native";
+import { startTrackDownload, getDownloadProgress } from "@inrixia/lib/native/downloadTrack.native";
 import { makeTags } from "@inrixia/lib/makeTags";
 import { ExtendedMediaItem } from "@inrixia/lib/Caches/ExtendedTrackItem";
 import { MaxTrack } from "@inrixia/lib/MaxTrack";
 import { AudioQuality } from "@inrixia/lib/AudioQualityTypes";
-import { dialog } from "electron";
 export { Settings } from "./Settings";
 
 type DownloadButtoms = Record<string, HTMLButtonElement>;
