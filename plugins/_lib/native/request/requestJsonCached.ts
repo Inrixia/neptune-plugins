@@ -14,7 +14,7 @@ export const requestJsonCached: typeof rjcNative = async (url, options) => {
 		requestCache.put(apiRes, url).catch(libTrace.err.withContext("requestCache.put"));
 		return apiRes;
 	});
-	const cacheRes = await requestCache.get(url).catch(libTrace.err.withContext("requestCache.get"));
-	if (cacheRes !== undefined) return cacheRes;
+	const fastRes = await Promise.race([liveCacheRes, requestCache.get(url).catch(libTrace.err.withContext("requestCache.get"))]);
+	if (fastRes !== undefined) return fastRes;
 	return liveCacheRes;
 };
