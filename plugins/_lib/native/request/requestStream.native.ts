@@ -10,6 +10,7 @@ export const setDefaultUserAgent = async (userAgent: string) => (defaultUserAgen
 const rateLimitSema = new Semaphore(1);
 export type ExtendedRequestOptions = RequestOptions & { body?: string; rateLimit?: number };
 export const requestStream = async (url: string, options: ExtendedRequestOptions = {}): Promise<IncomingMessage> => {
+	const start = Date.now();
 	options.headers ??= {};
 	options.headers["user-agent"] = defaultUserAgent;
 	options.rateLimit ??= 0;
@@ -27,14 +28,14 @@ export const requestStream = async (url: string, options: ExtendedRequestOptions
 			if (res.statusCode === 429 || res.statusCode === 503) {
 				const retryAfter = parseInt(res.headers["retry-after"] ?? "1", 10);
 				options.rateLimit!++;
-				libTrace.debug(`[${res.statusCode}${statusMsg}] (${req.method})`, `[Attempt ${options.rateLimit}, Retry in ${retryAfter}s]`, url);
+				libTrace.debug(`[${res.statusCode}${statusMsg}] (${req.method} - ${Date.now() - start}ms)`, `[Attempt ${options.rateLimit}, Retry in ${retryAfter}s]`, url);
 				return setTimeout(() => {
 					release?.();
 					requestStream(url, options).then(resolve, reject);
 				}, retryAfter);
 			}
-			if (options.rateLimit! > 0) libTrace.debug(`[${res.statusCode}${statusMsg}] (${req.method})`, `[After ${options.rateLimit} attempts]`, url);
-			else libTrace.debug(`[${res.statusCode}${statusMsg}] (${req.method})`, url);
+			if (options.rateLimit! > 0) libTrace.debug(`[${res.statusCode}${statusMsg}] (${req.method} - ${Date.now() - start}ms)`, `[After ${options.rateLimit} attempts]`, url);
+			else libTrace.debug(`[${res.statusCode}${statusMsg}] (${req.method} - ${Date.now() - start}ms)`, url);
 			resolve(res);
 		});
 		req.on("error", reject);
