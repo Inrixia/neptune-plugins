@@ -23,6 +23,9 @@ export const openEditor = async (css: string) => {
 		return { action: "deny" };
 	});
 
+	ipcMain.removeHandler("THEMER_GET_CSS");
+	ipcMain.handle("THEMER_GET_CSS", () => css);
+
 	win.loadURL(`data:text/html;base64,${editor}`);
 };
 
