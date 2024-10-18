@@ -2,9 +2,6 @@ import { BrowserWindow, shell, ipcMain } from "electron";
 import editor from "file://editor.html?base64&minify";
 import path from "path";
 
-ipcMain.removeHandler("THEMER_SET_CSS");
-ipcMain.handle("THEMER_SET_CSS", setCSS);
-
 let win: BrowserWindow | null = null;
 export const openEditor = async (css: string) => {
 	if (win && !win.isDestroyed()) return win.focus();
@@ -37,5 +34,8 @@ const setCSS = async (event: any, css: string) => {
 		win.webContents.send("THEMER_SET_CSS", css);
 	});
 };
+
+ipcMain.removeHandler("THEMER_SET_CSS");
+ipcMain.handle("THEMER_SET_CSS", setCSS);
 
 export const closeEditor = async () => win && !win.isDestroyed() && win.close();
