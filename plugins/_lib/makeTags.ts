@@ -9,7 +9,7 @@ import type { IReleaseMatch, ITrack } from "musicbrainz-api";
 const includesLower = (string: string, includes: string) => string.toLowerCase().includes(includes.toLowerCase());
 
 export const fullTitle = (tidal: MediaItem | MediaItem["album"], musicBrainz?: ITrack | IReleaseMatch) => {
-	const brainzTitle = musicBrainz?.title;
+	const brainzTitle = musicBrainz?.title.replaceAll("’", "'");
 	const tidalTitle = tidal?.title;
 
 	let title = brainzTitle ?? tidalTitle;
