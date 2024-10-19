@@ -124,7 +124,7 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 	if (upc) tags.upc = upc;
 
 	// Musicbrainz
-	if (releaseTrack?.id) tags.musicbrainz_trackid = releaseTrack.id.toString();
+	if (releaseTrack?.recording?.id) tags.musicbrainz_trackid = releaseTrack.recording.id.toString();
 	if (releaseAlbum?.id) tags.musicbrainz_albumid = releaseAlbum.id.toString();
 
 	// Metadata resolution using Musicbrainz

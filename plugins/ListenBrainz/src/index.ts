@@ -21,7 +21,7 @@ const makeTrackPayload = async ({ metaTags, playbackStart, playbackContext, extT
 
 	const releaseTrack = await extTrackItem.releaseTrack();
 	const additional_info = {
-		recording_mbid: releaseTrack?.id,
+		recording_mbid: releaseTrack?.recording?.id,
 		isrc: extTrackItem.tidalTrack.isrc ?? releaseTrack?.recording.isrcs?.[0],
 		tracknumber: extTrackItem.tidalTrack.trackNumber,
 		music_service: MusicServiceDomain.TIDAL,
