@@ -162,7 +162,11 @@ importers:
         specifier: workspace:*
         version: link:../_lib
 
-  plugins/VolumeScroll: {}
+  plugins/VolumeScroll:
+    dependencies:
+      '@inrixia/lib':
+        specifier: workspace:*
+        version: link:../_lib
 
   plugins/_lib:
     dependencies:
