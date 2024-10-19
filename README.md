@@ -1,4 +1,4 @@
-## [Tidal Neptune](https://github.com/Inrixia/neptunectl/releases/tag/latest) Plugins
+# [Tidal Neptune](https://github.com/Inrixia/neptunectl/releases/tag/latest) Plugins
 This is a repository containing plugins I have made for the [Tidal Neptune Client](https://github.com/Inrixia/neptunectl/releases/tag/latest).  
 
 Want to chat, ask questions or hang out? Join the discord! **[discord.gg/jK3uHrJGx4](https://discord.gg/jK3uHrJGx4)**  
@@ -11,7 +11,7 @@ Then just paste the **Install Url** into the plugins page and hit enter.
 
 ![image](https://github.com/Inrixia/neptune-plugins/assets/6373693/a997156c-a281-46ec-992a-397a742dd146)
 
-# My Public Plugins
+## My Public Plugins
 You can see a list of all plugins including **unreleased** ones under the [**plugins directory**](https://github.com/Inrixia/neptune-plugins/tree/master/plugins)
 - [TidalTags](#Tidal-Tags)
 - [DiscordRPC](#DiscordRPC)
@@ -27,7 +27,43 @@ You can see a list of all plugins including **unreleased** ones under the [**plu
 - [NoBuffer](#NoBuffer)
 - [Small Window](#Small-Window)
 - [Downloader](#Downloader)
-  
+
+## Other Plugin Repositories
+- **[twnlink/neptune-plugins](https://github.com/twnlink/neptune-plugins)**
+
+## Contributing
+Contributing is super simple and really appreciated!
+
+1. Ensure you have **node** and **pnpm** installed.  
+Install NVM (https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating)
+```bash
+nvm install latest
+nvm use latest
+npm i -g pnpm
+```
+
+2. Clone the repo
+```bash
+git clone github.com/Inrixia/neptune-plugins
+cd neptune-plugins
+```
+
+3. Install the packages
+```bash
+pnpm i
+```
+
+4. Start dev environment
+```bash
+pnpm run watch
+```
+
+5. Install dev plugins  
+You can now install dev plugins in Neptune with the url `http://localhost:3000/PluginName`  
+Changes will automatically rebuild so all you need to do is hit refresh in the Neptune plugins menu.  
+
+# Plugins
+
 ## Tidal Tags
 <b>
 
@@ -258,6 +294,4 @@ Stream size            : 525 MiB (100%)
 MD5 of the unencoded content: 1401A5C520F16BADDEA6670EFF08200B
 ```
 
-## Other Plugin Repositories
-
-- **[twnlink/neptune-plugins](https://github.com/twnlink/neptune-plugins)**
+**Filename format** values use tags. Available values you can use are found here: https://github.com/Inrixia/neptune-plugins/blob/0ca5ba60306fa293b767ec3736a43dd381c19c80/plugins/_lib/makeTags.ts#L68-L87
