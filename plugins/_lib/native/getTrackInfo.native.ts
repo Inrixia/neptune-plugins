@@ -30,7 +30,7 @@ export const getTrackInfo = async (playbackContext: PlaybackContext, extPlayback
 
 	// Fallback to parsing metadata if info is not in context
 	if (bitDepth === null || sampleRate === null || duration === null) {
-		const stream = await requestTrackStream(extPlaybackInfo, { bytesWanted: 256, onProgress: ({ total }) => (trackInfo.bytes = total) });
+		const stream = await requestTrackStream(extPlaybackInfo, { bytesWanted: 8192, onProgress: ({ total }) => (trackInfo.bytes = total) });
 		// note that you cannot trust bytes to be populated until the stream is finished. parseStream will read the entire stream ensuring this
 		const { format } = await parseStream(stream, { mimeType: manifestMimeType === ManifestMimeType.Tidal ? manifest.mimeType : "audio/mp4" });
 
