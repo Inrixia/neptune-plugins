@@ -14,24 +14,25 @@ const unloadInterceptRequest = intercept("view/REQUEST_FULLSCREEN", () => {
 const onKeyDown = (event: KeyboardEvent) => {
 	if (event.key === "F11") {
 		event.preventDefault();
-		document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
 
-		if (!settings.useTidalFullscreen && !document.fullscreenElement) {
-			const bar = document.querySelector<HTMLElement>("div[class^='bar--']");
-			const contentContainer = document.querySelector<HTMLElement>("div[class^='mainContainer--'] > div[class^='containerRow--']");
+		const bar = document.querySelector<HTMLElement>("div[class^='bar--']");
+		const contentContainer = document.querySelector<HTMLElement>("div[class^='mainContainer--'] > div[class^='containerRow--']");
+		const wimp = document.querySelector<HTMLElement>("#wimp > div");
 
-			if (bar !== null && contentContainer !== null) {
-				if (document.fullscreenElement) {
-					// Exiting fullscreen
-					contentContainer.style.maxHeight = "";
-					bar.style.display = "";
-					document.body.removeAttribute("is-fullscreen");
-				} else {
-					// Entering fullscreen
-					contentContainer.style.maxHeight = `100%`;
-					bar.style.display = "none";
-					document.body.setAttribute("is-fullscreen", "");
-				}
+		if (document.fullscreenElement || wimp?.classList.contains("is-fullscreen")) {
+			// Exiting fullscreen
+			document.exitFullscreen();
+			if (wimp) wimp.classList.remove("is-fullscreen");
+			if (bar) bar.style.display = "";
+			if (contentContainer) contentContainer.style.maxHeight = "";
+		} else {
+			// Entering fullscreen
+			if (settings.useTidalFullscreen) {
+				if (wimp) wimp.classList.add("is-fullscreen");
+			} else {
+				document.documentElement.requestFullscreen();
+				if (bar) bar.style.display = "none";
+				if (contentContainer) contentContainer.style.maxHeight = `100%`;
 			}
 		}
 	}
