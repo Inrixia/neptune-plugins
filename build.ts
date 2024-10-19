@@ -98,8 +98,10 @@ const neptuneNativeImports: esbuild.Plugin = {
 
 			const output = Object.values(metafile.outputs)[0];
 
-			const registerExports = `__${output.entryPoint}_registerExports`;
-			const invokeExport = `__${output.entryPoint}`;
+			const entryPoint = output.entryPoint?.replace("plugins/", "");
+
+			const registerExports = `__${entryPoint}_registerExports`;
+			const invokeExport = `__${entryPoint}`;
 
 			return {
 				contents: `
@@ -120,8 +122,8 @@ const neptuneNativeImports: esbuild.Plugin = {
 				
 					// Helper function for invoking exports
 					const invokeNative = (exportName) => (...args) => window.electron.ipcRenderer.invoke("${invokeExport}", exportName, ...args).catch((err) => {
-						err.stack = err.stack?.replaceAll("Error invoking remote method '${invokeExport}': Error: ", "");
-						throw err;
+						const msg = err.stack?.replaceAll("Error invoking remote method '${invokeExport}': Error: ", "");
+						throw new Error(\`[${entryPoint}.\${exportName}] \${msg}\`);
 					});
 
 					// Expose built exports via ipc
