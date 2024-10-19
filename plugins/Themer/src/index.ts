@@ -4,10 +4,10 @@ import { getStorage } from "@inrixia/lib/storage";
 import { setStyle } from "@inrixia/lib/css/setStyle";
 import { closeEditor, openEditor as openEditorNative } from "./editor.native";
 
-const setCSS = (_, css: string) => {
+const setCSS = (_: unknown, css: string) => {
 	storage.css = css;
 	style.css = css;
-}
+};
 
 const storage = getStorage({ css: "" });
 export const openEditor = () => openEditorNative(storage.css);

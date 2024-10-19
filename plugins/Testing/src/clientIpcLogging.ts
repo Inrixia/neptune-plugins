@@ -1,11 +1,10 @@
-import type { IpcRenderer, IpcRendererEvent } from "electron";
 import { trace } from ".";
 import { getClientMessageChannelEnum } from "./test.native";
 
 const ClientMessageChannelEnum = getClientMessageChannelEnum();
 
 const ipcRenderer = window.electron.ipcRenderer;
-const ipcListeners: Record<string, (_: IpcRendererEvent, ...args: any[]) => void> = {};
+const ipcListeners: Record<string, (_: unknown, ...args: any[]) => void> = {};
 export const startClientIpcLogging = async () => {
 	for (const eventName of Object.values(await ClientMessageChannelEnum)) {
 		if (eventName === "client.playback.playersignal") continue; // This event is too spammy

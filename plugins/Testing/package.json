@@ -4,7 +4,6 @@
 	"author": "Inrixia",
 	"main": "./src/index.js",
 	"dependencies": {
-		"@inrixia/lib": "workspace:*",
-		"electron": "^31.3.0"
+		"@inrixia/lib": "workspace:*"
 	}
 }
