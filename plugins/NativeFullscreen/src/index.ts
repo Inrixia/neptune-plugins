@@ -11,11 +11,17 @@ const unloadInterceptAllowed = intercept("view/FULLSCREEN_ALLOWED", () => {
 const unloadInterceptRequest = intercept("view/REQUEST_FULLSCREEN", () => {
 	enterNormalFullscreen = true;
 });
+
+export const setTopBarVisibility = (visible: boolean) => {
+	const bar = document.querySelector<HTMLElement>("div[class^='bar--']");
+	if (bar) bar.style.display = visible ? "" : "none";
+};
+if (settings.alwaysHideTopBar) setTopBarVisibility(false);
+
 const onKeyDown = (event: KeyboardEvent) => {
 	if (event.key === "F11") {
 		event.preventDefault();
 
-		const bar = document.querySelector<HTMLElement>("div[class^='bar--']");
 		const contentContainer = document.querySelector<HTMLElement>("div[class^='mainContainer--'] > div[class^='containerRow--']");
 		const wimp = document.querySelector<HTMLElement>("#wimp > div");
 
@@ -23,7 +29,7 @@ const onKeyDown = (event: KeyboardEvent) => {
 			// Exiting fullscreen
 			document.exitFullscreen();
 			if (wimp) wimp.classList.remove("is-fullscreen");
-			if (bar) bar.style.display = "";
+			if (!settings.alwaysHideTopBar) setTopBarVisibility(true);
 			if (contentContainer) contentContainer.style.maxHeight = "";
 		} else {
 			// Entering fullscreen
@@ -31,12 +37,13 @@ const onKeyDown = (event: KeyboardEvent) => {
 				if (wimp) wimp.classList.add("is-fullscreen");
 			} else {
 				document.documentElement.requestFullscreen();
-				if (bar) bar.style.display = "none";
+				setTopBarVisibility(false);
 				if (contentContainer) contentContainer.style.maxHeight = `100%`;
 			}
 		}
 	}
 };
+
 window.addEventListener("keydown", onKeyDown);
 export const onUnload = () => {
 	unloadInterceptAllowed();
