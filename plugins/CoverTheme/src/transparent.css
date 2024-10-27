@@ -36,7 +36,8 @@ body,
 main,
 [class^="sidebarWrapper"],
 [class^="mainContainer"],
-[class^="tabListWrapper"] {
+[class^="tabListWrapper"],
+[class*="smallHeader--"] {
 	background: unset !important;
 }
 
@@ -73,8 +74,11 @@ main,
 }
 
 /* Use cover colors in album/artist/playlist overlay */
-.tidal-ui__z-stack > :not(:has(div)) {
+[class*="smallHeader--"]::before {
 	background-image: var(--cover-gradient) !important;
+	background-color: var(--wave-color-solid-base-brighter);
+	filter: unset;
+	background-blend-mode: normal;
 }
 
 /* Use cover colors in search results header */
