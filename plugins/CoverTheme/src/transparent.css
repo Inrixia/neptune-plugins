@@ -36,7 +36,6 @@ body,
 main,
 [class^="sidebarWrapper"],
 [class^="mainContainer"],
-[class^="tabListWrapper"],
 [class*="smallHeader--"] {
 	background: unset !important;
 }
@@ -93,4 +92,13 @@ main,
 [data-test="search-results-top"] > [class*="container"],
 [data-test="search-results-top"] > [class*="container"] > [class*="divider"] {
 	background-color: unset;
+}
+
+/* Tabs on user profile pages */
+[class^="tabListWrapper"] {
+	background-image: linear-gradient(
+		180deg,
+		rgb(var(--cover-DarkMuted)) 70%,
+		transparent
+	) !important;
 }
