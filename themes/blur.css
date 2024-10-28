@@ -21,6 +21,8 @@
 
 main > [class*="container--"],
 main > [data-type="page"],
+main > [class*="feed--"],
+main > [class*="wrapper--"],
 .__NEPTUNE_PAGE {
 	margin-bottom: 128px;
 }
