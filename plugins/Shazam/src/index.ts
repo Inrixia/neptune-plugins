@@ -8,6 +8,7 @@ const trace = Tracer("[Shazam]");
 
 import { settings } from "./Settings";
 import { recognizeTrack } from "./shazam.native";
+import { MaxTrack } from "@inrixia/lib/MaxTrack";
 export { Settings } from "./Settings";
 
 const addToPlaylist = async (playlistUUID: string, mediaItemIdsToAdd: string[]) => {
@@ -44,23 +45,26 @@ const handleDrop = async (event: DragEvent) => {
 			});
 			if (matches.length === 0) return trace.msg.warn(`No matches for ${file.name}`);
 			for (const shazamData of matches) {
-				const trackName = shazamData.track?.share?.subject ?? "Unknown";
+				const trackName = shazamData.track?.share?.subject ?? `${shazamData.track?.title ?? "unknown"} by ${shazamData.track?.artists?.[0] ?? "unknown"}"`;
+				const prefix = `[File: ${file.name}, Match: "${trackName}]`;
 				const isrc = shazamData.track?.isrc;
-				const isrcData = isrc !== undefined ? await fetchIsrc(isrc).catch(() => undefined) : undefined;
-				const ids = (isrcData?.data ?? []).map((track) => track.id);
-				if (ids.length > 0) {
-					trace.msg.log(`Adding ${trackName} to playlist`);
-					await addToPlaylist(
-						playlistUUID,
-						ids.filter((id) => id !== undefined)
-					);
-				} else {
-					trace.log(shazamData);
-					trace.msg.log(`Track ${trackName} is not avalible in Tidal`);
+				if (isrc === undefined) {
+					trace.msg.log(`${prefix} No isrc returned from Shazam cannot add to playlist.`);
+					continue;
 				}
+				let trackToAdd;
+				for await (trackToAdd of MaxTrack.getMaxTrackFromISRC(isrc)) {
+					if (MaxTrack.hasHiRes(trackToAdd)) break;
+				}
+				if (trackToAdd !== undefined) {
+					trace.msg.log(`Adding ${prefix}...`);
+					return await addToPlaylist(playlistUUID, [trackToAdd.id!.toString()]);
+				}
+				trace.log(shazamData);
+				trace.msg.err(`${prefix} Not avalible in Tidal.`);
 			}
 		} catch (err) {
-			trace.msg.err.withContext(`Failed to recognize ${file.name}`)(<Error>err);
+			trace.msg.err.withContext(`[File: ${file.name}] Failed to recognize!`)(<Error>err);
 		}
 	}
 };
