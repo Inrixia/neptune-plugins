@@ -45,9 +45,10 @@ const handleDrop = async (event: DragEvent) => {
 			});
 			if (matches.length === 0) return trace.msg.warn(`No matches for ${file.name}`);
 			for (const shazamData of matches) {
-				const trackName = shazamData.track?.share?.subject ?? `${shazamData.track?.title ?? "unknown"} by ${shazamData.track?.artists?.[0] ?? "unknown"}"`;
+				const trackName = shazamData.track?.share?.text ?? `${shazamData.track?.title ?? "unknown"} by ${shazamData.track?.artists?.[0] ?? "unknown"}"`;
 				const prefix = `[File: ${file.name}, Match: "${trackName}]`;
 				const isrc = shazamData.track?.isrc;
+				trace.log(shazamData);
 				if (isrc === undefined) {
 					trace.msg.log(`${prefix} No isrc returned from Shazam cannot add to playlist.`);
 					continue;
@@ -60,7 +61,6 @@ const handleDrop = async (event: DragEvent) => {
 					trace.msg.log(`Adding ${prefix}...`);
 					return await addToPlaylist(playlistUUID, [trackToAdd.id!.toString()]);
 				}
-				trace.log(shazamData);
 				trace.msg.err(`${prefix} Not avalible in Tidal.`);
 			}
 		} catch (err) {

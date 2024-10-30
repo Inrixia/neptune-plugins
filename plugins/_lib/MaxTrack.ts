@@ -25,24 +25,23 @@ export class MaxTrack {
 
 		return (this._maxTrackMap[itemId] = (async () => {
 			for (const isrc of isrcs) {
-				for await (const trackItem of this.getMaxTrackFromISRC(isrc)) {
-					if (this.hasHiRes(trackItem)) return trackItem;
+				for await (const trackItem of this.getMaxTrackFromISRC(isrc, this.hasHiRes)) {
+					return trackItem;
 				}
 			}
 			return false;
 		})());
 	}
-	public static async *getMaxTrackFromISRC(isrc: string): AsyncGenerator<TrackItem> {
+	public static async *getMaxTrackFromISRC(isrc: string, filter?: (trackItem: Resource) => boolean): AsyncGenerator<TrackItem> {
 		for await (const { resource } of fetchIsrcIterable(isrc)) {
-			if (resource?.id !== undefined && this.hasHiRes(<TrackItem>resource)) {
-				if (resource.artifactType !== "track") continue;
-				const trackItem = await MediaItemCache.ensureTrack(resource?.id);
-				if (trackItem !== undefined) yield trackItem;
-			}
+			if (resource?.id === undefined) continue;
+			if (resource.artifactType !== "track") continue;
+			if (filter && !filter(resource)) continue;
+			const trackItem = await MediaItemCache.ensureTrack(resource?.id);
+			if (trackItem !== undefined) yield trackItem;
 		}
-		return false;
 	}
-	public static hasHiRes(trackItem: TrackItem): boolean {
+	public static hasHiRes(trackItem: Resource | TrackItem): boolean {
 		const tags = trackItem.mediaMetadata?.tags;
 		if (tags === undefined) return false;
 		return tags.findIndex((tag) => tag === "HIRES_LOSSLESS") !== -1;
