@@ -1,33 +1,42 @@
+:root {
+	--cover-opacity: 0.5;
+	--cover-gradient: linear-gradient(
+		90deg,
+		rgb(var(--cover-DarkVibrant), var(--cover-opacity)),
+		rgb(var(--cover-LightVibrant), var(--cover-opacity))
+	);
+}
+
 body,
 #nowPlaying {
 	background-image: radial-gradient(
 			ellipse at top left,
-			rgb(var(--cover-DarkVibrant), 0.5),
+			rgb(var(--cover-DarkVibrant), var(--cover-opacity)),
 			transparent 70%
 		),
 		radial-gradient(
 			ellipse at center left,
-			rgb(var(--cover-Vibrant), 0.5),
+			rgb(var(--cover-Vibrant), var(--cover-opacity)),
 			transparent 70%
 		),
 		radial-gradient(
 			ellipse at bottom left,
-			rgb(var(--cover-LightMuted), 0.5),
+			rgb(var(--cover-LightMuted), var(--cover-opacity)),
 			transparent 70%
 		),
 		radial-gradient(
 			ellipse at top right,
-			rgb(var(--cover-LightVibrant), 0.5),
+			rgb(var(--cover-LightVibrant), var(--cover-opacity)),
 			transparent 70%
 		),
 		radial-gradient(
 			ellipse at center right,
-			rgb(var(--cover-Muted), 0.5),
+			rgb(var(--cover-Muted), var(--cover-opacity)),
 			transparent 70%
 		),
 		radial-gradient(
 			ellipse at bottom right,
-			rgb(var(--cover-DarkMuted), 0.5),
+			rgb(var(--cover-DarkMuted), var(--cover-opacity)),
 			transparent 70%
 		) !important;
 }
@@ -62,14 +71,6 @@ main,
 /* This looks weird when the background isn't dark, better to just remove it. */
 [class^="bottomGradient"] {
 	display: none;
-}
-
-:root {
-	--cover-gradient: linear-gradient(
-		90deg,
-		rgb(var(--cover-DarkVibrant), 0.5),
-		rgb(var(--cover-LightVibrant), 0.5)
-	);
 }
 
 /* Use cover colors in album/artist/playlist overlay */
