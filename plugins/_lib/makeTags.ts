@@ -101,7 +101,8 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 	)
 		.catch(() => undefined)
 		.then((res) => res?.[0]);
-	const { tidalTrack, releaseAlbum, releaseTrack, tidalAlbum } = await extTrackItem.everything();
+	const [tidalAlbum, releaseTrack, releaseAlbum] = await Promise.all([extTrackItem.tidalAlbum(), extTrackItem.releaseTrack(), extTrackItem.releaseAlbum()]);
+	const tidalTrack = extTrackItem.tidalTrack;
 
 	const tags: FlacTags = {};
 	if (tidalTrack.title !== undefined) tags.title = fullTitle(tidalTrack, releaseTrack);

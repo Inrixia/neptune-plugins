@@ -60,8 +60,12 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 		for (const index in trackItems) {
 			const trackItem = trackItems[index];
 			const trackId = trackItem.id!;
-			const maxItem = await MaxTrack.getMaxTrack(trackItem.id).catch(trace.msg.err.withContext(`Failed to create ${sourceName}`));
-			if (maxItem !== false && maxItem?.id !== undefined) {
+			if (trackId === undefined) continue;
+			const maxItem = await MaxTrack[settings.considerNewestRelease ? "getLatestMaxTrack" : "getMaxTrack"](trackId).catch(
+				trace.msg.err.withContext(`Skipping adding ${trackItem.title} to ${sourceName}`)
+			);
+			if (maxItem === false || maxItem === undefined) continue;
+			if (maxItem?.id !== undefined) {
 				if ((await MediaItemCache.ensure(trackId)) !== undefined) {
 					trace.msg.log(`Found Max quality for ${maxItem.title} in ${sourceName}! ${index}/${trackItems.length - 1} done.`);
 					trackIds.push(+maxItem.id);

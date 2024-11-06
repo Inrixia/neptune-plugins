@@ -104,13 +104,4 @@ export class ExtendedMediaItem {
 		}
 		return this._releaseTrack;
 	}
-
-	public async everything() {
-		return {
-			tidalTrack: this.tidalTrack,
-			tidalAlbum: await this.tidalAlbum(),
-			releaseTrack: await this.releaseTrack(),
-			releaseAlbum: await this.releaseAlbum(),
-		};
-	}
 }

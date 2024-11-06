@@ -46,7 +46,7 @@ const handleDrop = async (event: DragEvent) => {
 			if (matches.length === 0) return trace.msg.warn(`No matches for ${file.name}`);
 			for (const shazamData of matches) {
 				const trackName = shazamData.track?.share?.text ?? `${shazamData.track?.title ?? "unknown"} by ${shazamData.track?.artists?.[0] ?? "unknown"}"`;
-				const prefix = `[File: ${file.name}, Match: "${trackName}]`;
+				const prefix = `[File: ${file.name}, Match: ${trackName}]`;
 				const isrc = shazamData.track?.isrc;
 				trace.log(shazamData);
 				if (isrc === undefined) {
@@ -54,7 +54,8 @@ const handleDrop = async (event: DragEvent) => {
 					continue;
 				}
 				let trackToAdd;
-				for await (trackToAdd of MaxTrack.getMaxTrackFromISRC(isrc)) {
+				for await (trackToAdd of MaxTrack.getTracksFromISRC(isrc)) {
+					// Break on first HiRes track. Otherwise trackToAdd will just be the final track found.
 					if (MaxTrack.hasHiRes(trackToAdd)) break;
 				}
 				if (trackToAdd !== undefined) {
