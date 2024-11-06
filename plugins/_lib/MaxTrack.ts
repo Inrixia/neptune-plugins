@@ -8,13 +8,14 @@ export type TrackFilter = (trackItem: Resource) => boolean;
 export class MaxTrack {
 	public static getMaxTrack = AsyncCachable(async (itemId: ItemId): Promise<TrackItem | false> => {
 		for await (const trackItem of this.getTracksFromItemId(itemId, this.hasHiRes)) {
-			return trackItem;
+			if (trackItem.id !== itemId) return trackItem;
 		}
 		return false;
 	});
 	public static getLatestMaxTrack = AsyncCachable(async (itemId: ItemId): Promise<TrackItem | false> => {
 		let currentTrackItem: TrackItem | false = false;
 		for await (const trackItem of this.getTracksFromItemId(itemId)) {
+			if (trackItem.id === itemId) continue;
 			if (currentTrackItem === undefined) {
 				currentTrackItem = trackItem;
 				continue;
