@@ -20,11 +20,11 @@ export class ExtendedMediaItem {
 		return this.get(playbackContext.actualProductId);
 	}
 
-	public static async get(trackId?: ItemId) {
-		if (trackId === undefined) return undefined;
-		const trackItem = await MediaItemCache.ensure(trackId);
+	public static async get(itemId?: ItemId) {
+		if (itemId === undefined) return undefined;
+		const trackItem = await MediaItemCache.ensure(itemId);
 		if (trackItem === undefined) return undefined;
-		return new this(trackId, trackItem);
+		return new this(itemId, trackItem);
 	}
 
 	public async isrcs() {

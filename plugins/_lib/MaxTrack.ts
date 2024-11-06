@@ -2,20 +2,26 @@ import { fetchIsrcIterable, Resource } from "./api/tidal";
 import { AsyncCachable } from "./Caches/AsyncCachable";
 import { ExtendedMediaItem } from "./Caches/ExtendedTrackItem";
 import { MediaItemCache } from "./Caches/MediaItemCache";
-import { ItemId, TrackItem } from "neptune-types/tidal";
+import { ItemId, MediaItem, TrackItem } from "neptune-types/tidal";
 
 export type TrackFilter = (trackItem: Resource) => boolean;
 export class MaxTrack {
 	public static getMaxTrack = AsyncCachable(async (itemId: ItemId): Promise<TrackItem | false> => {
-		for await (const trackItem of this.getTracksFromItemId(itemId, this.hasHiRes)) {
-			if (trackItem.id !== itemId) return trackItem;
+		const extTrackItem = await ExtendedMediaItem.get(itemId);
+		if (extTrackItem === undefined) return false;
+		if (extTrackItem.tidalTrack.contentType === "track" && this.hasHiRes(extTrackItem.tidalTrack)) return false;
+
+		for await (const trackItem of this.getTracksFromMediaItem(extTrackItem, this.hasHiRes)) {
+			return trackItem;
 		}
 		return false;
 	});
 	public static getLatestMaxTrack = AsyncCachable(async (itemId: ItemId): Promise<TrackItem | false> => {
+		const extTrackItem = await ExtendedMediaItem.get(itemId);
+		if (extTrackItem === undefined) return false;
+
 		let currentTrackItem: TrackItem | false = false;
-		for await (const trackItem of this.getTracksFromItemId(itemId)) {
-			if (trackItem.id === itemId) continue;
+		for await (const trackItem of this.getTracksFromMediaItem(extTrackItem)) {
 			if (currentTrackItem === undefined) {
 				currentTrackItem = trackItem;
 				continue;
@@ -35,18 +41,15 @@ export class MaxTrack {
 		}
 		return currentTrackItem;
 	});
-	public static async *getTracksFromItemId(itemId: ItemId, filter?: TrackFilter): AsyncGenerator<TrackItem> {
-		const extTrackItem = await ExtendedMediaItem.get(itemId);
-		if (extTrackItem === undefined) return;
+	public static async *getTracksFromMediaItem(extMediaItem: ExtendedMediaItem, filter?: TrackFilter): AsyncGenerator<TrackItem> {
+		const { tidalTrack } = extMediaItem;
 
-		const { tidalTrack } = extTrackItem;
-		if (tidalTrack.contentType !== "track") return;
-
-		const isrcs = await extTrackItem.isrcs();
+		const isrcs = await extMediaItem.isrcs();
 		if (isrcs.size === 0) return;
 
 		for (const isrc of isrcs) {
 			for await (const trackItem of this.getTracksFromISRC(isrc, filter)) {
+				if (trackItem.id === tidalTrack.id) continue;
 				yield trackItem;
 			}
 		}
