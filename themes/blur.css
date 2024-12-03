@@ -19,12 +19,9 @@
 	backdrop-filter: blur(var(--blur-radius));
 }
 
-main > [class*="container--"],
-main > [data-type="page"],
-main > [class*="feed--"],
-main > [class*="wrapper--"],
+[data-type="page"],
 .__NEPTUNE_PAGE {
-	margin-bottom: 128px;
+	padding-bottom: 128px;
 }
 
 [class^="containerRow"] {
