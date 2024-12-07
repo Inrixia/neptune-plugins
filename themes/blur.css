@@ -76,7 +76,7 @@
 }
 
 [class^="sidebarWrapper"] {
-	padding-bottom: 96px;
+	padding-bottom: 96px !important;
 }
 
 #feedSidebar,
