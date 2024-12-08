@@ -21,7 +21,7 @@
 
 [data-type="page"],
 .__NEPTUNE_PAGE {
-	padding-bottom: 128px;
+	padding-bottom: 128px !important;
 }
 
 [class^="containerRow"] {
@@ -76,7 +76,7 @@
 }
 
 [class^="sidebarWrapper"] {
-	padding-bottom: 96px !important;
+	padding-bottom: 96px;
 }
 
 #feedSidebar,
