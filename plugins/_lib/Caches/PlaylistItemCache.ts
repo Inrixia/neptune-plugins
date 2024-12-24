@@ -21,9 +21,13 @@ export class PlaylistCache {
 	public static async updateTrackItems(playlistUUID: ItemId) {
 		const result = await interceptPromise(
 			() => actions.content.loadListItemsPage({ loadAll: true, listName: `playlists/${playlistUUID}`, listType: "mediaItems" }),
-			["content/LOAD_LIST_ITEMS_PAGE_SUCCESS"],
+			[
+				"content/LOAD_LIST_ITEMS_PAGE_SUCCESS",
+				// @ts-expect-error Outdated types
+				"content/LOAD_LIST_ITEMS_PAGE_SUCCESS_MODIFIED",
+			],
 			["content/LOAD_LIST_ITEMS_PAGE_FAIL"],
-			{ timeoutMs: 2000 }
+			{ timeoutMs: 3000 }
 		).catch(libTrace.warn.withContext("PlaylistCache.getTrackItems.interceptPromise"));
 		if (result?.[0]?.items === undefined) {
 			const playlistTrackItems = await this._trackItemsCache.get(playlistUUID);
