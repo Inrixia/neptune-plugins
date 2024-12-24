@@ -2,7 +2,7 @@ import { ManifestMimeType, type ExtendedPlayackInfo } from "../Caches/PlaybackIn
 import { rejectNotOk, toBuffer, type DownloadProgress } from "./request/helpers.native";
 import { requestTrackStream } from "./request/requestTrack.native";
 import { createWriteStream } from "fs";
-import { mkdir } from "fs/promises";
+import { mkdir, stat } from "fs/promises";
 import path from "path";
 
 import { FlacStreamTagger, PictureType } from "flac-stream-tagger";
@@ -40,6 +40,11 @@ const addTags = async (extPlaybackInfo: ExtendedPlayackInfo, stream: Readable, m
 	return stream;
 };
 
+const exists = (path: string): Promise<boolean> =>
+	stat(path)
+		.catch(() => false)
+		.then(() => true);
+
 export type PathInfo = {
 	fileName?: string;
 	folderPath: string;
@@ -55,9 +60,15 @@ export const startTrackDownload = async (extPlaybackInfo: ExtendedPlayackInfo, p
 	try {
 		const folderPath = path.join(pathInfo.basePath ?? "", pathInfo.folderPath);
 		if (folderPath !== ".") await mkdir(folderPath, { recursive: true });
+		const fileName = `${folderPath}${pathSeparator}${pathInfo.fileName}`;
+		// Dont download if exists
+		if (await exists(fileName)) {
+			delete downloadStatus[pathKey];
+			return Promise.resolve();
+		}
 		const stream = await requestTrackStream(extPlaybackInfo, { onProgress: (progress) => (downloadStatus[pathKey] = progress) });
 		const metaStream = await addTags(extPlaybackInfo, stream, metaTags);
-		const writeStream = createWriteStream(`${folderPath}${pathSeparator}${pathInfo.fileName}`);
+		const writeStream = createWriteStream(fileName);
 		return new Promise((res, rej) =>
 			metaStream
 				.pipe(writeStream)
