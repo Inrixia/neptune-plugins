@@ -56,7 +56,8 @@ export class ExtendedMediaItem {
 			.catch(libTrace.warn.withContext("MusicBrainz.getUPCReleases"));
 
 		// Try validate if the album is valid because sometimes tidal has the wrong upc id!
-		if (releaseAlbum !== undefined && tidalAlbum.numberOfTracks !== undefined && releaseAlbum.media[(this.tidalTrack.volumeNumber ?? 1) - 1]["track-count"] !== tidalAlbum.numberOfTracks) {
+		const releaseAlbumTrackCount = releaseAlbum?.media?.[(this.tidalTrack.volumeNumber ?? 1) - 1]?.["track-count"];
+		if (releaseAlbumTrackCount !== undefined && tidalAlbum.numberOfTracks !== undefined && releaseAlbumTrackCount !== tidalAlbum.numberOfTracks) {
 			libTrace.warn("Invalid Tidal UPC for album!", { releaseAlbum, tidalAlbum });
 			return undefined;
 		}
