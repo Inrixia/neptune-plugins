@@ -48,6 +48,7 @@ const resolveArtist = (trackItem: MediaItem, album?: Album) => {
 export type FlacTags = {
 	title?: string;
 	trackNumber?: string;
+	discNumber?: string;
 	date?: string;
 	copyright?: string;
 	REPLAYGAIN_TRACK_GAIN?: string;
@@ -68,6 +69,7 @@ export type FlacTags = {
 export const availableTags: (keyof FlacTags)[] = [
 	"title",
 	"trackNumber",
+	"discNumber",
 	"date",
 	"copyright",
 	"REPLAYGAIN_TRACK_GAIN",
@@ -116,6 +118,8 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 		if (tidalTrack.copyright) tags.copyright = tidalTrack.copyright;
 		if (tidalTrack.replayGain) tags.REPLAYGAIN_TRACK_GAIN = tidalTrack.replayGain.toString();
 	}
+
+	if (tidalTrack.volumeNumber !== undefined) tags.discNumber = tidalTrack.volumeNumber.toString();
 
 	// track isrc & album upc
 	const isrc = tidalTrack.isrc ?? releaseTrack?.recording.isrcs?.[0];
