@@ -42,8 +42,8 @@ const addTags = async (extPlaybackInfo: ExtendedPlayackInfo, stream: Readable, m
 
 const exists = (path: string): Promise<boolean> =>
 	stat(path)
-		.catch(() => false)
-		.then(() => true);
+		.then(() => true)
+		.catch(() => false);
 
 export type PathInfo = {
 	fileName?: string;
