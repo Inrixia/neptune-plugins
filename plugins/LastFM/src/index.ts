@@ -17,7 +17,7 @@ const makeScrobbleOpts = ({ metaTags, playbackStart, playbackContext }: CurrentT
 		trackNumber: tags.trackNumber,
 		mbid: tags.musicbrainz_trackid,
 		timestamp: (playbackStart / 1000).toFixed(0),
-		duration: playbackContext.actualDuration.toFixed(0),
+		// duration: playbackContext.actualDuration.toFixed(0),
 	};
 	// @ts-expect-error TS really hates iterating keys cuz its unsafe
 	for (const key in scrobbleOpts) if (scrobbleOpts[key] === undefined) delete scrobbleOpts[key];
