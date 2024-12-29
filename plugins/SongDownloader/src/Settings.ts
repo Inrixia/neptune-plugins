@@ -10,7 +10,7 @@ const defaultFilenameFormat = "{artist} - {album} - {title}";
 export const settings = getSettings({
 	desiredDownloadQuality: AudioQuality.HiRes,
 	defaultDownloadPath: "",
-	alwaysUseDefaultPath: true,
+	alwaysUseDefaultPath: false,
 	filenameFormat: defaultFilenameFormat,
 	useRealMAX: true,
 });
