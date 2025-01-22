@@ -65,6 +65,7 @@ export type FlacTags = {
 	organization?: string;
 	totalTracks?: string;
 	lyrics?: string;
+	year?: string;
 };
 export const availableTags: (keyof FlacTags)[] = [
 	"title",
@@ -86,6 +87,7 @@ export const availableTags: (keyof FlacTags)[] = [
 	"organization",
 	"totalTracks",
 	"lyrics",
+	"year",
 ];
 
 export type MetaTags = {
@@ -110,7 +112,7 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 	if (tidalTrack.title !== undefined) tags.title = fullTitle(tidalTrack, releaseTrack);
 
 	if (tidalTrack.trackNumber !== undefined) tags.trackNumber = tidalTrack.trackNumber.toString();
-	if (tidalTrack.releaseDate !== undefined) tags.date = tidalTrack.releaseDate;
+	if (tidalTrack.streamStartDate !== undefined) tags.date = tidalTrack.streamStartDate;
 	if (tidalTrack.peak) tags.REPLAYGAIN_TRACK_PEAK = tidalTrack.peak.toString();
 	if (tidalTrack.url) tags.comment = tidalTrack.url;
 
@@ -147,12 +149,23 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 		if (tidalAlbum.recordLabel) tags.organization = tidalAlbum.recordLabel;
 		if (tidalAlbum.numberOfTracks) tags.totalTracks = tidalAlbum.numberOfTracks.toString();
 		if (!tags.date && tidalAlbum.releaseDate) tags.date = tidalAlbum.releaseDate;
-		if (!tags.date && tidalAlbum.releaseYear) tags.date = tidalAlbum.releaseYear.toString();
+		if (tidalAlbum.releaseYear) tags.year = tidalAlbum.releaseYear.toString();
 		cover ??= tidalAlbum.cover;
 	}
 
 	const _lyrics = (await lyrics)?.lyrics;
 	if (_lyrics !== undefined) tags.lyrics = _lyrics;
+
+	if (tags.date !== undefined) {
+		const date = new Date(tags.date);
+
+		tags.year = date.getFullYear().toString();
+		const month = String(date.getMonth() + 1).padStart(2, "0");
+		const day = String(date.getDate()).padStart(2, "0");
+
+		tags.date = `${tags.year}-${month}-${day}`;
+		console.log(tags.date);
+	}
 
 	// Ensure core tags are set
 	tags.album ??= "Unknown Album";
