@@ -54,10 +54,10 @@ const handleDrop = async (event: DragEvent) => {
 					continue;
 				}
 				let trackToAdd;
-				for await (trackToAdd of MaxTrack.getTracksFromISRC(isrc)) {
-					// Break on first HiRes track. Otherwise trackToAdd will just be the final track found.
-					if (MaxTrack.hasHiRes(trackToAdd)) break;
-				}
+				// for await (trackToAdd of MaxTrack.getTracksFromISRC(isrc)) {
+				// 	// Break on first HiRes track. Otherwise trackToAdd will just be the final track found.
+				// 	if (MaxTrack.hasHiRes(trackToAdd)) break;
+				// }
 				if (trackToAdd !== undefined) {
 					trace.msg.log(`Adding ${prefix}...`);
 					return await addToPlaylist(playlistUUID, [trackToAdd.id!.toString()]);

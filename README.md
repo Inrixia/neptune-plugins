@@ -129,15 +129,17 @@ Scrobbles and sets currently playing for [**ListenBrainz**](https://listenbrainz
 
 ## RealMAX
 
-Install Url:
+Tidal has quietly removed their api endpoint for looking up tracks by ISRC. This plugin no longer works due to this change, please disable it if you have it installed.
+
+~~Install Url:~~
 
 ```
 https://inrixia.github.io/neptune-plugins/RealMAX
 ```
 
-Tidal oftern has multiple versions of the same song at different qualities.
+~~Tidal oftern has multiple versions of the same song at different qualities.
 With RealMAX when playing a song if there is a version available at a higher quality it will automatically be added as the next song in the queue and skipped to.
-This ensures you are **always listening to the best quality of a song**
+This ensures you are **always listening to the best quality of a song**~~
 
 ## Volume Scroll
 

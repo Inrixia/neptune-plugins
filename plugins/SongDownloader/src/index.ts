@@ -101,11 +101,11 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 
 const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods, folderPath?: string) => {
 	let trackId = trackItem.id!;
-	if (settings.useRealMAX && settings.desiredDownloadQuality === AudioQuality.HiRes) {
-		updateMethods.set("Checking RealMAX for better quality...");
-		const maxTrack = await MaxTrack.getMaxTrack(trackId);
-		if (maxTrack !== false) trackId = +maxTrack.id!;
-	}
+	// if (settings.useRealMAX && settings.desiredDownloadQuality === AudioQuality.HiRes) {
+	// 	updateMethods.set("Checking RealMAX for better quality...");
+	// 	const maxTrack = await MaxTrack.getMaxTrack(trackId);
+	// 	if (maxTrack !== false) trackId = +maxTrack.id!;
+	// }
 
 	updateMethods.set("Fetching playback info & tags...");
 	const playbackInfo = PlaybackInfoCache.ensure(trackId, settings.desiredDownloadQuality);
