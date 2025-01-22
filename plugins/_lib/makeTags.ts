@@ -98,14 +98,7 @@ export type MetaTags = {
 const getMediaURLFromID = (id?: string, path = "/1280x1280.jpg") => (id ? "https://resources.tidal.com/images/" + id.split("-").join("/") + path : undefined);
 
 export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTags> => {
-	const lyrics = interceptPromise(
-		() => actions.content.loadItemLyrics({ itemId: extTrackItem.tidalTrack.id!, itemType: "track" }),
-		["content/LOAD_ITEM_LYRICS_SUCCESS"],
-		["content/LOAD_ITEM_LYRICS_FAIL"]
-	)
-		.catch(() => undefined)
-		.then((res) => res?.[0]);
-	const [tidalAlbum, releaseTrack, releaseAlbum] = await Promise.all([extTrackItem.tidalAlbum(), extTrackItem.releaseTrack(), extTrackItem.releaseAlbum()]);
+	const [tidalAlbum, releaseTrack, releaseAlbum, lyrics] = await Promise.all([extTrackItem.tidalAlbum(), extTrackItem.releaseTrack(), extTrackItem.releaseAlbum(), extTrackItem.lyrics()]);
 	const tidalTrack = extTrackItem.tidalTrack;
 
 	const tags: FlacTags = {};
@@ -153,8 +146,7 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 		cover ??= tidalAlbum.cover;
 	}
 
-	const _lyrics = (await lyrics)?.lyrics;
-	if (_lyrics !== undefined) tags.lyrics = _lyrics;
+	if (lyrics?.lyrics !== undefined) tags.lyrics = lyrics.lyrics;
 
 	if (tags.date !== undefined) {
 		const date = new Date(tags.date);
@@ -164,7 +156,6 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 		const day = String(date.getDate()).padStart(2, "0");
 
 		tags.date = `${tags.year}-${month}-${day}`;
-		console.log(tags.date);
 	}
 
 	// Ensure core tags are set

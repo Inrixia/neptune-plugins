@@ -7,10 +7,16 @@ import getPlaybackControl from "../getPlaybackControl";
 
 import type { IRecording, IRelease, IReleaseMatch, ITrack } from "musicbrainz-api";
 import { requestJsonCached } from "../native/request/requestJsonCached";
+import { interceptPromise } from "../intercept/interceptPromise";
+import { actions } from "@neptune";
+import { PayloadActionTypeTuple } from "neptune-types/api/intercept";
 
 export class ExtendedMediaItem {
 	private _releaseTrack?: ITrack;
 	private _releaseAlbum?: IReleaseMatch;
+	private _lyrics?: PayloadActionTypeTuple<"content/LOAD_ITEM_LYRICS_SUCCESS">[0];
+
+	private static _ExtendedMediaItems: Record<ItemId, ExtendedMediaItem> = {};
 
 	private constructor(public readonly trackId: ItemId, public readonly tidalTrack: MediaItem) {}
 
@@ -24,7 +30,8 @@ export class ExtendedMediaItem {
 		if (itemId === undefined) return undefined;
 		const trackItem = await MediaItemCache.ensure(itemId);
 		if (trackItem === undefined) return undefined;
-		return new this(itemId, trackItem);
+		this._ExtendedMediaItems[itemId] ??= new this(itemId, trackItem);
+		return this._ExtendedMediaItems[itemId];
 	}
 
 	public async isrcs() {
@@ -37,6 +44,17 @@ export class ExtendedMediaItem {
 		if (trackItem.isrc) isrcs.push(trackItem.isrc);
 
 		return new Set(isrcs);
+	}
+
+	public async lyrics() {
+		if (this._lyrics !== undefined) return this._lyrics;
+		return (this._lyrics = await interceptPromise(
+			() => actions.content.loadItemLyrics({ itemId: this.tidalTrack.id!, itemType: "track" }),
+			["content/LOAD_ITEM_LYRICS_SUCCESS"],
+			["content/LOAD_ITEM_LYRICS_FAIL"]
+		)
+			.catch(() => undefined)
+			.then((res) => res?.[0]));
 	}
 
 	public tidalAlbum(): Promise<Album | undefined> {
