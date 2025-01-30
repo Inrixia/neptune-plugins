@@ -60,7 +60,7 @@ export class MaxTrack {
 			if (track.type !== "tracks") continue;
 			if (filter && !filter(track)) continue;
 			const trackItem = await MediaItemCache.ensureTrack(track.id);
-			if (trackItem !== undefined) yield trackItem;
+			if (trackItem?.id !== undefined) yield trackItem;
 		}
 	}
 	public static hasHiRes(trackItem: TrackItem): boolean {

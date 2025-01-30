@@ -19,6 +19,6 @@ export async function* fetchIsrcIterable(isrc: string): AsyncIterable<TApiTrack>
 		const resp: TApiTracks = await fetchTidal<TApiTracks>(next);
 		if (resp?.data === undefined || resp.data.length === 0) break;
 		yield* resp.data;
-		next = `${baseURL}${resp.links.next}`;
+		next = resp.links.next === undefined ? undefined : `${baseURL}${resp.links.next}`;
 	}
 }

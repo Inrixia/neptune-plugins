@@ -13,28 +13,75 @@ import { MaxTrack } from "@inrixia/lib/MaxTrack";
 import { ContextMenu } from "@inrixia/lib/ContextMenu";
 import { AlbumCache } from "@inrixia/lib/Caches/AlbumCache";
 import { settings } from "./Settings";
+import type { PlayQueueItem } from "neptune-types/tidal";
 
 export { Settings } from "./Settings";
 
-const unloadIntercept = intercept(
-	"playbackControls/MEDIA_PRODUCT_TRANSITION",
-	debounce(async () => {
-		const { elements, currentIndex } = store.getState().playQueue;
-		const queueId = elements[currentIndex]?.mediaItemId;
-		const nextQueueId = elements[currentIndex + 1]?.mediaItemId;
+const maxQueueItem = async (elements: readonly PlayQueueItem[], currentIndex: number, jumpTo?: number) => {
+	jumpTo ??= currentIndex;
+	const newElements = [...elements];
+	const currentId = newElements[currentIndex].mediaItemId;
+	const maxItem = await MaxTrack.getMaxTrack(currentId);
+	MaxTrack.getMaxTrack(newElements[currentIndex + 1].mediaItemId);
+	if (maxItem !== false && maxItem.id !== undefined) {
+		newElements[currentIndex].mediaItemId = maxItem.id;
+		actions.playQueue.reset({
+			elements: newElements,
+			currentIndex: jumpTo,
+		});
+		return true;
+	}
+	return false;
+};
 
-		const maxItem = await MaxTrack.getMaxTrack(queueId);
-		if (maxItem === false) return;
-		if (maxItem.id !== undefined && nextQueueId !== maxItem.id) {
-			if (settings.displayInfoPopups) trace.msg.log(`Found Max quality for ${maxItem.title}! Adding to queue and skipping...`);
-			actions.playQueue.addNext({ mediaItemIds: [maxItem.id], context: { type: "user" } });
+const unloadTransition = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", ([{ mediaProduct }]) => {
+	actions.playbackControls.pause();
+	(async () => {
+		const productId: string = (<any>mediaProduct).productId;
+		const maxItem = await MaxTrack.getMaxTrack(productId);
+		if (maxItem !== false && maxItem.id !== undefined) {
+			actions.playQueue.addNext({ mediaItemIds: [maxItem.id], context: { type: "UNKNOWN" } });
 			actions.playQueue.moveNext();
 		}
-		// Preload next two
-		MaxTrack.getMaxTrack(elements[currentIndex + 1]?.mediaItemId);
-		MaxTrack.getMaxTrack(elements[currentIndex + 2]?.mediaItemId);
-	}, 125)
-);
+		actions.playbackControls.play();
+	})();
+});
+
+const unloadAddNow = intercept("playQueue/ADD_NOW", ([payload]) => {
+	(async () => {
+		const mediaItemIds = [...payload.mediaItemIds];
+		const currentIndex = payload.fromIndex ?? 0;
+		const maxItem = await MaxTrack.getMaxTrack(mediaItemIds[currentIndex]);
+		if (maxItem !== false && maxItem.id !== undefined) mediaItemIds[currentIndex] = maxItem.id;
+		actions.playQueue.addNow({ ...payload, mediaItemIds });
+	})();
+	return true;
+});
+
+const unloadSkip = intercept(["playQueue/MOVE_TO", "playQueue/MOVE_NEXT", "playQueue/MOVE_PREVIOUS"], ([payload, action]) => {
+	(async () => {
+		const { elements, currentIndex } = store.getState().playQueue;
+		switch (action) {
+			case "playQueue/MOVE_NEXT":
+				if ((await maxQueueItem(elements, currentIndex + 1)) === false) actions.playQueue.moveNext();
+				break;
+			case "playQueue/MOVE_PREVIOUS":
+				if ((await maxQueueItem(elements, currentIndex - 1)) === false) actions.playQueue.movePrevious();
+				break;
+			case "playQueue/MOVE_TO":
+				if ((await maxQueueItem(elements, payload ?? currentIndex)) === false) actions.playQueue.moveTo(payload ?? currentIndex);
+				break;
+		}
+		actions.playbackControls.play();
+	})();
+	return true;
+});
+
+const unloadIntercept = () => {
+	unloadTransition();
+	unloadAddNow();
+	unloadSkip();
+};
 
 ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 	document.getElementById("realMax-button")?.remove();
