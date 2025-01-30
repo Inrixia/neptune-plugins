@@ -109,7 +109,7 @@ const downloadTrack = async (trackItem: TrackItem, updateMethods: ButtonMethods,
 
 	updateMethods.set("Fetching playback info & tags...");
 	const playbackInfo = PlaybackInfoCache.ensure(trackId, settings.desiredDownloadQuality);
-	const metaTags = makeTags((await ExtendedMediaItem.get(trackId))!);
+	const metaTags = makeTags((await ExtendedMediaItem.getTrack(trackId))!);
 	const pathInfo = parseFileName(await metaTags, await playbackInfo);
 
 	pathInfo.basePath = folderPath;

@@ -74,7 +74,7 @@ const setRPC = (activity?: SetActivity) => setActivity(activity).catch(trace.err
 
 const unloadTransition = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", ([media]) => {
 	const mediaProduct = media.mediaProduct as { productId: string };
-	MediaItemCache.ensure(mediaProduct.productId)
+	MediaItemCache.ensureTrack(mediaProduct.productId)
 		.then((track) => {
 			if (track) update({ track, time: 0 });
 		})
@@ -97,7 +97,7 @@ const unloadPause = intercept("playbackControls/PAUSE", () => {
 const { playbackContext, playbackState, latestCurrentTime } = getPlaybackControl();
 
 update({
-	track: await MediaItemCache.ensure(playbackContext?.actualProductId),
+	track: await MediaItemCache.ensureTrack(playbackContext?.actualProductId),
 	time: latestCurrentTime,
 	paused: playbackState !== "PLAYING",
 });

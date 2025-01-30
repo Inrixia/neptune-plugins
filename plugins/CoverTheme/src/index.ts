@@ -27,7 +27,7 @@ async function updateBackground(productId: string) {
 	if (prevSong === productId) return;
 	prevSong = productId;
 
-	const mediaItem = await MediaItemCache.ensure(productId);
+	const mediaItem = await MediaItemCache.ensureTrack(productId);
 	if (!mediaItem || !mediaItem.album?.cover) return;
 
 	if (prevCover === mediaItem.album.cover) return;
@@ -56,7 +56,7 @@ const unloadTransition = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", 
 // @ts-expect-error - Neptune doesn't type this action
 const unloadPreload = intercept("player/PRELOAD_ITEM", async ([item]: any[]) => {
 	if (item.productType !== "track") return;
-	const mediaItem = await MediaItemCache.ensure(item.productId);
+	const mediaItem = await MediaItemCache.ensureTrack(item.productId);
 	if (!mediaItem || !mediaItem.album?.cover) return;
 	getPaletteCached(mediaItem.album.cover);
 });

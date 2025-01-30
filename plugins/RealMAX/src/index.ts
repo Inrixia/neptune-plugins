@@ -65,7 +65,7 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 			);
 			if (maxItem === false || maxItem === undefined) continue;
 			if (maxItem?.id !== undefined) {
-				if ((await MediaItemCache.ensure(trackId)) !== undefined) {
+				if ((await MediaItemCache.ensureTrack(trackId)) !== undefined) {
 					trace.msg.log(`Found Max quality for ${maxItem.title} in ${sourceName}! ${index}/${trackItems.length - 1} done.`);
 					trackIds.push(+maxItem.id);
 					maxIdsFound++;

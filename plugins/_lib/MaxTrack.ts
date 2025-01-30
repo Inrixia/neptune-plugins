@@ -7,7 +7,7 @@ import { ItemId, MediaItem, TrackItem } from "neptune-types/tidal";
 export type TrackFilter = (trackItem: TApiTrack) => boolean;
 export class MaxTrack {
 	public static getMaxTrack = AsyncCachable(async (itemId: ItemId): Promise<TrackItem | false> => {
-		const extTrackItem = await ExtendedMediaItem.get(itemId);
+		const extTrackItem = await ExtendedMediaItem.getTrack(itemId);
 		if (extTrackItem === undefined) return false;
 		if (extTrackItem.tidalTrack.contentType === "track" && this.hasHiRes(extTrackItem.tidalTrack)) return false;
 
@@ -17,7 +17,7 @@ export class MaxTrack {
 		return false;
 	});
 	public static getLatestMaxTrack = AsyncCachable(async (itemId: ItemId): Promise<TrackItem | false> => {
-		const extTrackItem = await ExtendedMediaItem.get(itemId);
+		const extTrackItem = await ExtendedMediaItem.getTrack(itemId);
 		if (extTrackItem === undefined) return false;
 
 		let currentTrackItem: TrackItem | false = false;

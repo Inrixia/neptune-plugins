@@ -23,12 +23,19 @@ export class ExtendedMediaItem {
 	public static current(playbackContext?: PlaybackContext) {
 		playbackContext ??= getPlaybackControl()?.playbackContext;
 		if (playbackContext?.actualProductId === undefined) return undefined;
-		return this.get(playbackContext.actualProductId);
+		return this.get(playbackContext.actualProductId, playbackContext.actualVideoQuality !== null);
 	}
 
-	public static async get(itemId?: ItemId) {
+	public static getVideo(itemId?: ItemId) {
 		if (itemId === undefined) return undefined;
-		const trackItem = await MediaItemCache.ensure(itemId);
+		return this.get(itemId, true);
+	}
+	public static getTrack(itemId?: ItemId) {
+		if (itemId === undefined) return undefined;
+		return this.get(itemId, false);
+	}
+	private static async get(itemId: ItemId, isVideo: boolean) {
+		const trackItem = await MediaItemCache.ensure(itemId, isVideo);
 		if (trackItem === undefined) return undefined;
 		this._ExtendedMediaItems[itemId] ??= new this(itemId, trackItem);
 		return this._ExtendedMediaItems[itemId];
