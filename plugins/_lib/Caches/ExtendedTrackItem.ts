@@ -45,7 +45,7 @@ export class ExtendedMediaItem {
 		let isrcs = [];
 
 		const releaseTrack = await this.releaseTrack();
-		if (releaseTrack?.recording.isrcs) isrcs.push(...releaseTrack.recording.isrcs);
+		if (releaseTrack?.recording.isrcs) isrcs.push(releaseTrack.recording.isrcs[releaseTrack.recording.isrcs.length - 1]);
 
 		const trackItem = this.tidalTrack;
 		if (trackItem.isrc) isrcs.push(trackItem.isrc);
