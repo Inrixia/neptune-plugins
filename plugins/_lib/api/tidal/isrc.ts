@@ -13,12 +13,11 @@ const fetchTidal = async <T>(url: string) =>
 const baseURL = "https://openapi.tidal.com/v2";
 
 export async function* fetchIsrcIterable(isrc: string): AsyncIterable<TApiTrack> {
-	let next: string | undefined = `${baseURL}/tracks?countryCode=US&filter[isrc]=${isrc}`;
+	let resp = await fetchTidal<TApiTracks>(`${baseURL}/tracks?countryCode=US&filter[isrc]=${isrc}`);
 	while (true) {
-		if (next === undefined) break;
-		const resp: TApiTracks = await fetchTidal<TApiTracks>(next);
 		if (resp?.data === undefined || resp.data.length === 0) break;
 		yield* resp.data;
-		next = resp.links.next === undefined ? undefined : `${baseURL}${resp.links.next}`;
+		if (resp.links.next === undefined) break;
+		resp = await fetchTidal<TApiTracks>(`${baseURL}${resp.links.next}`);
 	}
 }
