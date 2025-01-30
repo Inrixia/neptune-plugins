@@ -1,28 +1,24 @@
-import { Datum, ISRCResponse } from "./types";
+import { TApiTrack, TApiTracks } from "./types";
 import { getToken } from "./auth";
 import { requestJsonCached } from "../../native/request/requestJsonCached";
 
-type ISRCOptions = {
-	offset: number;
-	limit: number;
-};
-export const fetchIsrc = async (isrc: string, options?: ISRCOptions) => {
-	const { limit, offset } = options ?? { limit: 100, offset: 0 };
-	return requestJsonCached<ISRCResponse>(`https://openapi.tidal.com/tracks/byIsrc?isrc=${isrc}&countryCode=US&limit=${limit}&offset=${offset}`, {
+const fetchTidal = async <T>(url: string) =>
+	requestJsonCached<T>(url, {
 		headers: {
 			Authorization: `Bearer ${await getToken()}`,
 			"Content-Type": "application/vnd.tidal.v1+json",
 		},
 	});
-};
 
-export async function* fetchIsrcIterable(isrc: string): AsyncIterable<Datum> {
-	let offset = 0;
-	const limit = 100;
+const baseURL = "https://openapi.tidal.com/v2";
+
+export async function* fetchIsrcIterable(isrc: string): AsyncIterable<TApiTrack> {
+	let next: string | undefined = `${baseURL}/tracks?countryCode=US&filter[isrc]=${isrc}`;
 	while (true) {
-		const response = await fetchIsrc(isrc, { limit, offset });
-		if (response?.data !== undefined) yield* response.data;
-		if (response.data.length < limit) break;
-		offset += limit;
+		if (next === undefined) break;
+		const resp: TApiTracks = await fetchTidal<TApiTracks>(next);
+		if (resp?.data === undefined || resp.data.length === 0) break;
+		yield* resp.data;
+		next = `${baseURL}${resp.links.next}`;
 	}
 }

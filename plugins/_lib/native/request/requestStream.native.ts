@@ -32,7 +32,7 @@ export const requestStream = async (url: string, options: ExtendedRequestOptions
 				return setTimeout(() => {
 					release?.();
 					requestStream(url, options).then(resolve, reject);
-				}, retryAfter);
+				}, retryAfter * 1000);
 			}
 			if (options.rateLimit! > 0) libTrace.debug(`[${res.statusCode}${statusMsg}] (${req.method} - ${Date.now() - start}ms)`, `[After ${options.rateLimit} attempts]`, url);
 			else libTrace.debug(`[${res.statusCode}${statusMsg}] (${req.method} - ${Date.now() - start}ms)`, url);
