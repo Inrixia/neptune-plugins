@@ -18,7 +18,7 @@ let element: HTMLDivElement | null = null;
 
 function initElement() {
 	if (element) return;
-	const elements = document.querySelectorAll('div[class^="sliderContainer"]');
+	const elements = document.querySelectorAll('div[class^="_sliderContainer"]');
 	if (elements.length === 0) return;
 	element = elements[0] as HTMLDivElement;
 	element.addEventListener("wheel", onScroll);
