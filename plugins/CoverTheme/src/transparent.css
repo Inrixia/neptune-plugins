@@ -17,7 +17,7 @@ body,
 main,
 [class^="_sidebarWrapper"],
 [class^="_mainContainer"],
-[class*="smallHeader--"] {
+[class*="smallHeader"] {
 	background: unset !important;
 }
 

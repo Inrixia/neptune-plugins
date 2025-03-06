@@ -13,7 +13,7 @@ const unloadInterceptRequest = intercept("view/REQUEST_FULLSCREEN", () => {
 });
 
 export const setTopBarVisibility = (visible: boolean) => {
-	const bar = document.querySelector<HTMLElement>("div[class^='bar--']");
+	const bar = document.querySelector<HTMLElement>("div[class^='_bar']");
 	if (bar) bar.style.display = visible ? "" : "none";
 };
 if (settings.alwaysHideTopBar) setTopBarVisibility(false);
@@ -22,7 +22,7 @@ const onKeyDown = (event: KeyboardEvent) => {
 	if (event.key === "F11") {
 		event.preventDefault();
 
-		const contentContainer = document.querySelector<HTMLElement>("div[class^='mainContainer--'] > div[class^='containerRow--']");
+		const contentContainer = document.querySelector<HTMLElement>("div[class^='_mainContainer'] > div[class^='_containerRow']");
 		const wimp = document.querySelector<HTMLElement>("#wimp > div");
 
 		if (document.fullscreenElement || wimp?.classList.contains("is-fullscreen")) {
