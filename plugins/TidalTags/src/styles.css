@@ -1,4 +1,4 @@
-div[class*="titleCell--"] {
+div[class*="titleCell"] {
 	width: auto !important;
 }
 

@@ -38,11 +38,11 @@ const ensureColumnHeader = (trackList: Element, name: string, sourceSelector: st
 
 export const setInfoColumnHeaders = () => {
 	for (const trackList of document.querySelectorAll(`div[aria-label="Tracklist"]`)) {
-		const bitDepthColumn = ensureColumnHeader(trackList, "Depth", `span[class^="timeColumn--"][role="columnheader"]`, `span[class^="timeColumn--"][role="columnheader"]`);
+		const bitDepthColumn = ensureColumnHeader(trackList, "Depth", `span[class^="_timeColumn"][role="columnheader"]`, `span[class^="_timeColumn"][role="columnheader"]`);
 		bitDepthColumn?.style.setProperty("min-width", "40px");
-		const sampleRateColumn = ensureColumnHeader(trackList, "Sample Rate", `span[class^="timeColumn--"][role="columnheader"]`, bitDepthColumn);
+		const sampleRateColumn = ensureColumnHeader(trackList, "Sample Rate", `span[class^="_timeColumn"][role="columnheader"]`, bitDepthColumn);
 		sampleRateColumn?.style.setProperty("min-width", "110px");
-		const bitrateColumn = ensureColumnHeader(trackList, "Bitrate", `span[class^="timeColumn--"][role="columnheader"]`, sampleRateColumn);
+		const bitrateColumn = ensureColumnHeader(trackList, "Bitrate", `span[class^="_timeColumn"][role="columnheader"]`, sampleRateColumn);
 		bitrateColumn?.style.setProperty("min-width", "100px");
 	}
 };
