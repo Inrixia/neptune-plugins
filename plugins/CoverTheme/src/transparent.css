@@ -1,75 +1,43 @@
 :root {
 	--cover-opacity: 0.5;
-	--cover-gradient: linear-gradient(
-		90deg,
-		rgb(var(--cover-DarkVibrant), var(--cover-opacity)),
-		rgb(var(--cover-LightVibrant), var(--cover-opacity))
-	);
+	--cover-gradient: linear-gradient(90deg, rgb(var(--cover-DarkVibrant), var(--cover-opacity)), rgb(var(--cover-LightVibrant), var(--cover-opacity)));
 }
 
 body,
 #nowPlaying {
-	background-image: radial-gradient(
-			ellipse at top left,
-			rgb(var(--cover-DarkVibrant), var(--cover-opacity)),
-			transparent 70%
-		),
-		radial-gradient(
-			ellipse at center left,
-			rgb(var(--cover-Vibrant), var(--cover-opacity)),
-			transparent 70%
-		),
-		radial-gradient(
-			ellipse at bottom left,
-			rgb(var(--cover-LightMuted), var(--cover-opacity)),
-			transparent 70%
-		),
-		radial-gradient(
-			ellipse at top right,
-			rgb(var(--cover-LightVibrant), var(--cover-opacity)),
-			transparent 70%
-		),
-		radial-gradient(
-			ellipse at center right,
-			rgb(var(--cover-Muted), var(--cover-opacity)),
-			transparent 70%
-		),
-		radial-gradient(
-			ellipse at bottom right,
-			rgb(var(--cover-DarkMuted), var(--cover-opacity)),
-			transparent 70%
-		) !important;
+	background-image: radial-gradient(ellipse at top left, rgb(var(--cover-DarkVibrant), var(--cover-opacity)), transparent 70%),
+		radial-gradient(ellipse at center left, rgb(var(--cover-Vibrant), var(--cover-opacity)), transparent 70%),
+		radial-gradient(ellipse at bottom left, rgb(var(--cover-LightMuted), var(--cover-opacity)), transparent 70%),
+		radial-gradient(ellipse at top right, rgb(var(--cover-LightVibrant), var(--cover-opacity)), transparent 70%),
+		radial-gradient(ellipse at center right, rgb(var(--cover-Muted), var(--cover-opacity)), transparent 70%),
+		radial-gradient(ellipse at bottom right, rgb(var(--cover-DarkMuted), var(--cover-opacity)), transparent 70%) !important;
 }
 
 #wimp,
 main,
-[class^="sidebarWrapper"],
-[class^="mainContainer"],
+[class^="_sidebarWrapper"],
+[class^="_mainContainer"],
 [class*="smallHeader--"] {
 	background: unset !important;
 }
 
 #footerPlayer,
 #sidebar,
-[class^="bar"],
-[class^="sidebarItem"]:hover,
+[class^="_bar"],
+[class^="_sidebarItem"]:hover,
 .enable-scrollbar-styles ::-webkit-scrollbar-corner,
 .enable-scrollbar-styles ::-webkit-scrollbar-track {
-	background-color: color-mix(
-		in srgb,
-		var(--wave-color-solid-base-brighter),
-		transparent 70%
-	) !important;
+	background-color: color-mix(in srgb, var(--wave-color-solid-base-brighter), transparent 70%) !important;
 }
 
 /* Fix play queue overlapping with player */
-#nowPlaying > [class^="innerContainer"] {
+#nowPlaying > [class^="_innerContainer"] {
 	height: calc(100vh - 126px);
 	overflow: hidden;
 }
 
 /* This looks weird when the background isn't dark, better to just remove it. */
-[class^="bottomGradient"] {
+[class^="_bottomGradient"] {
 	display: none;
 }
 
@@ -96,10 +64,6 @@ main,
 }
 
 /* Tabs on user profile pages */
-[class^="tabListWrapper"] {
-	background-image: linear-gradient(
-		180deg,
-		rgb(var(--cover-DarkMuted)) 70%,
-		transparent
-	) !important;
+[class^="_tabListWrapper"] {
+	background-image: linear-gradient(180deg, rgb(var(--cover-DarkMuted)) 70%, transparent) !important;
 }
