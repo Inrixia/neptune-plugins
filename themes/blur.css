@@ -24,29 +24,29 @@
 	padding-bottom: 128px !important;
 }
 
-[class^="containerRow"] {
+[class^="_containerRow_"] {
 	max-height: none !important;
 }
 
-[class^="mainContainer"] {
+[class^="_mainContainer_"] {
 	height: 100vh !important;
 	background-color: inherit;
 }
 
-[class^="bar"] {
+[class^="_bar_"] {
 	position: absolute;
 	z-index: 100;
 	backdrop-filter: blur(var(--blur-radius));
 }
 
-[class^="sidebarWrapper"],
-[class^="contentArea"],
+[class^="_sidebarWrapper"],
+[class^="_contentArea"],
 #main {
 	padding-top: 30px;
 }
 
-[class^="contextMenu--"]::before,
-[class^="subMenu--"]::before {
+[class^="_contextMenu"]::before,
+[class^="_subMenu_"]::before {
 	content: "";
 	position: absolute;
 	width: 100%;
@@ -60,35 +60,35 @@
 	background-color: var(--blur-background);
 }
 
-[class^="contextMenu"],
-[class^="subMenu--"] {
+[class^="_contextMenu_"],
+[class^="_subMenu_"] {
 	position: relative;
 	background-color: transparent;
 }
 
 #footerPlayer,
 #sidebar,
-[class^="bar"],
-[class*="audioQualityContainerHover--"]:hover,
-[class*="selectItem--"]:hover,
-[class*="createNewPlaylist--"]:hover {
+[class^="_bar_"],
+[class*="_audioQualityContainerHover_"]:hover,
+[class*="_selectItem_"]:hover,
+[class*="_createNewPlaylist_"]:hover {
 	background-color: var(--blur-background) !important;
 }
 
-[class^="sidebarWrapper"] {
+[class^="_sidebarWrapper_"] {
 	padding-bottom: 96px;
 }
 
 #feedSidebar,
 #playQueueSidebar,
-[class*="playQueueWithoutHeader--"] button {
+[class*="_playQueueWithoutHeader_"] button {
 	background-color: var(--blur-background);
 	backdrop-filter: blur(var(--blur-radius));
 }
 
 /* Blur background of homepage shortcut items */
 @container (width > 200px) {
-	[class*="shortcutItem--"]::after {
+	[class*="_shortcutItem_"]::after {
 		backdrop-filter: blur(8px);
 	}
 }
