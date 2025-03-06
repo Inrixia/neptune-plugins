@@ -10,17 +10,17 @@
 	"devDependencies": {
 		"@types/clean-css": "^4.2.11",
 		"@types/html-minifier-terser": "^7.0.2",
-		"@types/node": "^22.7.7",
+		"@types/node": "^22.13.9",
 		"clean-css": "^5.3.3",
-		"concurrently": "^9.0.1",
-		"electron": "^33.0.1",
-		"esbuild": "^0.24.0",
+		"concurrently": "^9.1.2",
+		"electron": "^35.0.0",
+		"esbuild": "^0.25.0",
 		"html-minifier-terser": "^7.2.0",
 		"neptune-types": "^1.0.1",
-		"nodemon": "^3.1.7",
+		"nodemon": "^3.1.9",
 		"serve": "^14.2.4",
-		"tsx": "^4.19.1",
-		"typescript": "^5.6.3"
+		"tsx": "^4.19.3",
+		"typescript": "^5.8.2"
 	},
 	"nodemonConfig": {
 		"watch": "./plugins/**",

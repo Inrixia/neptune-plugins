@@ -1,4 +1,4 @@
-import Vibrant from "node-vibrant";
+import { Vibrant } from "node-vibrant/node";
 import type { Palette } from ".";
 
 const getCoverUrl = (id: string) => "https://resources.tidal.com/images/" + id.split("-").join("/") + "/640x640.jpg";
