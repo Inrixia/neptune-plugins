@@ -63,18 +63,21 @@ const unloadSkip = intercept(["playQueue/MOVE_TO", "playQueue/MOVE_NEXT", "playQ
 		const { elements, currentIndex } = store.getState().playQueue;
 		switch (action) {
 			case "playQueue/MOVE_NEXT":
-				if ((await maxQueueItem(elements, currentIndex + 1)) === false) actions.playQueue.moveNext();
+				if (await maxQueueItem(elements, currentIndex + 1)) return false;
+				actions.playQueue.moveNext();
 				break;
 			case "playQueue/MOVE_PREVIOUS":
-				if ((await maxQueueItem(elements, currentIndex - 1)) === false) actions.playQueue.movePrevious();
+				if (await maxQueueItem(elements, currentIndex - 1)) return false;
+				actions.playQueue.movePrevious();
 				break;
 			case "playQueue/MOVE_TO":
-				if ((await maxQueueItem(elements, payload ?? currentIndex)) === false) actions.playQueue.moveTo(payload ?? currentIndex);
+				if (await maxQueueItem(elements, payload ?? currentIndex)) return false;
+				actions.playQueue.moveTo(payload ?? currentIndex);
 				break;
 		}
 		actions.playbackControls.play();
+		return true;
 	})();
-	return true;
 });
 
 const unloadIntercept = () => {
