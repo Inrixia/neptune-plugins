@@ -91,7 +91,8 @@ ContextMenu.onOpen(async (contextSource, contextMenu, trackItems) => {
 	if (trackItems.length === 0 || !settings.displayMaxContextButton) return;
 
 	let sourceName = trackItems[0].title;
-	if (contextSource.type === "PLAYLIST") sourceName = store.getState().content.playlists.find((playlist) => playlist.uuid === contextSource.playlistId)?.title ?? sourceName;
+	// @ts-expect-error Playlist access has changed
+	if (contextSource.type === "PLAYLIST") sourceName = store.getState().content.playlists[contextSource.playlistId]?.title ?? sourceName;
 	else if (contextSource.type === "ALBUM") sourceName = (await AlbumCache.get(+contextSource.albumId))?.title ?? sourceName;
 	sourceName = `${sourceName} - RealMAX`;
 
