@@ -49,6 +49,7 @@ export type FlacTags = {
 	title?: string;
 	trackNumber?: string;
 	discNumber?: string;
+	bpm?: string;
 	date?: string;
 	copyright?: string;
 	REPLAYGAIN_TRACK_GAIN?: string;
@@ -71,6 +72,7 @@ export const availableTags: (keyof FlacTags)[] = [
 	"title",
 	"trackNumber",
 	"discNumber",
+	"bpm",
 	"date",
 	"copyright",
 	"REPLAYGAIN_TRACK_GAIN",
@@ -113,6 +115,9 @@ export const makeTags = async (extTrackItem: ExtendedMediaItem): Promise<MetaTag
 		if (tidalTrack.copyright) tags.copyright = tidalTrack.copyright;
 		if (tidalTrack.replayGain) tags.REPLAYGAIN_TRACK_GAIN = tidalTrack.replayGain.toString();
 	}
+
+	// @ts-expect-error BPM is now present on some tracks
+	if (tidalTrack.bpm) tags.bpm = tidalTrack.bpm.toString();
 
 	if (tidalTrack.volumeNumber !== undefined) tags.discNumber = tidalTrack.volumeNumber.toString();
 
