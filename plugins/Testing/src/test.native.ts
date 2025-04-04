@@ -1,6 +1,6 @@
-import { ipcMain, IpcMainEvent } from "electron";
+import { _default, importNative } from "@inrixia/lib/native/helpers/imports.native";
 import { ClientMessageChannelEnum } from "@inrixia/lib/native/player.native";
-import { importNative, _default } from "@inrixia/lib/native/helpers.native";
+import { ipcMain, IpcMainEvent } from "electron";
 
 import { Tracer } from "@inrixia/lib/native/helpers/trace.native";
 const trace = Tracer("[test.native]");

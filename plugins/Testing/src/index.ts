@@ -1,9 +1,9 @@
-import { interceptActions } from "@inrixia/lib/intercept/interceptActions";
+import { interceptActions } from "@inrixia/lib";
 
 import { startClientIpcLogging, stopClientIpcLogging } from "./clientIpcLogging";
 import { startNativeIpcLogging, stopNativeIpcLogging } from "./test.native";
 
-import { Tracer } from "@inrixia/lib/trace";
+import { Tracer } from "@inrixia/lib";
 export const trace = Tracer("[test]");
 
 const unloadIntercept = interceptActions(/.*/, trace.log);
