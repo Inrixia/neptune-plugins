@@ -1,81 +1,49 @@
-import { intercept } from "@neptune";
-import getPlaybackControl from "@inrixia/lib/getPlaybackControl";
-import { MediaItemCache } from "@inrixia/lib/Caches/MediaItemCache";
-import { setStyle } from "@inrixia/lib/css/setStyle";
+import { StyleTag, Tracer } from "@inrixia/lib";
+const trace = Tracer("[CoverTheme]");
+
+import { MediaItem } from "@inrixia/lib";
+import { storage } from "@plugin";
+import type { ItemId } from "neptune-types/tidal";
+
 import transparent from "file://transparent.css?minify";
-import "./vibrant.native";
-import { Tracer } from "@inrixia/lib/trace";
 import { settings } from "./Settings";
 export { Settings } from "./Settings";
-import { storage } from "@plugin";
-import { getPalette } from "./vibrant.native";
 
-const trace = Tracer("[CoverTheme]");
-let prevSong: string | undefined;
-let prevCover: string | undefined;
-let vars = new Set<string>();
+import "./vibrant.native";
+import { getPalette, type Palette } from "./vibrant.native";
 
-export type Palette = { [key: string]: string };
-async function getPaletteCached(coverId: string) {
-	if (typeof storage.paletteCache !== "object") storage.paletteCache = {};
-	const cache = storage.paletteCache as { [key: string]: Palette };
-	if (cache[coverId]) return cache[coverId];
-	return getPalette(coverId);
-}
+storage.paletteCache ??= {};
+const vars = new Set<string>();
 
-async function updateBackground(productId: string) {
-	if (prevSong === productId) return;
-	prevSong = productId;
+const cachePalette = async (mediaItem: MediaItem): Promise<Palette | undefined> => {
+	const album = await mediaItem.album();
+	const coverUrl = album?.coverUrl("640");
+	if (coverUrl === undefined) return;
+	return ((storage.paletteCache as Record<string, Palette>)[album!.tidalAlbum!.cover!] ??= await getPalette(coverUrl));
+};
 
-	const mediaItem = await MediaItemCache.ensureTrack(productId);
-	if (!mediaItem || !mediaItem.album?.cover) return;
-
-	if (prevCover === mediaItem.album.cover) return;
-	prevCover = mediaItem.album.cover;
-
-	const palette = await getPaletteCached(mediaItem.album.cover);
+let currentItem: ItemId;
+const updateBackground = async (mediaItem?: MediaItem) => {
+	if (mediaItem === undefined || mediaItem.id === currentItem) return;
+	currentItem = mediaItem.id;
+	const palette = await cachePalette(mediaItem).catch(trace.msg.err.withContext("Failed to update background"));
 	if (palette === undefined) return;
 
-	for (const [colorName, rgb] of Object.entries(palette)) {
+	for (const colorName in palette) {
 		const variableName = `--cover-${colorName}`;
 		vars.add(variableName);
-		document.documentElement.style.setProperty(variableName, rgb ?? null);
+		document.documentElement.style.setProperty(variableName, palette[colorName] ?? null);
 	}
-}
+};
 
-const onCatch = trace.msg.err.withContext("Failed to update background");
+const unloads = [MediaItem.onMediaTransition(updateBackground), MediaItem.onPreload(cachePalette), MediaItem.onPreMediaTransition(updateBackground)];
 
-function onTransition([track]: any[]) {
-	const id = (track.mediaProduct as { productId?: string })?.productId;
-	if (id) updateBackground(id).catch(onCatch);
-}
-
-const unloadPrefill = intercept("playbackControls/PREFILL_MEDIA_PRODUCT_TRANSITION", onTransition);
-const unloadTransition = intercept("playbackControls/MEDIA_PRODUCT_TRANSITION", onTransition);
-
-// @ts-expect-error - Neptune doesn't type this action
-const unloadPreload = intercept("player/PRELOAD_ITEM", async ([item]: any[]) => {
-	if (item.productType !== "track") return;
-	const mediaItem = await MediaItemCache.ensureTrack(item.productId);
-	if (!mediaItem || !mediaItem.album?.cover) return;
-	getPaletteCached(mediaItem.album.cover);
-});
-
-const style = setStyle();
-export function updateStyle() {
-	style.css = settings.transparentTheme ? transparent : "";
-}
-
-updateStyle();
-const { playbackContext } = getPlaybackControl();
-if (playbackContext) updateBackground(playbackContext.actualProductId).catch(onCatch);
+const style = new StyleTag(settings.transparentTheme ? transparent : "");
+export const updateStyle = () => (style.css = settings.transparentTheme ? transparent : "");
+setTimeout(async () => updateBackground(await MediaItem.fromPlaybackContext()));
 
 export const onUnload = () => {
-	unloadPrefill();
-	unloadTransition();
-	unloadPreload();
+	for (const unload of unloads) unload();
 	style.remove();
 	vars.forEach((variable) => document.documentElement.style.removeProperty(variable));
-	prevSong = undefined;
-	prevCover = undefined;
 };
