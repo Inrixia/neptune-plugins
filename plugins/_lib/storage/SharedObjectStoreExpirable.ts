@@ -17,8 +17,8 @@ export class SharedObjectStoreExpirable<K extends IDBValidKey, V extends Record<
 		super(storeName, storeSchema);
 		this.maxAge = maxAge;
 	}
-	private setExpires(value: any, expires?: number): void {
-		if (expires !== undefined) value.__expires = expires;
+	private setExpires(value: any, expiresAt?: number): void {
+		if (expiresAt !== undefined) value.__expires = expiresAt;
 		else if (this.maxAge !== undefined) value.__expires = Date.now() + this.maxAge;
 		else throw new Error("maxAge or expires must be set!");
 	}
@@ -37,12 +37,12 @@ export class SharedObjectStoreExpirable<K extends IDBValidKey, V extends Record<
 		this.setExpires(value);
 		return super.put(value, key);
 	}
-	async addExpires(value: V, expires: number, key?: K) {
-		this.setExpires(value, expires);
+	async addExpires(value: V, expiresAt: number, key?: K) {
+		this.setExpires(value, expiresAt);
 		return super.add(value, key);
 	}
-	async putExpires(value: V, expires: number, key?: K) {
-		this.setExpires(value, expires);
+	async putExpires(value: V, expiresAt: number, key?: K) {
+		this.setExpires(value, expiresAt);
 		return super.put(value, key);
 	}
 	async get(key: K): Promise<V | undefined> {

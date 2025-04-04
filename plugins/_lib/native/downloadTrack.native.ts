@@ -1,23 +1,22 @@
-import { ManifestMimeType, type ExtendedPlayackInfo } from "../Caches/PlaybackInfoTypes";
+import { constants, createWriteStream, type PathLike } from "fs";
+import { access, mkdir } from "fs/promises";
+import path from "path";
 import { rejectNotOk, toBuffer, type DownloadProgress } from "./request/helpers.native";
 import { requestTrackStream } from "./request/requestTrack.native";
-import { createWriteStream } from "fs";
-import { mkdir, stat } from "fs/promises";
-import path from "path";
 
 import { FlacStreamTagger, PictureType } from "flac-stream-tagger";
 import { requestStream } from "./request/requestStream.native";
 
-import type { MetaTags } from "../makeTags";
-import type { Readable } from "stream";
+import { ManifestMimeType, type PlaybackInfo } from "../classes/MediaItem.playbackInfo.types";
 
+import type { Readable } from "stream";
+import type { MetaTags } from "../classes/MediaItem.tags";
 export type { DownloadProgress } from "./request/helpers.native";
 
-const addTags = async (extPlaybackInfo: ExtendedPlayackInfo, stream: Readable, metaTags?: MetaTags) => {
-	if (metaTags === undefined) return stream;
+const addTags = async ({ manifestMimeType, manifest }: PlaybackInfo, stream: Readable, metaTags: MetaTags) => {
 	const { tags, coverUrl } = metaTags;
-	if (extPlaybackInfo.manifestMimeType === ManifestMimeType.Tidal) {
-		switch (extPlaybackInfo.manifest.codecs) {
+	if (manifestMimeType === ManifestMimeType.Tidal) {
+		switch (manifest.codecs) {
 			case "flac": {
 				let picture;
 				if (coverUrl !== undefined) {
@@ -39,22 +38,21 @@ const addTags = async (extPlaybackInfo: ExtendedPlayackInfo, stream: Readable, m
 	}
 	return stream;
 };
-
-const exists = (path: string): Promise<boolean> =>
-	stat(path)
-		.then(() => true)
-		.catch(() => false);
-
 export type PathInfo = {
 	fileName?: string;
 	folderPath: string;
 	basePath?: string;
 };
 
+const exists = (path: PathLike) =>
+	access(path, constants.F_OK)
+		.then(() => true)
+		.catch(() => false);
+
 const pathSeparator = process.platform === "win32" ? "\\" : "/";
 
 const downloadStatus: Record<string, DownloadProgress> = {};
-export const startTrackDownload = async (extPlaybackInfo: ExtendedPlayackInfo, pathInfo: PathInfo, metaTags?: MetaTags): Promise<void> => {
+export const startTrackDownload = async (playbackInfo: PlaybackInfo, pathInfo: PathInfo, metaTags?: MetaTags): Promise<void> => {
 	const pathKey = JSON.stringify(pathInfo);
 	if (downloadStatus[pathKey] !== undefined) throw new Error(`Something is already downloading to ${pathKey}`);
 	try {
@@ -66,11 +64,11 @@ export const startTrackDownload = async (extPlaybackInfo: ExtendedPlayackInfo, p
 			delete downloadStatus[pathKey];
 			return Promise.resolve();
 		}
-		const stream = await requestTrackStream(extPlaybackInfo, { onProgress: (progress) => (downloadStatus[pathKey] = progress) });
-		const metaStream = await addTags(extPlaybackInfo, stream, metaTags);
+		let stream = await requestTrackStream(playbackInfo, { onProgress: (progress) => (downloadStatus[pathKey] = progress) });
+		if (metaTags) stream = await addTags(playbackInfo, stream, metaTags);
 		const writeStream = createWriteStream(fileName);
 		return new Promise((res, rej) =>
-			metaStream
+			stream
 				.pipe(writeStream)
 				.on("finish", () => {
 					delete downloadStatus[pathKey];

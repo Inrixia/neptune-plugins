@@ -1,9 +1,9 @@
+import CleanCSS from "clean-css";
+import crypto from "crypto";
 import esbuild from "esbuild";
 import fs from "fs";
-import path from "path";
-import crypto from "crypto";
 import { minify as minifyHtml } from "html-minifier-terser";
-import CleanCSS from "clean-css";
+import path from "path";
 
 const nativeExternals = ["@neptune", "@plugin", "electron"];
 const minify = true;
@@ -64,7 +64,7 @@ const fileUrl: esbuild.Plugin = {
 const neptuneNativeImports: esbuild.Plugin = {
 	name: "neptuneNativeImports",
 	setup(build) {
-		build.onLoad({ filter: /.*[\/\\].+\.native\.[a-z]+/g }, async (args) => {
+		build.onLoad({ filter: /.*\.native\.[a-z]+/ }, async (args) => {
 			const globalName = "neptuneExports";
 			const result = await esbuild.build({
 				entryPoints: [args.path],

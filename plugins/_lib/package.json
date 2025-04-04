@@ -1,13 +1,12 @@
 {
 	"name": "@inrixia/lib",
 	"dependencies": {
-		"@inrixia/helpers": "^2.0.11",
-		"dasha": "^3.0.5",
-		"flac-stream-tagger": "^1.0.9",
-		"idb": "^8.0.0",
-		"music-metadata": "^10.5.1"
+		"dasha": "^3.1.5",
+		"flac-stream-tagger": "^1.0.10",
+		"idb": "^8.0.2",
+		"music-metadata": "^11.0.5"
 	},
 	"devDependencies": {
-		"musicbrainz-api": "^0.19.1"
+		"musicbrainz-api": "^0.21.0"
 	}
 }

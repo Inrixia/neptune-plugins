@@ -1,12 +1,11 @@
-import { TrackItem } from "neptune-types/tidal";
+import type { TrackItem } from "neptune-types/tidal";
 import type { DashManifest } from "../native/dasha.native";
 
 export enum ManifestMimeType {
 	Tidal = "application/vnd.tidal.bts",
 	Dash = "application/dash+xml",
 }
-
-export type PlaybackInfo = {
+export type PlaybackInfoResponse = {
 	trackId: number;
 	assetPresentation: string;
 	audioMode: NonNullable<TrackItem["audioModes"]>;
@@ -21,7 +20,6 @@ export type PlaybackInfo = {
 	bitDepth: number;
 	sampleRate: number;
 };
-
 export type TidalManifest = {
 	mimeType: string;
 	codecs: string;
@@ -30,6 +28,15 @@ export type TidalManifest = {
 	urls: string[];
 };
 
-export type ExtendedPlayackInfo =
-	| { playbackInfo: PlaybackInfo; manifestMimeType: ManifestMimeType.Dash; manifest: DashManifest }
-	| { playbackInfo: PlaybackInfo; manifestMimeType: ManifestMimeType.Tidal; manifest: TidalManifest };
+interface PlaybackInfoBase extends Omit<PlaybackInfoResponse, "manifestMimeType" | "manifest"> {
+	mimeType: string;
+}
+interface DashPlaybackInfo extends PlaybackInfoBase {
+	manifestMimeType: ManifestMimeType.Dash;
+	manifest: DashManifest;
+}
+interface TidalPlaybackInfo extends PlaybackInfoBase {
+	manifestMimeType: ManifestMimeType.Tidal;
+	manifest: TidalManifest;
+}
+export type PlaybackInfo = DashPlaybackInfo | TidalPlaybackInfo;

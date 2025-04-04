@@ -1,4 +1,4 @@
-import { $, html } from "@neptune/voby";
+import { html } from "@neptune/voby";
 import { DivWithTooltip } from "./divWithTooltip";
 
 type SwitchSettingProps = { checked: boolean; onClick?: () => void; title: string; tooltip?: string };

@@ -1,5 +1,5 @@
-import { openDB, IDBPDatabase } from "idb";
-import { Semaphore } from "../Semaphore";
+import { Semaphore } from "@inrixia/helpers";
+import { IDBPDatabase, openDB } from "idb";
 
 const dbName = "@inrixia/sharedStorage";
 export class SharedObjectStore<K extends IDBValidKey, V extends Record<any, any>> {

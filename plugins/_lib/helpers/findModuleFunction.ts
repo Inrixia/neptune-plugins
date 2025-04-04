@@ -1,6 +1,7 @@
+import type { UnknownRecord } from "@inrixia/helpers";
+
 // @ts-expect-error modules has changed to moduleCache
 import { moduleCache } from "@neptune";
-import type { UnknownRecord } from "@inrixia/helpers/ts";
 
 export const findModuleFunction = <T>(propertyName: string, propertyType: string): T | undefined => recursiveSearch<T>(moduleCache, propertyName, propertyType);
 

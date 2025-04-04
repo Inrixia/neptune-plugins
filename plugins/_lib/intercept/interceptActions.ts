@@ -15,7 +15,7 @@ export const interceptActions = (actionPath: RegExp, handler: ActionHandler) => 
 		for (const action in window.neptune.actions[<keyof typeof neptuneActions>item]) {
 			const interceptPath = `${item}/${convertToUpperCaseWithUnderscores(action)}`;
 			if (!actionPath.test(interceptPath)) continue;
-			unloadables.push(intercept(<ActionType>interceptPath, (payload) => handler(payload[1], payload[0])));
+			unloadables.push(intercept(<ActionType>interceptPath, (...payload) => handler(<ActionType>interceptPath, ...payload)));
 		}
 	}
 	return () => unloadables.forEach((u) => u());

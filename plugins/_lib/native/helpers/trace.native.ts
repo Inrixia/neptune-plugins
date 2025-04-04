@@ -4,7 +4,7 @@ type LoggerFunc = (...data: any[]) => void;
 
 type Logger<T extends LoggerFunc = LoggerFunc> = {
 	(...data: Parameters<T>): undefined;
-	withContext(context: string): (...data: Parameters<T>) => undefined;
+	withContext(...context: Parameters<T>): (...data: Parameters<T>) => undefined;
 };
 
 export const Tracer = (source: string) => {
@@ -14,7 +14,7 @@ export const Tracer = (source: string) => {
 			return undefined;
 		};
 		_logger.withContext =
-			(context: string) =>
+			(...context: Parameters<T>) =>
 			(...data: Parameters<T>) => {
 				logger(source, context, ...data);
 				return undefined;
@@ -34,4 +34,3 @@ export const Tracer = (source: string) => {
 		debug,
 	};
 };
-export const libTrace = Tracer("[lib.native]");

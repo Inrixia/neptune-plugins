@@ -1,12 +1,13 @@
-import type { Readable } from "stream";
-import type { FetchyOptions } from "./helpers.native";
-
-import { type ExtendedPlayackInfo, ManifestMimeType } from "../../Caches/PlaybackInfoTypes";
 import { requestDecodedStream } from "./requestDecodedStream.native";
 import { requestSegmentsStream } from "./requestSegmentsStream.native";
 
-export type ExtendedPlaybackInfoWithBytes = ExtendedPlayackInfo & { stream: Readable };
-export const requestTrackStream = async ({ manifestMimeType, manifest }: ExtendedPlayackInfo, fetchyOptions: FetchyOptions = {}): Promise<Readable> => {
+import type { Readable } from "stream";
+import type { FetchyOptions } from "./helpers.native";
+
+import { ManifestMimeType, type PlaybackInfo } from "../../classes/MediaItem.playbackInfo.types";
+
+export type ExtendedPlaybackInfoWithBytes = PlaybackInfo & { stream: Readable };
+export const requestTrackStream = async ({ manifestMimeType, manifest }: PlaybackInfo, fetchyOptions: FetchyOptions = {}): Promise<Readable> => {
 	switch (manifestMimeType) {
 		case ManifestMimeType.Tidal: {
 			return requestDecodedStream(manifest.urls[0], { ...fetchyOptions, manifest });

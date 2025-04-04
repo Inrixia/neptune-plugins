@@ -1,7 +1,9 @@
-import { TApiTrack, TApiTracks } from "./types";
-import { getToken } from "./auth";
 import { requestJsonCached } from "../../native/request/requestJsonCached";
-import { libTrace } from "../../trace";
+import { getToken } from "./auth";
+import { TApiTrack, TApiTracks } from "./types";
+
+import { Tracer } from "../../helpers/trace";
+const trace = Tracer("[lib.tidalApi]");
 
 const fetchTidal = async <T>(url: string) =>
 	requestJsonCached<T>(url, {
@@ -19,6 +21,6 @@ export async function* fetchIsrcIterable(isrc: string): AsyncIterable<TApiTrack>
 		if (resp?.data === undefined || resp.data.length === 0) break;
 		yield* resp.data;
 		if (resp.links.next === undefined) break;
-		resp = await fetchTidal<TApiTracks>(`${baseURL}${resp.links.next}`).catch((err) => libTrace.err(`Unexpected error when fetching Tidal ISRC ${isrc}: ${err}`));
+		resp = await fetchTidal<TApiTracks>(`${baseURL}${resp.links.next}`).catch((err) => trace.err(`Unexpected error when fetching Tidal ISRC ${isrc}: ${err}`));
 	}
 }
