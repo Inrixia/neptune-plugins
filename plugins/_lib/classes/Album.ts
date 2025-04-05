@@ -6,11 +6,12 @@ import { actions } from "@neptune";
 import type { IReleaseMatch } from "musicbrainz-api";
 import { interceptPromise } from "../intercept/interceptPromise";
 import { requestJsonCached } from "../native/request/requestJsonCached";
-import { ContentBase } from "./ContentBase";
+import { ContentBase, type TImageSize } from "./ContentBase";
 import MediaItem from "./MediaItem";
-import { formatArtists, formatCoverUrl, formatTitle, type TImageSize } from "./MediaItem.parsers";
 
 import type { ItemId, Album as TAlbum, MediaItem as TMediaItem } from "neptune-types/tidal";
+
+import Artist from "./Artist";
 
 class Album extends ContentBase {
 	constructor(public readonly id: ItemId, public readonly tidalAlbum: TAlbum) {
@@ -21,9 +22,7 @@ class Album extends ContentBase {
 		const album = super.fromStore(albumId, "albums", this);
 		if (album !== undefined) return album;
 
-		await interceptPromise(() => actions.content.loadAlbum({ albumId }), ["content/LOAD_ALBUM_SUCCESS"], [])
-			.then((res) => <TAlbum>res?.[0].album)
-			.catch(trace.warn.withContext("get", albumId));
+		await interceptPromise(() => actions.content.loadAlbum({ albumId }), ["content/LOAD_ALBUM_SUCCESS"], []).catch(trace.warn.withContext("fromId", albumId));
 
 		return super.fromStore(albumId, "albums", this);
 	}
@@ -48,6 +47,15 @@ class Album extends ContentBase {
 		trace.warn("Invalid Tidal UPC for album!", { releaseAlbum: brainzAlbum, tidalAlbum: this });
 	});
 
+	public artist: () => Promise<Artist | undefined> = memoize(async () => {
+		if (this.tidalAlbum.artist?.id) return Artist.fromId(this.tidalAlbum.artist.id);
+		if (this.tidalAlbum.artists?.[0]?.id) return Artist.fromId(this.tidalAlbum.artists?.[0].id);
+	});
+	public artists: () => Promise<Artist | undefined>[] = memoize(() => {
+		if (!this.tidalAlbum.artists) return [];
+		return this.tidalAlbum.artists.map((artist) => Artist.fromId(artist.id));
+	});
+
 	public mediaItems: () => Promise<MediaItem[]> = memoize(async () => {
 		const result = await interceptPromise(
 			() => actions.content.loadAllAlbumMediaItems({ albumId: this.tidalAlbum.id! }),
@@ -61,12 +69,12 @@ class Album extends ContentBase {
 
 	public coverUrl(res?: TImageSize) {
 		if (this.tidalAlbum.cover === undefined) return;
-		return formatCoverUrl(this.tidalAlbum.cover, res);
+		return ContentBase.formatCoverUrl(this.tidalAlbum.cover, res);
 	}
 
 	public title: () => Promise<string | undefined> = memoize(async () => {
 		const brainzAlbum = await this.brainzAlbum();
-		return formatTitle(this.tidalAlbum.title, this.tidalAlbum.version, brainzAlbum?.title, brainzAlbum?.["artist-credit"]);
+		return ContentBase.formatTitle(this.tidalAlbum.title, this.tidalAlbum.version, brainzAlbum?.title, brainzAlbum?.["artist-credit"]);
 	});
 
 	public upc: () => Promise<string | undefined> = memoize(async () => {
@@ -78,8 +86,8 @@ class Album extends ContentBase {
 	}
 
 	public get albumArtist(): string[] {
-		if ((this.tidalAlbum.artists?.length ?? -1) > 0) return formatArtists(this.tidalAlbum.artists);
-		if (this.tidalAlbum.artist) return formatArtists([this.tidalAlbum.artist]);
+		if ((this.tidalAlbum.artists?.length ?? -1) > 0) return ContentBase.formatArtists(this.tidalAlbum.artists);
+		if (this.tidalAlbum.artist) return ContentBase.formatArtists([this.tidalAlbum.artist]);
 		return [];
 	}
 

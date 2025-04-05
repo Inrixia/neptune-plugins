@@ -20,6 +20,14 @@ class PlayState {
 		return desiredPlaybackState;
 	}
 
+	public static get playbackControls() {
+		return neptune.store.getState().playbackControls;
+	}
+
+	public static get latestCurrentTime() {
+		return this.playbackControls.latestCurrentTime;
+	}
+
 	static {
 		// Ensure that if we are inside a dead object that we do nothing.
 		// If this is called with window.Estr.MediaItem defined we are going to export that instead.
@@ -27,11 +35,6 @@ class PlayState {
 			intercept("playbackControls/SET_PLAYBACK_STATE", ([state]) => {
 				switch (state) {
 					case "PLAYING": {
-						if (this.state() === "STARTING") {
-							MediaItem.fromPlaybackContext().then((mediaItem) => {
-								if (mediaItem) runListeners(mediaItem, this.onNewTrackListeners, trace.err.withContext("newTrackListners"));
-							});
-						}
 						this.lastPlayStart = Date.now();
 						break;
 					}
@@ -59,12 +62,6 @@ class PlayState {
 	public static onScrobble(cb: MediaItemListener) {
 		this.onScrobbleListeners.add(cb);
 		return () => this.onScrobbleListeners.delete(cb);
-	}
-
-	private static readonly onNewTrackListeners: Set<MediaItemListener> = new Set();
-	public static onNewTrack(cb: MediaItemListener) {
-		this.onNewTrackListeners.add(cb);
-		return () => this.onNewTrackListeners.delete(cb);
 	}
 }
 

@@ -8,9 +8,7 @@ import getPlaybackControl, { type PlaybackContext } from "../helpers/getPlayback
 import { interceptPromise } from "../intercept/interceptPromise";
 import { requestJsonCached } from "../native/request/requestJsonCached";
 
-import Album from "./Album";
-import { ContentBase } from "./ContentBase";
-import { formatArtists, formatCoverUrl, formatTitle, type TImageSize } from "./MediaItem.parsers";
+import { ContentBase, type TImageSize } from "./ContentBase";
 import { makeTags, MetaTags } from "./MediaItem.tags";
 import { Quality, type MediaItemAudioQuality, type MediaMetadataTag } from "./Quality";
 
@@ -21,6 +19,9 @@ import { getStreamBytes, parseStreamMeta } from "../native/itemFormat.native";
 import { SharedObjectStoreExpirable } from "../storage/SharedObjectStoreExpirable";
 import { getPlaybackInfo } from "./MediaItem.playbackInfo";
 import { ManifestMimeType, type PlaybackInfo } from "./MediaItem.playbackInfo.types";
+
+import Album from "./Album";
+import Artist from "./Artist";
 
 export type MediaItemListener = (mediaItem: MediaItem) => unknown;
 export const runListeners = (item: MediaItem, listeners: Set<MediaItemListener>, errorHandler: typeof console.error) => {
@@ -64,10 +65,10 @@ class MediaItem extends ContentBase {
 		const currentPage = window.location.pathname;
 		const loadedTrack = await interceptPromise(() => neptune.actions.router.replace(<any>`/track/${itemId}`), ["page/IS_DONE_LOADING"], [])
 			.then(() => true)
-			.catch(trace.warn.withContext(`ensure failed to load track ${itemId}`));
+			.catch(trace.warn.withContext(`ensure failed to load track`, itemId));
 		// If we fail to load the track, maybe its a video, try that instead as a last ditch attempt
 		if (!loadedTrack && contentType === "video") {
-			await interceptPromise(() => neptune.actions.router.replace(<any>`/video/${itemId}`), ["page/IS_DONE_LOADING"], []).catch(trace.warn.withContext(`ensure failed to load video ${itemId}`));
+			await interceptPromise(() => neptune.actions.router.replace(<any>`/video/${itemId}`), ["page/IS_DONE_LOADING"], []).catch(trace.warn.withContext(`ensure failed to load video`, itemId));
 		}
 		setTimeout(() => neptune.actions.router.replace(<any>currentPage));
 	}
@@ -104,6 +105,14 @@ class MediaItem extends ContentBase {
 
 	public album: () => Promise<Album | undefined> = memoize(async () => {
 		if (this.tidalItem.album?.id) return Album.fromId(this.tidalItem.album?.id);
+	});
+	public artist: () => Promise<Artist | undefined> = memoize(async () => {
+		if (this.tidalItem.artist?.id) return Artist.fromId(this.tidalItem.artist.id);
+		if (this.tidalItem.artists?.[0]?.id) return Artist.fromId(this.tidalItem.artists?.[0].id);
+	});
+	public artists: () => Promise<Artist | undefined>[] = memoize(() => {
+		if (!this.tidalItem.artists) return [];
+		return this.tidalItem.artists.map((artist) => Artist.fromId(artist.id));
 	});
 
 	public isrcs: () => Promise<Set<string>> = memoize(async () => {
@@ -202,7 +211,7 @@ class MediaItem extends ContentBase {
 
 	public title: () => Promise<string | undefined> = memoize(async () => {
 		const brainzItem = await this.brainzItem();
-		return formatTitle(this.tidalItem.title, this.tidalItem.version, brainzItem?.title, brainzItem?.["artist-credit"]);
+		return ContentBase.formatTitle(this.tidalItem.title, this.tidalItem.version, brainzItem?.title, brainzItem?.["artist-credit"]);
 	});
 	public releaseDate: () => Promise<Date | undefined> = memoize(async () => {
 		let releaseDate = this.tidalItem.releaseDate ?? this.tidalItem.streamStartDate;
@@ -225,7 +234,7 @@ class MediaItem extends ContentBase {
 		return (await this.releaseDate())?.toISOString().slice(0, 10);
 	});
 	public coverUrl: (res?: TImageSize) => Promise<string | undefined> = memoize(async (res) => {
-		if (this.tidalItem.album?.cover) return formatCoverUrl(this.tidalItem.album?.cover, res);
+		if (this.tidalItem.album?.cover) return ContentBase.formatCoverUrl(this.tidalItem.album?.cover, res);
 		const album = await this.album();
 		return album?.coverUrl();
 	});
@@ -233,15 +242,15 @@ class MediaItem extends ContentBase {
 		const brainzItem = await this.brainzItem();
 		return brainzItem?.recording.id;
 	});
-	public artistTitle: () => Promise<string[]> = memoize(async () => {
+	public artistTitles: () => Promise<string[]> = memoize(async () => {
 		const album = await this.album();
 		const itemArtists = this.tidalItem.artists;
 		if (itemArtists) {
 			const sharedAlbumArtist = itemArtists?.find((artist) => artist?.id === album?.tidalAlbum.artist?.id);
-			if (sharedAlbumArtist !== undefined) return formatArtists([sharedAlbumArtist]);
-			if ((itemArtists.length ?? -1) > 0) return formatArtists(itemArtists);
+			if (sharedAlbumArtist !== undefined) return ContentBase.formatArtists([sharedAlbumArtist]);
+			if ((itemArtists.length ?? -1) > 0) return ContentBase.formatArtists(itemArtists);
 		}
-		if (this.tidalItem.artist !== undefined) return formatArtists([this.tidalItem.artist]);
+		if (this.tidalItem.artist !== undefined) return ContentBase.formatArtists([this.tidalItem.artist]);
 		return [];
 	});
 

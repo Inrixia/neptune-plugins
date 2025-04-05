@@ -87,7 +87,7 @@ export const makeTags = async (mediaItem: MediaItem): Promise<MetaTags> => {
 		tags.year = album.releaseYear;
 	}
 
-	tags.artist = await mediaItem.artistTitle();
+	tags.artist = await mediaItem.artistTitles();
 
 	const lyrics = await mediaItem.lyrics();
 	tags.lyrics = lyrics?.lyrics;
